@@ -1,0 +1,3 @@
+id,firstName,lastName,email,phone,productCategory,productName,quantity,message,createdAt
+1768497158336,Rajesh,Kumar,rajesh.kumar@example.com,+91 98765 43210,Tiles,Glossy Vitrified Tiles,5,Interested in bulk purchase for my new home,2026-01-15T17:12:38.336Z
+1768502287926,Ayushman,Mohapatra,admin@admin.com,1234567890,Tiles,Wooden Finish Tiles,100,,2026-01-15T18:38:07.927Z
