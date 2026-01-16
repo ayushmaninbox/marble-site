@@ -131,40 +131,48 @@ export default function AdminDashboard() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-purple-500 border-t-transparent"></div>
+      <div className="flex min-h-screen items-center justify-center bg-slate-950">
+        <div className="inline-block h-12 w-12 animate-spin rounded-full border-4 border-blue-500 border-t-transparent"></div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen py-12 px-6">
-      <div className="max-w-7xl mx-auto">
+    <div className="min-h-screen bg-slate-950 py-10 px-4 text-slate-50 sm:px-6 lg:px-8">
+      <div className="mx-auto w-full max-w-7xl">
         {/* Header */}
-        <div className="flex justify-between items-center mb-8 animate-fadeIn">
+        <div className="mb-8 flex items-center justify-between">
           <div>
-            <h1 className="text-4xl font-bold gradient-text mb-2">Admin Dashboard</h1>
-            <p className="text-gray-400">Manage your products and enquiries</p>
+            <h1 className="bg-gradient-to-r from-slate-50 via-blue-200 to-sky-300 bg-clip-text text-3xl font-semibold text-transparent sm:text-4xl">
+              Admin Dashboard
+            </h1>
+            <p className="mt-1 text-xs text-slate-400 sm:text-sm">Manage your products and enquiries</p>
           </div>
           <div className="flex gap-4">
-            <a href="/" className="btn-secondary">
+            <a
+              href="/"
+              className="inline-flex items-center justify-center rounded-full border border-slate-700 bg-slate-900 px-4 py-2 text-xs font-medium text-slate-100 shadow-sm transition hover:border-blue-500 hover:bg-slate-900/80"
+            >
               View Site
             </a>
-            <button onClick={handleLogout} className="btn-primary">
+            <button
+              onClick={handleLogout}
+              className="inline-flex items-center justify-center rounded-full bg-gradient-to-r from-blue-600 to-sky-500 px-4 py-2 text-xs font-medium text-white shadow-sm transition hover:brightness-110 hover:shadow-md"
+            >
               Logout
             </button>
           </div>
         </div>
 
         {/* Tab Navigation */}
-        <div className="flex justify-center mb-8">
-          <div className="glass rounded-full p-2 inline-flex gap-2">
+        <div className="mb-8 flex justify-center">
+          <div className="inline-flex gap-2 rounded-full border border-slate-700 bg-slate-900/80 p-1 shadow-sm shadow-slate-900/60">
             <button
               onClick={() => setActiveTab('products')}
               className={`px-8 py-3 rounded-full font-semibold transition-all duration-300 ${
                 activeTab === 'products'
-                  ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg shadow-purple-500/50'
-                  : 'text-gray-400 hover:text-white hover:bg-white/5'
+                  ? 'bg-gradient-to-r from-blue-600 to-sky-500 text-white shadow-sm'
+                  : 'text-slate-300 hover:bg-slate-800/60'
               }`}
             >
               Products
@@ -173,13 +181,13 @@ export default function AdminDashboard() {
               onClick={() => setActiveTab('enquiries')}
               className={`px-8 py-3 rounded-full font-semibold transition-all duration-300 ${
                 activeTab === 'enquiries'
-                  ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg shadow-purple-500/50'
-                  : 'text-gray-400 hover:text-white hover:bg-white/5'
+                  ? 'bg-gradient-to-r from-blue-600 to-sky-500 text-white shadow-sm'
+                  : 'text-slate-300 hover:bg-slate-800/60'
               }`}
             >
               Enquiries
               {enquiries.length > 0 && (
-                <span className="ml-2 px-2 py-1 bg-red-500 text-white text-xs rounded-full">
+                <span className="ml-2 rounded-full bg-blue-500 px-2 py-1 text-xs text-white">
                   {enquiries.length}
                 </span>
               )}
@@ -192,13 +200,13 @@ export default function AdminDashboard() {
           <>
             {/* Add Product Button */}
             {!showForm && (
-              <div className="mb-8 animate-slideIn">
+              <div className="mb-8">
                 <button
                   onClick={() => {
                     setEditingProduct(undefined);
                     setShowForm(true);
                   }}
-                  className="btn-primary"
+                  className="inline-flex items-center justify-center rounded-full bg-gradient-to-r from-blue-600 to-sky-500 px-5 py-2 text-xs font-medium text-white shadow-sm transition hover:brightness-110 hover:shadow-md"
                 >
                   + Add New Product
                 </button>
@@ -207,7 +215,7 @@ export default function AdminDashboard() {
 
             {/* Product Form */}
             {showForm && (
-              <div className="mb-8 animate-scaleIn">
+              <div className="mb-8">
                 <ProductForm
                   product={editingProduct}
                   onSubmit={editingProduct ? handleUpdateProduct : handleAddProduct}
@@ -220,7 +228,7 @@ export default function AdminDashboard() {
             )}
 
             {/* Products Table */}
-            <div className="animate-fadeIn">
+            <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-4 shadow-sm shadow-slate-900/80">
               <ProductTable
                 products={products}
                 onEdit={handleEdit}
@@ -229,24 +237,24 @@ export default function AdminDashboard() {
             </div>
 
             {/* Stats */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
-              <div className="glass rounded-xl p-6 text-center">
-                <div className="text-3xl font-bold gradient-text mb-2">
+            <div className="mt-8 grid grid-cols-1 gap-6 md:grid-cols-3">
+              <div className="rounded-xl border border-slate-800 bg-slate-900/80 p-6 text-center">
+                <div className="bg-gradient-to-r from-blue-400 to-sky-300 bg-clip-text text-3xl font-semibold text-transparent">
                   {products.filter(p => p.category === 'Marbles').length}
                 </div>
-                <div className="text-gray-400">Marbles</div>
+                <div className="mt-1 text-xs text-slate-400">Marbles</div>
               </div>
-              <div className="glass rounded-xl p-6 text-center">
-                <div className="text-3xl font-bold gradient-text mb-2">
+              <div className="rounded-xl border border-slate-800 bg-slate-900/80 p-6 text-center">
+                <div className="bg-gradient-to-r from-blue-400 to-sky-300 bg-clip-text text-3xl font-semibold text-transparent">
                   {products.filter(p => p.category === 'Tiles').length}
                 </div>
-                <div className="text-gray-400">Tiles</div>
+                <div className="mt-1 text-xs text-slate-400">Tiles</div>
               </div>
-              <div className="glass rounded-xl p-6 text-center">
-                <div className="text-3xl font-bold gradient-text mb-2">
+              <div className="rounded-xl border border-slate-800 bg-slate-900/80 p-6 text-center">
+                <div className="bg-gradient-to-r from-blue-400 to-sky-300 bg-clip-text text-3xl font-semibold text-transparent">
                   {products.filter(p => p.category === 'Handicraft').length}
                 </div>
-                <div className="text-gray-400">Handicraft</div>
+                <div className="mt-1 text-xs text-slate-400">Handicraft</div>
               </div>
             </div>
           </>
@@ -254,12 +262,16 @@ export default function AdminDashboard() {
 
         {/* Enquiries Tab */}
         {activeTab === 'enquiries' && (
-          <div className="animate-fadeIn">
-            <h2 className="text-2xl font-bold mb-6 gradient-text">Customer Enquiries</h2>
-            <EnquiriesTable
-              enquiries={enquiries}
-              onDelete={handleDeleteEnquiry}
-            />
+          <div>
+            <h2 className="mb-4 bg-gradient-to-r from-slate-50 via-blue-200 to-sky-300 bg-clip-text text-2xl font-semibold text-transparent">
+              Customer Enquiries
+            </h2>
+            <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-4 shadow-sm shadow-slate-900/80">
+              <EnquiriesTable
+                enquiries={enquiries}
+                onDelete={handleDeleteEnquiry}
+              />
+            </div>
           </div>
         )}
       </div>
