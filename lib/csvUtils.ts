@@ -24,7 +24,7 @@ const initializeCsvFile = () => {
 
 export const readProducts = (): Product[] => {
   initializeCsvFile();
-  
+
   try {
     const fileContent = fs.readFileSync(CSV_FILE_PATH, 'utf-8');
     const parsed = Papa.parse<Product>(fileContent, {
@@ -45,11 +45,12 @@ export const readProducts = (): Product[] => {
 
 export const writeProducts = (products: Product[]): void => {
   ensureDataDirectory();
-  
+
   try {
     const csv = Papa.unparse(products, {
       header: true,
       columns: ['id', 'name', 'category', 'description', 'price', 'image', 'createdAt'],
+      quotes: true,
     });
     fs.writeFileSync(CSV_FILE_PATH, csv, 'utf-8');
   } catch (error) {
@@ -62,7 +63,7 @@ export const addProduct = (product: Omit<Product, 'id' | 'createdAt'>): Product 
   const products = readProducts();
   const newProduct: Product = {
     ...product,
-    id: Date.now().toString(),
+    id: crypto.randomUUID(),
     createdAt: new Date().toISOString(),
   };
   products.push(newProduct);
@@ -73,9 +74,9 @@ export const addProduct = (product: Omit<Product, 'id' | 'createdAt'>): Product 
 export const updateProduct = (id: string, updates: Partial<Product>): Product | null => {
   const products = readProducts();
   const index = products.findIndex(p => p.id === id);
-  
+
   if (index === -1) return null;
-  
+
   products[index] = { ...products[index], ...updates };
   writeProducts(products);
   return products[index];
@@ -84,9 +85,9 @@ export const updateProduct = (id: string, updates: Partial<Product>): Product | 
 export const deleteProduct = (id: string): boolean => {
   const products = readProducts();
   const filteredProducts = products.filter(p => p.id !== id);
-  
+
   if (filteredProducts.length === products.length) return false;
-  
+
   writeProducts(filteredProducts);
   return true;
 };

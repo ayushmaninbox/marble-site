@@ -21,4 +21,5 @@ export interface Enquiry {
   quantity: number;
   message?: string;
   createdAt: string;
+  status: 'pending' | 'solved';
 }

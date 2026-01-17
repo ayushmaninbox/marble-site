@@ -1,9 +1,9 @@
 "use client";
 
 import { ReactNode } from "react";
-import { motion, Variants } from "framer-motion";
+import { motion, Variants, HTMLMotionProps } from "framer-motion";
 
-type Direction = "up" | "down" | "left" | "right" | "scale";
+type Direction = "up" | "down" | "left" | "right" | "scale" | "none";
 
 const directionVariants: Record<Direction, Variants> = {
   up: {
@@ -23,48 +23,75 @@ const directionVariants: Record<Direction, Variants> = {
     visible: { opacity: 1, x: 0 },
   },
   scale: {
-    hidden: { opacity: 0, scale: 0.96 },
+    hidden: { opacity: 0, scale: 0.92 },
     visible: { opacity: 1, scale: 1 },
+  },
+  none: {
+    hidden: { opacity: 0 },
+    visible: { opacity: 1 },
   },
 };
 
-type AnimatedSectionProps = {
-  id?: string;
-  className?: string;
+interface AnimatedSectionProps extends HTMLMotionProps<"section"> {
   children: ReactNode;
   /**
    * Slide / reveal direction. Controls initial offset.
+   * Default: "up"
    */
   direction?: Direction;
   /**
-   * Additional delay in seconds. Useful for staggering between sections.
+   * Delay in seconds before animation starts.
    */
   delay?: number;
-};
+  /**
+   * Duration of the animation in seconds.
+   */
+  duration?: number;
+  /**
+   * If true, children elements will stagger their animations.
+   */
+  staggerChildren?: number;
+  /**
+   * If true, animation only plays once. Default: false (replays on scroll)
+   */
+  once?: boolean;
+}
 
 export function AnimatedSection({
-  id,
   className = "",
   children,
   direction = "up",
   delay = 0,
+  duration = 0.7,
+  staggerChildren,
+  once = false,
+  ...props
 }: AnimatedSectionProps) {
-  const variants = directionVariants[direction] ?? directionVariants.up;
+  const baseVariants = directionVariants[direction];
+
+  const variants: Variants = {
+    hidden: {
+      ...baseVariants.hidden,
+    },
+    visible: {
+      ...baseVariants.visible,
+      transition: {
+        duration,
+        ease: [0.22, 0.61, 0.36, 1],
+        delay,
+        staggerChildren: staggerChildren,
+      },
+    },
+  };
 
   return (
     <motion.section
-      id={id}
       className={className}
       variants={variants}
       initial="hidden"
-      animate="visible"
       whileInView="visible"
-      viewport={{ amount: 0.25, once: false }}
-      transition={{
-        duration: 0.7,
-        ease: [0.22, 0.61, 0.36, 1],
-        delay,
-      }}
+      viewport={{ amount: 0.2, once }}
+      {...props}
     >
       {children}
     </motion.section>

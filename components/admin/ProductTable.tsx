@@ -10,66 +10,79 @@ interface ProductTableProps {
 
 export default function ProductTable({ products, onEdit, onDelete }: ProductTableProps) {
   return (
-    <div className="glass rounded-xl overflow-hidden">
-      <div className="overflow-x-auto">
-        <table className="w-full">
-          <thead className="bg-white/5">
+    <div className="overflow-x-auto">
+      <table className="w-full">
+        <thead className="bg-slate-50 border-b border-slate-200">
+          <tr>
+            <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Name</th>
+            <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Category</th>
+            <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Description</th>
+            <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Price</th>
+            <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Date Added</th>
+            <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Actions</th>
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-slate-100">
+          {products.length === 0 ? (
             <tr>
-              <th className="px-6 py-4 text-left text-sm font-semibold">Name</th>
-              <th className="px-6 py-4 text-left text-sm font-semibold">Category</th>
-              <th className="px-6 py-4 text-left text-sm font-semibold">Description</th>
-              <th className="px-6 py-4 text-left text-sm font-semibold">Price</th>
-              <th className="px-6 py-4 text-left text-sm font-semibold">Actions</th>
+              <td colSpan={5} className="px-4 py-10 text-center text-sm text-slate-400">
+                No products found. Click "Add Product" to get started.
+              </td>
             </tr>
-          </thead>
-          <tbody className="divide-y divide-white/10">
-            {products.length === 0 ? (
-              <tr>
-                <td colSpan={5} className="px-6 py-8 text-center text-gray-400">
-                  No products found. Add your first product to get started.
+          ) : (
+            products.map((product) => (
+              <tr key={product.id} className="hover:bg-slate-50/50 transition-colors">
+                <td className="px-4 py-3 text-sm font-medium text-slate-900">{product.name}</td>
+                <td className="px-4 py-3">
+                  <span className={`inline-flex px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wide ${product.category === 'Marbles'
+                    ? 'bg-blue-100 text-blue-700'
+                    : product.category === 'Tiles'
+                      ? 'bg-emerald-100 text-emerald-700'
+                      : 'bg-violet-100 text-violet-700'
+                    }`}>
+                    {product.category}
+                  </span>
+                </td>
+                <td className="px-4 py-3 text-xs text-slate-500 max-w-[200px] truncate">
+                  {product.description}
+                </td>
+                <td className="px-4 py-3 text-sm font-bold text-slate-900">
+                  ₹{product.price.toLocaleString('en-IN')}
+                </td>
+                <td className="px-4 py-3 text-xs text-slate-500 whitespace-nowrap">
+                  {product.createdAt ? new Date(product.createdAt).toLocaleString('en-IN', {
+                    day: 'numeric',
+                    month: 'short',
+                    year: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                  }) : '-'}
+                </td>
+                <td className="px-4 py-3">
+                  <div className="flex gap-1.5">
+                    <button
+                      onClick={() => onEdit(product)}
+                      className="px-2.5 py-1 bg-blue-500 hover:bg-blue-600 text-white rounded text-xs font-medium transition-colors"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      onClick={() => {
+                        if (confirm('Delete this product?')) {
+                          onDelete(product.id);
+                        }
+                      }}
+                      className="px-2.5 py-1 bg-red-500 hover:bg-red-600 text-white rounded text-xs font-medium transition-colors"
+                    >
+                      Delete
+                    </button>
+                  </div>
                 </td>
               </tr>
-            ) : (
-              products.map((product) => (
-                <tr key={product.id} className="hover:bg-white/5 transition-colors">
-                  <td className="px-6 py-4 font-medium">{product.name}</td>
-                  <td className="px-6 py-4">
-                    <span className="px-3 py-1 rounded-full text-xs font-semibold bg-purple-500/20 text-purple-300">
-                      {product.category}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 text-sm text-gray-400 max-w-xs truncate">
-                    {product.description}
-                  </td>
-                  <td className="px-6 py-4 font-semibold text-green-400">
-                    ₹{product.price.toLocaleString('en-IN')}
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="flex gap-2">
-                      <button
-                        onClick={() => onEdit(product)}
-                        className="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg text-sm font-medium transition-colors"
-                      >
-                        Edit
-                      </button>
-                      <button
-                        onClick={() => {
-                          if (confirm('Are you sure you want to delete this product?')) {
-                            onDelete(product.id);
-                          }
-                        }}
-                        className="px-4 py-2 bg-red-600 hover:bg-red-700 rounded-lg text-sm font-medium transition-colors"
-                      >
-                        Delete
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
+            ))
+          )}
+        </tbody>
+      </table>
     </div>
   );
 }
