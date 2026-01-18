@@ -64,6 +64,25 @@ export default function Home() {
     return () => clearInterval(interval);
   }, []);
 
+  // Auto-scroll carousel every 4 seconds
+  useEffect(() => {
+    const container = document.getElementById('carousel-container');
+    if (!container || products.length === 0) return;
+
+    const scrollInterval = setInterval(() => {
+      const maxScroll = container.scrollWidth - container.clientWidth;
+      if (container.scrollLeft >= maxScroll - 10) {
+        // Reset to beginning when reaching end
+        container.scrollTo({ left: 0, behavior: 'smooth' });
+      } else {
+        // Scroll right by one card width
+        container.scrollBy({ left: 300, behavior: 'smooth' });
+      }
+    }, 4000);
+
+    return () => clearInterval(scrollInterval);
+  }, [products, activeTab]);
+
   const validateForm = () => {
     const errors: { phone?: string; email?: string; quantity?: string } = {};
 
@@ -207,214 +226,217 @@ export default function Home() {
 
 
       <main id="top" className="mx-auto w-full max-w-7xl px-3 pt-16 sm:px-6 lg:px-4">
-        {/* Hero Section */}
-        <div className="min-h-screen">
+        {/* Hero Section - Full Width */}
+        <div className="min-h-[85vh] relative overflow-hidden flex items-center justify-center bg-black" style={{ marginLeft: 'calc(-50vw + 50%)', marginRight: 'calc(-50vw + 50%)', width: '100vw' }}>
 
-          <div className="pointer-events-none absolute inset-0 -z-20 bg-[url('/textures/marble-hero.png')] bg-cover bg-fixed bg-center" />
-          <div className="absolute inset-0 -z-10 bg-gradient-to-br from-blue-50 via-slate-50 to-sky-50" />
-
-          <div className="grid gap-10 py-12 sm:py-16 lg:py-20 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)] lg:items-center">
-            <div className="space-y-6">
-              <motion.div
-                initial={{ opacity: 0, y: -20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.1, duration: 0.6, ease: [0.22, 0.61, 0.36, 1] }}
-                className="inline-flex items-center gap-2 rounded-full border border-sky-200/80 bg-white/90 px-3 py-1 text-[11px] font-medium text-sky-700 shadow-sm shadow-sky-100"
-              >
-                <span className="h-1.5 w-1.5 rounded-full bg-gradient-to-r from-blue-500 to-sky-400" />
-                Premium marble &amp; granite for modern spaces
-              </motion.div>
-
-              <h1 className="bg-gradient-to-br from-slate-900 via-blue-800 to-sky-700 bg-clip-text text-3xl font-semibold tracking-tight text-transparent sm:text-4xl lg:text-5xl">
-                <TypewriterText
-                  text="Elevate every surface with"
-                  speed={25}
-                  cursor={false}
-                />
-                <div className="h-2" />
-                <span className="block bg-gradient-to-br from-slate-900 via-blue-800 to-sky-700 bg-clip-text text-transparent">
-                  <TypewriterText
-                    text="precision-crafted stone"
-                    speed={25}
-                    delay={800}
-                    cursor={true}
-                  />
-                </span>
-              </h1>
-
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.6, duration: 0.6, ease: [0.22, 0.61, 0.36, 1] }}
-              >
-                <p className="max-w-xl text-sm text-slate-600 sm:text-base">
-                  From luxury residences to high-traffic commercial spaces, we source and craft premium marble,
-                  granite, and tiles to match your design vision.
-                </p>
-              </motion.div>
-
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.7, duration: 0.6, ease: [0.22, 0.61, 0.36, 1] }}
-                className="flex flex-wrap items-center gap-3"
-              >
-                <button
-                  type="button"
-                  onClick={() => setIsQuoteOpen(true)}
-                  className="inline-flex items-center justify-center rounded-full bg-gradient-to-r from-blue-600 to-sky-500 px-7 py-3 text-sm font-medium text-white shadow-sm shadow-sky-200 transition duration-200 hover:brightness-110 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:ring-offset-2 active:scale-[0.98]"
-                >
-                  Send Inquiry
-                </button>
-                <Link
-                  href="/products"
-                  className="inline-flex items-center justify-center rounded-full border border-sky-200 bg-white/90 px-6 py-3 text-sm font-medium text-slate-900 shadow-sm transition duration-200 hover:border-sky-300 hover:bg-gradient-to-r hover:from-sky-50 hover:to-blue-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:ring-offset-2"
-                >
-                  View Products
-                </Link>
-              </motion.div>
-
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.8, duration: 0.6, ease: [0.22, 0.61, 0.36, 1] }}
-                className="flex flex-wrap items-center gap-4 pt-2 text-xs text-slate-500 sm:text-sm"
-              >
-                <span>20+ years of expertise</span>
-                <span className="h-[1px] w-6 bg-slate-200" />
-                <span>Trusted by architects &amp; interior designers</span>
-              </motion.div>
-            </div>
-
-            <motion.div
-              initial={{ opacity: 0, scale: 0.92 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.4, duration: 0.7, ease: [0.22, 0.61, 0.36, 1] }}
-              className="relative"
+          {/* Video Background */}
+          <div className="absolute inset-0 overflow-hidden">
+            <video
+              autoPlay
+              loop
+              muted
+              playsInline
+              className="absolute w-full h-full object-cover"
             >
-              <div className="overflow-hidden rounded-3xl border border-slate-100 bg-white shadow-[0_18px_45px_rgba(15,23,42,0.08)]">
-                <div className="aspect-[4/3] bg-[url('/images/marble-showcase.jpg')] bg-cover bg-center" />
-                <div className="space-y-3 p-5">
-                  <h3 className="text-base font-semibold text-slate-900">
-                    Bespoke stone for every project
-                  </h3>
-                  <p className="text-sm text-slate-600">
-                    Large-format slabs, precision cuts, and curated finishes for kitchens, lobbies, staircases, and more.
-                  </p>
-                </div>
-              </div>
+              <source src="/Assets/MarbleVideo.mp4" type="video/mp4" />
+            </video>
+            {/* Black overlay for text contrast */}
+            <div className="absolute inset-0 bg-black/40" />
+          </div>
 
-              <motion.div
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 1.2, duration: 0.6 }}
-                className="pointer-events-none absolute -left-4 -top-4 hidden w-40 rounded-2xl bg-white/90 p-3 text-xs shadow-[0_18px_45px_rgba(15,23,42,0.15)] backdrop-blur-md sm:block"
+          {/* Hero Content - Centered */}
+          <div className="relative z-10 text-center px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto">
+            {/* Breadcrumb / Tagline */}
+            <motion.p
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2, duration: 0.6 }}
+              className="text-white/80 text-sm sm:text-base tracking-wide mb-6"
+            >
+              Premium marble & granite for modern spaces
+            </motion.p>
+
+            {/* Main Heading - Uppercase, Light Weight */}
+            <motion.h1
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4, duration: 0.8, ease: [0.22, 0.61, 0.36, 1] }}
+              className="text-4xl sm:text-5xl lg:text-6xl font-light text-white uppercase tracking-wider leading-tight"
+            >
+              Elevate Every Surface
+              <span className="block mt-2">With Precision-Crafted Stone</span>
+            </motion.h1>
+
+            {/* Subtitle */}
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.6, duration: 0.6 }}
+              className="mt-8 text-white/90 text-base sm:text-lg max-w-2xl mx-auto leading-relaxed"
+            >
+              From luxury residences to high-traffic commercial spaces, we source and craft premium marble, granite, and tiles to match your design vision.
+            </motion.p>
+
+            {/* Buttons - Ghost Style */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.8, duration: 0.6 }}
+              className="mt-10 flex flex-wrap items-center justify-center gap-4"
+            >
+              <button
+                type="button"
+                onClick={() => setIsQuoteOpen(true)}
+                className="px-8 py-3 border-2 border-white text-white text-sm font-semibold uppercase tracking-wider transition-all duration-300 hover:bg-white hover:text-slate-900"
               >
-                <div className="text-[11px] font-medium text-slate-500">Completed Projects</div>
-                <div className="text-xl font-semibold text-slate-900">500+</div>
-              </motion.div>
-              <motion.div
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 1.4, duration: 0.6 }}
-                className="pointer-events-none absolute -right-3 bottom-[200px] hidden w-40 rounded-2xl bg-gradient-to-br from-emerald-800 via-green-900 to-emerald-950 p-3 text-xs text-emerald-50 shadow-[0_18px_45px_rgba(6,78,59,0.35)] backdrop-blur-md sm:block"
+                Get a Quote
+              </button>
+              <Link
+                href="/products"
+                className="px-8 py-3 bg-white text-slate-900 text-sm font-semibold uppercase tracking-wider transition-all duration-300 hover:bg-white/90"
               >
-                <div className="text-[11px] font-medium text-emerald-200">Avg. Lead Time</div>
-                <div className="text-xl font-semibold text-white">7–14 days</div>
-              </motion.div>
+                Explore Collection
+              </Link>
+            </motion.div>
+
+            {/* Trust Badges */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 1, duration: 0.6 }}
+              className="mt-12 flex flex-wrap items-center justify-center gap-6 text-white/70 text-xs sm:text-sm uppercase tracking-wide"
+            >
+              <span>20+ Years of Expertise</span>
+              <span className="hidden sm:inline h-4 w-px bg-white/30" />
+              <span>Trusted by Architects & Interior Designers</span>
             </motion.div>
           </div>
         </div>
-
-        {/* Product Categories (static) */}
-        <AnimatedSection className="space-y-6 py-8 lg:py-10" staggerChildren={0.1}>
-          <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-end">
-            <div>
-              <h2 className="text-2xl font-semibold tracking-tight text-slate-900 sm:text-3xl">
-                Product Categories
+        {/* Marble Collections Carousel Section */}
+        <AnimatedSection id="products" className="py-16 lg:py-24" staggerChildren={0.1}>
+          {/* Section Header with Decorative Brackets */}
+          <div className="text-center mb-12">
+            <div className="inline-block relative">
+              <span className="absolute -top-3 -left-6 w-5 h-5 border-l-2 border-t-2 border-red-500" />
+              <h2 className="text-3xl sm:text-4xl font-light tracking-wide text-slate-900 uppercase">
+                Marble Collections
               </h2>
-              <p className="mt-1 max-w-xl text-sm text-slate-600">
-                Explore marble, granite, tiles, and handicraft pieces tailored to residential and commercial projects.
+              <span className="absolute -bottom-3 -right-6 w-5 h-5 border-r-2 border-b-2 border-red-500" />
+            </div>
+          </div>
+
+          {/* Tabbed Navigation */}
+          <div className="flex items-center justify-center gap-4 sm:gap-8 mb-12 text-sm sm:text-base">
+            <ProductTabs activeTab={activeTab} onTabChange={setActiveTab} />
+          </div>
+
+          {/* Content: Left Description + Right Carousel */}
+          <div className="grid gap-8 lg:grid-cols-[280px_1fr] lg:gap-12 items-start">
+            {/* Left Column - Description */}
+            <div className="space-y-4">
+              <h3 className="text-3xl sm:text-4xl font-light text-red-500 leading-tight">
+                {activeTab === 'Marbles' ? 'Popular' : activeTab === 'Tiles' ? 'Premium' : 'Artisan'}<br />{activeTab}
+              </h3>
+              <p className="text-slate-600 text-sm leading-relaxed">
+                {activeTab === 'Marbles'
+                  ? "Indulge in the glory of class-apart Imported Marble from Shree Radhe. Our popular offerings range from a variety of Statuario Marble, Travertine Marble and Flawless White & Cat's Eye Marble."
+                  : activeTab === 'Tiles'
+                    ? "Discover our exclusive tile collection featuring Italian porcelain, designer floor tiles, and premium wall coverings for modern interiors."
+                    : "Handcrafted masterpieces created by skilled artisans, each piece tells a unique story of tradition and excellence."
+                }
               </p>
-            </div>
-          </div>
-
-          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-            {["Marbles", "Tiles", "Handicraft", "Custom Work"].map((label, idx) => (
-              <motion.article
-                key={label}
-                variants={{
-                  hidden: { opacity: 0, y: 20 },
-                  visible: { opacity: 1, y: 0, transition: { duration: 0.5 } }
-                }}
-                className="group flex flex-col overflow-hidden rounded-2xl border border-sky-100 bg-white shadow-[0_18px_45px_rgba(56,189,248,0.18)] transition hover:-translate-y-1 hover:border-sky-300 hover:shadow-[0_28px_70px_rgba(59,130,246,0.3)]"
-              >
-                <div className="relative overflow-hidden">
-                  <div
-                    className={"aspect-[4/3] bg-gradient-to-br " +
-                      [
-                        'from-sky-100 via-blue-50 to-emerald-50',
-                        'from-amber-100 via-orange-50 to-yellow-50',
-                        'from-violet-100 via-sky-50 to-indigo-50',
-                        'from-slate-100 via-sky-50 to-blue-100',
-                      ][idx]}
-                  />
-                </div>
-                <div className="flex flex-1 flex-col justify-between p-4">
-                  <div>
-                    <h3 className="text-base font-semibold text-slate-900">{label}</h3>
-                    <p className="mt-1 text-xs text-slate-600">
-                      Premium surfaces selected for durability and aesthetic consistency.
-                    </p>
-                  </div>
-                </div>
-              </motion.article>
-            ))}
-          </div>
-        </AnimatedSection>
-
-        {/* Dynamic Products Section */}
-        <AnimatedSection id="products" className="space-y-6 py-10 lg:py-14">
-          <div className="max-w-2xl">
-            <h2 className="text-2xl font-semibold tracking-tight text-slate-900 sm:text-3xl">
-              Our premium collection
-            </h2>
-            <p className="mt-1 text-sm text-slate-600">
-              Browse live inventory managed from the admin panel. Use the tabs to switch between marble, tiles, and handicraft.
-            </p>
-          </div>
-
-          <ProductTabs activeTab={activeTab} onTabChange={setActiveTab} />
-
-          {loading ? (
-            <div className="py-16 text-center">
-              <div className="inline-block h-10 w-10 animate-spin rounded-full border-4 border-blue-500 border-t-transparent" />
-              <p className="mt-4 text-sm text-slate-500">Loading products...</p>
-            </div>
-          ) : filteredProducts.length === 0 ? (
-            <div className="py-16 text-center text-sm text-slate-500">
-              No products available in this category yet.
-            </div>
-          ) : (
-            <motion.div
-              key={activeTab}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4, staggerChildren: 0.05 }}
-              className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3"
-            >
-              {filteredProducts.map((product, index) => (
-                <motion.div
-                  key={product.id}
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ duration: 0.4, delay: index * 0.05 }}
+              {/* Navigation Arrows */}
+              <div className="flex items-center gap-4 pt-4">
+                <button
+                  onClick={() => {
+                    const container = document.getElementById('carousel-container');
+                    if (container) container.scrollBy({ left: -320, behavior: 'smooth' });
+                  }}
+                  className="w-10 h-10 rounded-full border border-slate-300 flex items-center justify-center text-slate-500 hover:border-red-500 hover:text-red-500 transition-colors"
                 >
-                  <ProductCard product={product} />
+                  ←
+                </button>
+                <button
+                  onClick={() => {
+                    const container = document.getElementById('carousel-container');
+                    if (container) container.scrollBy({ left: 320, behavior: 'smooth' });
+                  }}
+                  className="w-10 h-10 rounded-full border border-slate-300 flex items-center justify-center text-slate-500 hover:border-red-500 hover:text-red-500 transition-colors"
+                >
+                  →
+                </button>
+              </div>
+            </div>
+
+            {/* Right Column - Carousel */}
+            <div className="relative overflow-hidden">
+              {loading ? (
+                <div className="py-16 text-center">
+                  <div className="inline-block h-10 w-10 animate-spin rounded-full border-4 border-blue-500 border-t-transparent" />
+                  <p className="mt-4 text-sm text-slate-500">Loading products...</p>
+                </div>
+              ) : filteredProducts.length === 0 ? (
+                <div className="py-16 text-center text-sm text-slate-500">
+                  No products available in this category yet.
+                </div>
+              ) : (
+                <motion.div
+                  id="carousel-container"
+                  key={activeTab}
+                  initial={{ opacity: 0, x: 50 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.5 }}
+                  className="flex gap-6 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-hide"
+                  style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+                >
+                  {filteredProducts.map((product, index) => {
+                    const isCenter = index === 1;
+                    return (
+                      <motion.div
+                        key={product.id}
+                        initial={{ opacity: 0, x: 100 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ duration: 0.5, delay: index * 0.1 }}
+                        className={`flex-shrink-0 snap-center ${isCenter ? 'scale-105 z-10' : 'scale-100'} transition-transform duration-300`}
+                        style={{ width: '280px' }}
+                      >
+                        <div className="group cursor-pointer">
+                          <div className={`relative overflow-hidden rounded-xl aspect-[3/4] shadow-lg ${isCenter ? 'ring-2 ring-red-500/30' : ''}`}>
+                            {product.image ? (
+                              <img
+                                src={product.image}
+                                alt={product.name}
+                                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                              />
+                            ) : (
+                              <div className="w-full h-full bg-gradient-to-br from-slate-200 via-slate-100 to-slate-200" />
+                            )}
+                            {/* Badge */}
+                            <span className="absolute top-3 left-3 px-2 py-1 bg-white/90 backdrop-blur-sm text-xs font-medium text-slate-700 rounded">
+                              {product.category}
+                            </span>
+                          </div>
+                          <div className="mt-4 space-y-1">
+                            <h4 className="text-base font-semibold text-slate-900 truncate">{product.name}</h4>
+                            <p className="text-xs text-slate-500 line-clamp-2">{product.description}</p>
+                            <div className="flex items-center justify-between pt-2">
+                              <span className="text-lg font-bold text-slate-900">₹{product.price.toLocaleString()}</span>
+                              <button
+                                onClick={() => setIsQuoteOpen(true)}
+                                className="px-3 py-1.5 text-xs font-medium border border-slate-300 rounded-full hover:border-red-500 hover:text-red-500 transition-colors"
+                              >
+                                View Details
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      </motion.div>
+                    );
+                  })}
                 </motion.div>
-              ))}
-            </motion.div>
-          )}
+              )}
+            </div>
+          </div>
         </AnimatedSection>
 
         {/* Why Choose Us */}
