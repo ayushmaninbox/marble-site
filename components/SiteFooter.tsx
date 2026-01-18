@@ -15,8 +15,8 @@ export default function SiteFooter({ setIsQuoteOpen }: SiteFooterProps) {
           alt="Footer Background" 
           className="w-full h-full object-cover"
         />
-        {/* Subtle overlay for text readability if needed, otherwise removed as requested */}
-        <div className="absolute inset-0 bg-slate-900/60" /> 
+        {/* Red brand gradient overlay: Left (Red) to Right (Dark), lighter opacity */}
+        <div className="absolute inset-0 bg-gradient-to-r from-red-800/70 via-red-900/60 to-slate-900/80 mix-blend-multiply" />
       </div>
 
       <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
