@@ -820,7 +820,7 @@ export default function Home() {
                         required
                         value={quoteForm.firstName}
                         onChange={(e) => setQuoteForm({ ...quoteForm, firstName: e.target.value })}
-                        className="h-9 rounded-lg border border-slate-200 bg-slate-50/70 px-3 text-sm text-slate-900 outline-none transition focus:border-blue-400 focus:bg-white focus:ring-2 focus:ring-blue-100"
+                        className="h-9 rounded-lg border border-slate-200 bg-slate-50/70 px-3 text-sm text-slate-900 outline-none transition focus:border-red-400 focus:bg-white focus:ring-2 focus:ring-red-100"
                       />
                     </div>
                     <div className="flex flex-col gap-1">
@@ -833,7 +833,7 @@ export default function Home() {
                         required
                         value={quoteForm.lastName}
                         onChange={(e) => setQuoteForm({ ...quoteForm, lastName: e.target.value })}
-                        className="h-9 rounded-lg border border-slate-200 bg-slate-50/70 px-3 text-sm text-slate-900 outline-none transition focus:border-blue-400 focus:bg-white focus:ring-2 focus:ring-blue-100"
+                        className="h-9 rounded-lg border border-slate-200 bg-slate-50/70 px-3 text-sm text-slate-900 outline-none transition focus:border-red-400 focus:bg-white focus:ring-2 focus:ring-red-100"
                       />
                     </div>
                   </div>
@@ -849,7 +849,7 @@ export default function Home() {
                         required
                         value={quoteForm.email}
                         onChange={(e) => setQuoteForm({ ...quoteForm, email: e.target.value })}
-                        className={`h-9 rounded-lg border bg-slate-50/70 px-3 text-sm text-slate-900 outline-none transition focus:border-blue-400 focus:bg-white focus:ring-2 focus:ring-blue-100 ${formErrors.email ? 'border-red-400' : 'border-slate-200'}`}
+                        className={`h-9 rounded-lg border bg-slate-50/70 px-3 text-sm text-slate-900 outline-none transition focus:border-red-400 focus:bg-white focus:ring-2 focus:ring-red-100 ${formErrors.email ? 'border-red-400' : 'border-slate-200'}`}
                       />
                       {formErrors.email && <span className="text-[10px] text-red-500">{formErrors.email}</span>}
                     </div>
@@ -864,7 +864,7 @@ export default function Home() {
                         placeholder="9876543210"
                         value={quoteForm.phone}
                         onChange={(e) => setQuoteForm({ ...quoteForm, phone: e.target.value })}
-                        className={`h-9 rounded-lg border bg-slate-50/70 px-3 text-sm text-slate-900 outline-none transition focus:border-blue-400 focus:bg-white focus:ring-2 focus:ring-blue-100 ${formErrors.phone ? 'border-red-400' : 'border-slate-200'}`}
+                        className={`h-9 rounded-lg border bg-slate-50/70 px-3 text-sm text-slate-900 outline-none transition focus:border-red-400 focus:bg-white focus:ring-2 focus:ring-red-100 ${formErrors.phone ? 'border-red-400' : 'border-slate-200'}`}
                       />
                       {formErrors.phone && <span className="text-[10px] text-red-500">{formErrors.phone}</span>}
                     </div>
@@ -877,7 +877,7 @@ export default function Home() {
                       </label>
                       <select
                         id="q-type"
-                        className="h-9 rounded-lg border border-slate-200 bg-slate-50/70 px-3 text-sm text-slate-900 outline-none transition focus:border-blue-400 focus:bg-white focus:ring-2 focus:ring-blue-100"
+                        className="h-9 rounded-lg border border-slate-200 bg-slate-50/70 px-3 text-sm text-slate-900 outline-none transition focus:border-red-400 focus:bg-white focus:ring-2 focus:ring-red-100"
                         value={quoteForm.productCategory}
                         onChange={(e) => setQuoteForm({ ...quoteForm, productCategory: e.target.value as ProductCategory, productName: '' })}
                         required
@@ -893,7 +893,7 @@ export default function Home() {
                       </label>
                       <select
                         id="q-product"
-                        className="h-9 rounded-lg border border-slate-200 bg-slate-50/70 px-3 text-sm text-slate-900 outline-none transition focus:border-blue-400 focus:bg-white focus:ring-2 focus:ring-blue-100"
+                        className="h-9 rounded-lg border border-slate-200 bg-slate-50/70 px-3 text-sm text-slate-900 outline-none transition focus:border-red-400 focus:bg-white focus:ring-2 focus:ring-red-100"
                         value={quoteForm.productName}
                         onChange={(e) => setQuoteForm({ ...quoteForm, productName: e.target.value })}
                         required
@@ -922,7 +922,7 @@ export default function Home() {
                       required
                       value={quoteForm.quantity}
                       onChange={(e) => setQuoteForm({ ...quoteForm, quantity: e.target.value })}
-                      className={`h-9 rounded-lg border bg-slate-50/70 px-3 text-sm text-slate-900 outline-none transition focus:border-blue-400 focus:bg-white focus:ring-2 focus:ring-blue-100 ${formErrors.quantity ? 'border-red-400' : 'border-slate-200'}`}
+                      className={`h-9 rounded-lg border bg-slate-50/70 px-3 text-sm text-slate-900 outline-none transition focus:border-red-400 focus:bg-white focus:ring-2 focus:ring-red-100 ${formErrors.quantity ? 'border-red-400' : 'border-slate-200'}`}
                     />
                     {formErrors.quantity && <span className="text-[10px] text-red-500">{formErrors.quantity}</span>}
                   </div>
@@ -937,7 +937,7 @@ export default function Home() {
                       placeholder="Any additional details..."
                       value={quoteForm.message}
                       onChange={(e) => setQuoteForm({ ...quoteForm, message: e.target.value })}
-                      className="w-full resize-none rounded-lg border border-slate-200 bg-slate-50/70 px-3 py-2 text-sm text-slate-900 outline-none transition focus:border-blue-400 focus:bg-white focus:ring-2 focus:ring-blue-100"
+                      className="w-full resize-none rounded-lg border border-slate-200 bg-slate-50/70 px-3 py-2 text-sm text-slate-900 outline-none transition focus:border-red-400 focus:bg-white focus:ring-2 focus:ring-red-100"
                     />
                   </div>
 
@@ -952,7 +952,7 @@ export default function Home() {
                     <button
                       type="submit"
                       disabled={quoteSubmitting}
-                      className="inline-flex items-center justify-center rounded-full bg-gradient-to-r from-blue-600 to-sky-500 px-5 py-2 font-medium text-white shadow-sm transition hover:brightness-110 hover:shadow-md disabled:opacity-50"
+                      className="inline-flex items-center justify-center rounded-full bg-gradient-to-r from-red-600 to-orange-500 px-5 py-2 font-medium text-white shadow-sm transition hover:brightness-110 hover:shadow-md disabled:opacity-50"
                     >
                       {quoteSubmitting ? 'Submitting...' : 'Submit Inquiry'}
                     </button>

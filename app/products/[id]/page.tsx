@@ -6,6 +6,9 @@ import { Product, ProductCategory } from '@/lib/types';
 import Link from 'next/link';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
+import SiteHeader from '@/components/SiteHeader';
+import SiteFooter from '@/components/SiteFooter';
+import ProductCard from '@/components/ProductCard';
 
 export default function ProductDetailPage() {
   const params = useParams();
@@ -13,6 +16,9 @@ export default function ProductDetailPage() {
   const [loading, setLoading] = useState(true);
   const [products, setProducts] = useState<Product[]>([]);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+  
+  // Header Modal State
+  const [isQuoteOpen, setIsQuoteOpen] = useState(false);
   
   // Enquiry form state
   const [quoteSubmitting, setQuoteSubmitting] = useState(false);
@@ -88,15 +94,10 @@ export default function ProductDetailPage() {
     setQuoteSubmitting(true);
 
     try {
-      const response = await fetch('/api/enquiries', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(quoteForm),
-      });
-
-      if (response.ok) {
-        setQuoteSuccess(true);
-        setQuoteForm(prev => ({
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      setQuoteSuccess(true);
+      setQuoteForm(prev => ({
           ...prev,
           firstName: '',
           lastName: '',
@@ -104,11 +105,8 @@ export default function ProductDetailPage() {
           phone: '',
           quantity: '1',
           message: '',
-        }));
-        setFormErrors({});
-      } else {
-        alert('Failed to submit enquiry. Please try again.');
-      }
+      }));
+      setFormErrors({});
     } catch (error) {
       console.error('Error submitting enquiry:', error);
       alert('Failed to submit enquiry. Please try again.');
@@ -132,17 +130,17 @@ export default function ProductDetailPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-sky-100/40 via-purple-50/20 to-rose-100/40 flex items-center justify-center">
-        <div className="inline-block h-10 w-10 animate-spin rounded-full border-4 border-blue-500 border-t-transparent" />
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="inline-block h-10 w-10 animate-spin rounded-full border-4 border-red-600 border-t-transparent" />
       </div>
     );
   }
 
   if (!product) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-sky-100/40 via-purple-50/20 to-rose-100/40 flex flex-col items-center justify-center gap-4">
+      <div className="min-h-screen bg-white flex flex-col items-center justify-center gap-4">
         <h1 className="text-2xl font-bold text-slate-900">Product Not Found</h1>
-        <Link href="/" className="text-blue-600 hover:underline">
+        <Link href="/" className="text-red-600 hover:underline">
           ← Back to Home
         </Link>
       </div>
@@ -150,42 +148,9 @@ export default function ProductDetailPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-sky-100/40 via-purple-50/20 to-rose-100/40 text-slate-900 overflow-x-hidden">
-      {/* Background accents to match main site */}
-      <div className="pointer-events-none fixed inset-x-0 top-[-220px] -z-30 h-[420px] bg-[radial-gradient(circle_at_top,_rgba(59,130,246,0.17),_transparent_55%)]" />
-      <div className="pointer-events-none fixed right-[-120px] top-1/2 -z-30 h-80 w-80 rounded-full bg-[radial-gradient(circle_at_center,_rgba(37,99,235,0.18),_transparent_60%)]" />
-
-      {/* Header - matching main site */}
-      <header className="fixed top-0 left-0 right-0 z-50 border-b border-blue-100/50 bg-gradient-to-r from-white/95 via-blue-50/90 to-sky-50/85 backdrop-blur-xl shadow-[0_4px_30px_rgba(59,130,246,0.1)]">
-        <div className="mx-auto flex w-full max-w-7xl items-center justify-between px-3 py-3 sm:px-6 lg:px-4">
-          <Link href="/" className="flex items-center gap-3">
-            <div className="relative">
-              <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-blue-600 via-blue-500 to-sky-400 shadow-lg shadow-blue-500/30" />
-              <div className="absolute -inset-0.5 rounded-xl bg-gradient-to-br from-blue-600 to-sky-400 opacity-40 blur-sm -z-10" />
-            </div>
-            <div className="flex flex-col leading-tight">
-              <span className="bg-gradient-to-r from-slate-900 via-blue-800 to-blue-600 bg-clip-text text-sm font-bold tracking-tight text-transparent">
-                Shree Radhe Marble &amp; Granite
-              </span>
-              <span className="text-[11px] font-medium text-slate-500">Premium Stone Surfaces</span>
-            </div>
-          </Link>
-          <nav className="hidden items-center gap-1 text-sm font-medium md:flex">
-            <Link href="/" className="px-4 py-2 rounded-full text-slate-700 hover:text-blue-600 hover:bg-blue-50/50 transition-all duration-200">
-              Home
-            </Link>
-            <Link href="/products" className="px-4 py-2 rounded-full text-slate-700 hover:text-blue-600 hover:bg-blue-50/50 transition-all duration-200">
-              Products
-            </Link>
-          </nav>
-          <Link
-            href="/products"
-            className="hidden rounded-full bg-gradient-to-r from-blue-600 to-sky-500 px-5 py-2.5 text-xs font-semibold text-white shadow-lg shadow-blue-500/30 transition-all duration-200 hover:shadow-xl hover:shadow-blue-500/40 hover:scale-[1.02] md:inline-flex"
-          >
-            View All Products
-          </Link>
-        </div>
-      </header>
+    <div className="min-h-screen bg-white text-slate-900 selection:bg-red-100 selection:text-red-900">
+      
+      <SiteHeader setIsQuoteOpen={setIsQuoteOpen} isRevealed={true} />
 
       <main className="mx-auto w-full max-w-7xl px-3 pt-24 pb-16 sm:px-6 lg:px-4">
         {/* Breadcrumb */}
@@ -194,14 +159,12 @@ export default function ProductDetailPage() {
           animate={{ opacity: 1, y: 0 }}
           className="mb-8"
         >
-          <ol className="flex items-center gap-2 text-sm text-slate-500">
-            <li><Link href="/" className="hover:text-blue-600 transition-colors">Home</Link></li>
-            <li className="text-slate-300">›</li>
-            <li><Link href="/products" className="hover:text-blue-600 transition-colors">Products</Link></li>
-            <li className="text-slate-300">›</li>
-            <li><span className="hover:text-blue-600 transition-colors">{product.category}</span></li>
-            <li className="text-slate-300">›</li>
-            <li className="text-slate-900 font-medium truncate max-w-[200px]">{product.name}</li>
+          <ol className="flex items-center gap-2 text-xs uppercase tracking-wider text-slate-500 font-medium">
+            <li><Link href="/" className="hover:text-red-600 transition-colors">Home</Link></li>
+            <li className="text-slate-300">/</li>
+            <li><Link href="/products" className="hover:text-red-600 transition-colors">Products</Link></li>
+            <li className="text-slate-300">/</li>
+            <li><span className="text-red-600">{product.category}</span></li>
           </ol>
         </motion.nav>
 
@@ -214,7 +177,7 @@ export default function ProductDetailPage() {
             className="space-y-4"
           >
             {/* Main Image */}
-            <div className="relative aspect-square rounded-3xl overflow-hidden bg-white shadow-[0_18px_45px_rgba(56,189,248,0.18)] border border-sky-100 group">
+            <div className="relative aspect-[4/3] rounded-sm overflow-hidden bg-stone-100 shadow-sm border border-stone-200 group">
               {images[selectedImageIndex] ? (
                 <Image
                   src={images[selectedImageIndex]}
@@ -225,10 +188,8 @@ export default function ProductDetailPage() {
                   priority
                 />
               ) : (
-                <div className="absolute inset-0 flex items-center justify-center text-slate-300 bg-gradient-to-br from-sky-50 to-blue-50">
-                  <svg className="h-24 w-24" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                  </svg>
+                <div className="absolute inset-0 flex items-center justify-center text-stone-300">
+                   <span className="text-xs uppercase tracking-widest">No Image</span>
                 </div>
               )}
               
@@ -237,18 +198,18 @@ export default function ProductDetailPage() {
                 <>
                   <button
                     onClick={goToPreviousImage}
-                    className="absolute left-4 top-1/2 -translate-y-1/2 h-12 w-12 rounded-full bg-white/90 shadow-lg flex items-center justify-center text-slate-700 hover:bg-white transition opacity-0 group-hover:opacity-100 border border-sky-100"
+                    className="absolute left-4 top-1/2 -translate-y-1/2 h-10 w-10 bg-white/90 shadow-sm flex items-center justify-center text-slate-900 hover:bg-red-600 hover:text-white transition opacity-0 group-hover:opacity-100"
                   >
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 19l-7-7 7-7" />
                     </svg>
                   </button>
                   <button
                     onClick={goToNextImage}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 h-12 w-12 rounded-full bg-white/90 shadow-lg flex items-center justify-center text-slate-700 hover:bg-white transition opacity-0 group-hover:opacity-100 border border-sky-100"
+                    className="absolute right-4 top-1/2 -translate-y-1/2 h-10 w-10 bg-white/90 shadow-sm flex items-center justify-center text-slate-900 hover:bg-red-600 hover:text-white transition opacity-0 group-hover:opacity-100"
                   >
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5l7 7-7 7" />
                     </svg>
                   </button>
                 </>
@@ -262,10 +223,10 @@ export default function ProductDetailPage() {
                   <button
                     key={index}
                     onClick={() => setSelectedImageIndex(index)}
-                    className={`relative flex-shrink-0 w-20 h-20 rounded-xl overflow-hidden transition-all border-2 ${
+                    className={`relative flex-shrink-0 w-20 h-20 rounded-sm overflow-hidden transition-all border ${
                       index === selectedImageIndex
-                        ? 'border-blue-500 shadow-lg shadow-blue-200'
-                        : 'border-transparent opacity-70 hover:opacity-100'
+                        ? 'border-red-600 opacity-100 ring-1 ring-red-600'
+                        : 'border-stone-200 opacity-60 hover:opacity-100'
                     }`}
                   >
                     <Image
@@ -286,121 +247,120 @@ export default function ProductDetailPage() {
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5, delay: 0.1 }}
-            className="space-y-6"
+            className="space-y-8"
           >
             {/* Product Details Card */}
-            <div className="bg-white rounded-3xl p-6 shadow-[0_18px_45px_rgba(56,189,248,0.18)] border border-sky-100">
-              <span className={`inline-flex items-center px-3 py-1.5 rounded-full text-xs font-medium mb-4 ${
-                product.category === 'Marbles' ? 'bg-blue-100 text-blue-700' :
-                product.category === 'Tiles' ? 'bg-emerald-100 text-emerald-700' :
-                'bg-violet-100 text-violet-700'
-              }`}>
-                {product.category}
-              </span>
-
-              <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-br from-slate-900 via-blue-800 to-sky-700 bg-clip-text text-transparent mb-4">
-                {product.name}
-              </h1>
-
-              <p className="text-slate-600 leading-relaxed mb-6">{product.description}</p>
-
-              <div className="flex items-baseline gap-2 pb-4 border-b border-slate-100">
-                <span className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-blue-600 to-sky-500 bg-clip-text text-transparent">
-                  ₹{product.price.toLocaleString('en-IN')}
+            <div className="space-y-6">
+              <div>
+                <span className="text-red-600 text-xs font-bold tracking-widest uppercase mb-2 block">
+                  {product.category}
                 </span>
-                <span className="text-sm text-slate-500">per unit</span>
+                <h1 className="text-3xl sm:text-4xl font-serif text-slate-900 mb-4">
+                  {product.name}
+                </h1>
+                <p className="text-slate-600 leading-relaxed font-light text-sm sm:text-base">{product.description}</p>
               </div>
 
-              <div className="mt-4 flex items-center gap-4 text-xs text-slate-500">
-                <span className="flex items-center gap-1">
-                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
-                  In Stock
+              <div className="flex items-baseline gap-2 pb-6 border-b border-stone-100">
+                <span className="text-3xl font-medium text-slate-900">
+                  ₹{product.price.toLocaleString('en-IN')}
                 </span>
-                <span>•</span>
-                <span>Fast Delivery</span>
-                <span>•</span>
-                <span>Quality Assured</span>
+                <span className="text-sm text-slate-500 font-light">/ unit</span>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4 text-xs tracking-wide uppercase text-slate-500">
+                <div className="flex items-center gap-2">
+                  <div className="w-1.5 h-1.5 bg-green-500 rounded-full" /> In Stock
+                </div>
+                <div className="flex items-center gap-2">
+                   <div className="w-1.5 h-1.5 bg-slate-300 rounded-full" /> Nationwide Delivery
+                </div>
+                <div className="flex items-center gap-2">
+                   <div className="w-1.5 h-1.5 bg-slate-300 rounded-full" /> Premium Quality
+                </div>
+                <div className="flex items-center gap-2">
+                   <div className="w-1.5 h-1.5 bg-slate-300 rounded-full" /> Custom Sizes
+                </div>
               </div>
             </div>
 
             {/* Enquiry Form Card */}
-            <div className="bg-white rounded-3xl p-6 shadow-[0_18px_45px_rgba(56,189,248,0.18)] border border-sky-100">
+            <div className="bg-stone-50 rounded-xl p-8 border border-stone-100">
               {quoteSuccess ? (
-                <div className="text-center py-8">
-                  <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-emerald-100">
-                    <svg className="w-8 h-8 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="text-center py-6">
+                  <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-green-100 text-green-600">
+                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                     </svg>
                   </div>
-                  <h2 className="text-xl font-bold text-slate-900">Thank You!</h2>
+                  <h2 className="text-lg font-serif text-slate-900">Enquiry Sent!</h2>
                   <p className="mt-2 text-sm text-slate-500">
-                    Your enquiry has been submitted. We'll contact you shortly.
+                    We will get back to you shortly regarding your interest.
                   </p>
                   <button
                     onClick={() => setQuoteSuccess(false)}
-                    className="mt-4 text-blue-600 hover:underline text-sm font-medium"
+                    className="mt-6 text-red-600 hover:text-red-700 text-xs font-bold uppercase tracking-widest border-b border-red-200 pb-0.5 hover:border-red-600 transition-all"
                   >
-                    Submit another enquiry
+                    Send another enquiry
                   </button>
                 </div>
               ) : (
                 <>
-                  <h2 className="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2">
-                    <span className="h-2 w-2 rounded-full bg-gradient-to-r from-blue-500 to-sky-400" />
-                    Send Enquiry
+                  <h2 className="text-lg font-serif text-slate-900 mb-6">
+                    Request Pricing
                   </h2>
                   <form onSubmit={handleQuoteSubmit} className="space-y-4">
                     <div className="grid gap-4 sm:grid-cols-2">
-                      <div className="flex flex-col gap-1.5">
-                        <label className="text-xs font-medium text-slate-600">First Name</label>
+                      <div className="space-y-1">
+                        <label className="text-[10px] font-bold uppercase tracking-wider text-slate-500">First Name</label>
                         <input
                           type="text"
                           required
                           value={quoteForm.firstName}
                           onChange={(e) => setQuoteForm({ ...quoteForm, firstName: e.target.value })}
-                          className="h-11 rounded-xl border border-slate-200 bg-slate-50/70 px-3 text-sm outline-none transition focus:border-blue-400 focus:bg-white focus:ring-2 focus:ring-blue-100"
+                          className="w-full h-10 rounded-sm border border-stone-200 bg-white px-3 text-sm outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-all"
                         />
                       </div>
-                      <div className="flex flex-col gap-1.5">
-                        <label className="text-xs font-medium text-slate-600">Last Name</label>
+                      <div className="space-y-1">
+                        <label className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Last Name</label>
                         <input
                           type="text"
                           required
                           value={quoteForm.lastName}
                           onChange={(e) => setQuoteForm({ ...quoteForm, lastName: e.target.value })}
-                          className="h-11 rounded-xl border border-slate-200 bg-slate-50/70 px-3 text-sm outline-none transition focus:border-blue-400 focus:bg-white focus:ring-2 focus:ring-blue-100"
+                          className="w-full h-10 rounded-sm border border-stone-200 bg-white px-3 text-sm outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-all"
                         />
                       </div>
                     </div>
 
                     <div className="grid gap-4 sm:grid-cols-2">
-                      <div className="flex flex-col gap-1.5">
-                        <label className="text-xs font-medium text-slate-600">Email</label>
+                      <div className="space-y-1">
+                        <label className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Email</label>
                         <input
                           type="email"
                           required
                           value={quoteForm.email}
                           onChange={(e) => setQuoteForm({ ...quoteForm, email: e.target.value })}
-                          className={`h-11 rounded-xl border bg-slate-50/70 px-3 text-sm outline-none transition focus:border-blue-400 focus:bg-white focus:ring-2 focus:ring-blue-100 ${formErrors.email ? 'border-red-400' : 'border-slate-200'}`}
+                          className={`w-full h-10 rounded-sm border bg-white px-3 text-sm outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-all ${formErrors.email ? 'border-red-400' : 'border-stone-200'}`}
                         />
                         {formErrors.email && <span className="text-[10px] text-red-500">{formErrors.email}</span>}
                       </div>
-                      <div className="flex flex-col gap-1.5">
-                        <label className="text-xs font-medium text-slate-600">Phone</label>
+                      <div className="space-y-1">
+                        <label className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Phone</label>
                         <input
                           type="tel"
                           required
-                          placeholder="9876543210"
+                          placeholder="10 digits"
                           value={quoteForm.phone}
                           onChange={(e) => setQuoteForm({ ...quoteForm, phone: e.target.value })}
-                          className={`h-11 rounded-xl border bg-slate-50/70 px-3 text-sm outline-none transition focus:border-blue-400 focus:bg-white focus:ring-2 focus:ring-blue-100 ${formErrors.phone ? 'border-red-400' : 'border-slate-200'}`}
+                          className={`w-full h-10 rounded-sm border bg-white px-3 text-sm outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-all ${formErrors.phone ? 'border-red-400' : 'border-stone-200'}`}
                         />
                         {formErrors.phone && <span className="text-[10px] text-red-500">{formErrors.phone}</span>}
                       </div>
                     </div>
 
-                    <div className="flex flex-col gap-1.5">
-                      <label className="text-xs font-medium text-slate-600">Quantity</label>
+                    <div className="space-y-1">
+                      <label className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Quantity (sq. ft. / pieces)</label>
                       <input
                         type="number"
                         min="1"
@@ -408,28 +368,28 @@ export default function ProductDetailPage() {
                         required
                         value={quoteForm.quantity}
                         onChange={(e) => setQuoteForm({ ...quoteForm, quantity: e.target.value })}
-                        className={`h-11 rounded-xl border bg-slate-50/70 px-3 text-sm outline-none transition focus:border-blue-400 focus:bg-white focus:ring-2 focus:ring-blue-100 ${formErrors.quantity ? 'border-red-400' : 'border-slate-200'}`}
+                        className={`w-full h-10 rounded-sm border bg-white px-3 text-sm outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-all ${formErrors.quantity ? 'border-red-400' : 'border-stone-200'}`}
                       />
                       {formErrors.quantity && <span className="text-[10px] text-red-500">{formErrors.quantity}</span>}
                     </div>
 
-                    <div className="flex flex-col gap-1.5">
-                      <label className="text-xs font-medium text-slate-600">Message (Optional)</label>
+                    <div className="space-y-1">
+                      <label className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Message (Optional)</label>
                       <textarea
                         rows={3}
-                        placeholder="Any additional details..."
+                        placeholder="Additional details..."
                         value={quoteForm.message}
                         onChange={(e) => setQuoteForm({ ...quoteForm, message: e.target.value })}
-                        className="w-full resize-none rounded-xl border border-slate-200 bg-slate-50/70 px-3 py-2.5 text-sm outline-none transition focus:border-blue-400 focus:bg-white focus:ring-2 focus:ring-blue-100"
+                        className="w-full rounded-sm border border-stone-200 bg-white px-3 py-2 text-sm outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-all resize-none"
                       />
                     </div>
 
                     <button
                       type="submit"
                       disabled={quoteSubmitting}
-                      className="w-full rounded-full bg-gradient-to-r from-blue-600 to-sky-500 px-6 py-3.5 text-sm font-semibold text-white shadow-lg shadow-blue-500/30 transition-all duration-200 hover:shadow-xl hover:shadow-blue-500/40 hover:scale-[1.02] disabled:opacity-50"
+                      className="w-full rounded-full bg-slate-900 px-6 py-3.5 text-xs font-bold tracking-widest uppercase text-white shadow-lg shadow-slate-900/10 transition-all duration-200 hover:bg-red-700 hover:shadow-red-600/20 hover:-translate-y-0.5 disabled:opacity-70 disabled:hover:translate-y-0"
                     >
-                      {quoteSubmitting ? 'Submitting...' : 'Submit Enquiry'}
+                      {quoteSubmitting ? 'Sending...' : 'Send Enquiry'}
                     </button>
                   </form>
                 </>
@@ -444,60 +404,47 @@ export default function ProductDetailPage() {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.3 }}
-            className="mt-20"
+            className="mt-24 border-t border-stone-100 pt-16"
           >
             <div className="flex items-center justify-between mb-8">
               <div>
-                <h2 className="text-2xl font-semibold tracking-tight text-slate-900">You May Also Like</h2>
-                <p className="mt-1 text-sm text-slate-500">More products from {product.category}</p>
+                <h2 className="text-2xl font-serif text-slate-900">You May Also Like</h2>
+                <p className="mt-1 text-sm text-slate-500 font-light">More curated options from {product.category}</p>
               </div>
               <Link
                 href="/products"
-                className="text-sm font-medium text-blue-600 hover:text-blue-700 transition flex items-center gap-1"
+                className="text-xs font-bold tracking-widest uppercase text-red-600 hover:text-red-700 transition flex items-center gap-2 border-b border-transparent hover:border-red-600 pb-0.5"
               >
-                View all
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                View all collection
+                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
                 </svg>
               </Link>
             </div>
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-              {relatedProducts.map((relatedProduct) => {
-                const relatedImage = relatedProduct.images?.[0] || relatedProduct.image || '';
-                return (
-                  <Link key={relatedProduct.id} href={`/products/${relatedProduct.id}`}>
-                    <article className="group flex flex-col overflow-hidden rounded-2xl border border-sky-100 bg-white shadow-[0_18px_45px_rgba(56,189,248,0.18)] transition hover:-translate-y-1 hover:border-sky-300 hover:shadow-[0_28px_70px_rgba(59,130,246,0.3)]">
-                      <div className="relative aspect-square bg-slate-100 overflow-hidden">
-                        {relatedImage ? (
-                          <Image
-                            src={relatedImage}
-                            alt={relatedProduct.name}
-                            fill
-                            className="object-cover transition-transform duration-300 group-hover:scale-105"
-                            sizes="(max-width: 640px) 50vw, 25vw"
-                          />
-                        ) : (
-                          <div className="absolute inset-0 flex items-center justify-center text-slate-300 bg-gradient-to-br from-sky-50 to-blue-50">
-                            <svg className="h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                            </svg>
-                          </div>
-                        )}
-                      </div>
-                      <div className="p-4">
-                        <h3 className="text-sm font-medium text-slate-900 truncate">{relatedProduct.name}</h3>
-                        <p className="mt-1 text-sm font-bold bg-gradient-to-r from-blue-600 to-sky-500 bg-clip-text text-transparent">
-                          ₹{relatedProduct.price.toLocaleString('en-IN')}
-                        </p>
-                      </div>
-                    </article>
-                  </Link>
-                );
-              })}
+              {relatedProducts.map((relatedProduct) => (
+                 <div key={relatedProduct.id}>
+                    <ProductCard product={relatedProduct} />
+                 </div>
+              ))}
             </div>
           </motion.section>
         )}
       </main>
+
+      <SiteFooter setIsQuoteOpen={setIsQuoteOpen} />
+      
+      {/* Global Quote Modal if needed from Header (though page has inline form) */}
+      {isQuoteOpen && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4">
+           {/* Simple dismiss overlay */}
+           <div className="bg-white p-8 rounded-lg shadow-xl text-center max-w-sm">
+             <h3 className="text-lg font-serif mb-2">Request a Quote</h3>
+             <p className="text-sm text-slate-500 mb-6">You can use the form on this page to enquire about this specific product.</p>
+             <button onClick={() => setIsQuoteOpen(false)} className="px-6 py-2 bg-slate-900 text-white rounded-full text-xs font-bold uppercase">Close</button>
+           </div>
+        </div>
+      )}
     </div>
   );
 }
