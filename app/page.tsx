@@ -34,13 +34,13 @@ export default function Home() {
     quantity?: string;
   }>({});
   
-  // Cinematic reveal state - triggers after video plays for 0.7 seconds
+  // Cinematic reveal state - triggers after video plays for 0.5 seconds
   const [isRevealed, setIsRevealed] = useState(false);
   
   useEffect(() => {
     const revealTimer = setTimeout(() => {
       setIsRevealed(true);
-    }, 700);
+    }, 500);
     return () => clearTimeout(revealTimer);
   }, []);
 
@@ -200,58 +200,67 @@ export default function Home() {
         style={{ y: circleY }}
       />
 
-      {/* Header - Animates in after video reveal */}
+      {/* Header - Elegant Red Theme */}
       <motion.header 
         initial={{ y: -100, opacity: 0 }}
         animate={isRevealed ? { y: 0, opacity: 1 } : { y: -100, opacity: 0 }}
         transition={{ duration: 0.8, ease: [0.22, 0.61, 0.36, 1] }}
-        className="fixed top-0 left-0 right-0 z-50 border-b border-blue-100/50 bg-gradient-to-r from-white/95 via-blue-50/90 to-sky-50/85 backdrop-blur-xl shadow-[0_4px_30px_rgba(59,130,246,0.1)]"
+        className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-sm border-b border-red-100"
       >
-        <div className="mx-auto flex w-full max-w-7xl items-center justify-between px-3 py-3 sm:px-6 lg:px-4">
-          <div className="flex items-center gap-3">
-            <div className="relative">
-              <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-blue-600 via-blue-500 to-sky-400 shadow-lg shadow-blue-500/30" />
-              <div className="absolute -inset-0.5 rounded-xl bg-gradient-to-br from-blue-600 to-sky-400 opacity-40 blur-sm -z-10" />
-            </div>
-            <div className="flex flex-col leading-tight">
-              <span className="bg-gradient-to-r from-slate-900 via-blue-800 to-blue-600 bg-clip-text text-sm font-bold tracking-tight text-transparent">
-                Shree Radhe Marble &amp; Granite
-              </span>
-              <span className="text-[11px] font-medium text-slate-500">Premium Stone Surfaces</span>
+        <div className="mx-auto flex w-full max-w-7xl items-center justify-between px-6 py-4">
+          {/* Logo Section */}
+          <div className="flex flex-col">
+            <div className="flex items-center gap-3">
+              <div className="h-10 w-10 border border-red-200 rounded-sm flex items-center justify-center p-1 bg-red-50">
+                 <div className="h-full w-full bg-gradient-to-br from-red-600 to-orange-500 opacity-80" />
+              </div>
+              <div>
+                <h1 className="text-2xl font-serif text-slate-900 tracking-tight leading-none">
+                  Shree Radhe
+                </h1>
+                <p className="text-[10px] text-red-600 uppercase tracking-[0.2em] mt-1 font-medium">
+                  Marble & Granite
+                </p>
+              </div>
             </div>
           </div>
 
-          <nav className="hidden items-center gap-1 text-sm font-medium md:flex">
-            <a href="#top" className="px-4 py-2 rounded-full text-slate-700 hover:text-blue-600 hover:bg-blue-50/50 transition-all duration-200">
+          {/* Centered Navigation */}
+          <nav className="hidden items-center gap-10 md:flex absolute left-1/2 -translate-x-1/2">
+            <a href="#top" className="text-xs font-semibold tracking-[0.2em] text-slate-600 hover:text-red-600 uppercase transition-colors">
               Home
             </a>
-            <Link href="/products" className="px-4 py-2 rounded-full text-slate-700 hover:text-blue-600 hover:bg-blue-50/50 transition-all duration-200">
-              Products
+            <Link href="/products" className="text-xs font-semibold tracking-[0.2em] text-slate-600 hover:text-red-600 uppercase transition-colors">
+              Product
             </Link>
             <button
-              type="button"
               onClick={() => setIsQuoteOpen(true)}
-              className="px-4 py-2 rounded-full text-slate-700 hover:text-blue-600 hover:bg-blue-50/50 transition-all duration-200"
+              className="text-xs font-semibold tracking-[0.2em] text-slate-600 hover:text-red-600 uppercase transition-colors"
             >
               Contact
             </button>
           </nav>
 
-          <button
-            type="button"
-            onClick={() => setIsQuoteOpen(true)}
-            className="hidden rounded-full bg-gradient-to-r from-blue-600 to-sky-500 px-5 py-2.5 text-xs font-semibold text-white shadow-lg shadow-blue-500/30 transition-all duration-200 hover:shadow-xl hover:shadow-blue-500/40 hover:scale-[1.02] md:inline-flex"
-          >
-            Get a Quote
-          </button>
-
-          <button
-            type="button"
-            className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200/50 bg-white/80 text-slate-700 shadow-sm backdrop-blur-sm md:hidden hover:bg-blue-50/50 transition-colors"
-            aria-label="Open navigation"
-          >
-            <span className="block h-[2px] w-4 rounded-full bg-gradient-to-r from-blue-600 to-sky-500" />
-          </button>
+          {/* Right Actions */}
+          <div className="flex items-center gap-4">
+             <button 
+               onClick={() => setIsQuoteOpen(true)}
+               className="hidden md:inline-flex px-6 py-2.5 bg-gradient-to-r from-red-600 to-orange-500 text-white text-xs font-semibold tracking-widest uppercase hover:shadow-lg hover:shadow-red-500/20 transition-all duration-300"
+             >
+               Get a Quote
+             </button>
+             
+             {/* Mobile Menu Button */}
+             <button
+              type="button"
+              className="md:hidden text-slate-900"
+              aria-label="Open navigation"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+              </svg>
+            </button>
+          </div>
         </div>
       </motion.header>
 
@@ -663,72 +672,94 @@ export default function Home() {
         </AnimatedSection>
 
         {/* Footer */}
-        <footer className="mt-16 border-t border-slate-200/50 bg-gradient-to-b from-transparent to-slate-50/50 pt-12 pb-8">
-          <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
-            {/* Brand */}
-            <div className="space-y-4">
-              <div className="flex items-center gap-2">
-                <div className="h-8 w-8 rounded-xl bg-gradient-to-br from-blue-600 via-blue-500 to-sky-400 shadow-md" />
-                <span className="bg-gradient-to-r from-slate-900 via-blue-800 to-blue-600 bg-clip-text text-sm font-bold text-transparent">
-                  Shree Radhe Marble
-                </span>
-              </div>
-              <p className="text-xs text-slate-500 leading-relaxed">
-                Premium marble, granite, and tiles for residential and commercial projects. Trusted by architects and designers since 2004.
-              </p>
-            </div>
-
-            {/* Quick Links */}
-            <div>
-              <h4 className="text-sm font-semibold text-slate-900 mb-3">Quick Links</h4>
-              <ul className="space-y-2 text-xs text-slate-600">
-                <li><a href="#top" className="hover:text-blue-600 transition-colors">Home</a></li>
-                <li><a href="#products" className="hover:text-blue-600 transition-colors">Products</a></li>
-                <li><button onClick={() => setIsQuoteOpen(true)} className="hover:text-blue-600 transition-colors">Get a Quote</button></li>
-              </ul>
-            </div>
-
-            {/* Products */}
-            <div>
-              <h4 className="text-sm font-semibold text-slate-900 mb-3">Products</h4>
-              <ul className="space-y-2 text-xs text-slate-600">
-                <li><a href="#products" className="hover:text-blue-600 transition-colors">Italian Marble</a></li>
-                <li><a href="#products" className="hover:text-blue-600 transition-colors">Indian Granite</a></li>
-                <li><a href="#products" className="hover:text-blue-600 transition-colors">Designer Tiles</a></li>
-                <li><a href="#products" className="hover:text-blue-600 transition-colors">Handicraft Items</a></li>
-                <li><a href="#products" className="hover:text-blue-600 transition-colors">Custom Fabrication</a></li>
-              </ul>
-            </div>
-
-            {/* Contact */}
-            <div>
-              <h4 className="text-sm font-semibold text-slate-900 mb-3">Contact Us</h4>
-              <ul className="space-y-3 text-xs text-slate-600">
-                <li className="flex items-start gap-2">
-                  <span className="text-blue-500 mt-0.5">📍</span>
-                  <span>123 Stone Market Road,<br />Kishangarh, Rajasthan 305801<br />India</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <span className="text-blue-500">📞</span>
-                  <a href="tel:+911234567890" className="hover:text-blue-600 transition-colors">+91 12345 67890</a>
-                </li>
-                <li className="flex items-center gap-2">
-                  <span className="text-blue-500">✉️</span>
-                  <a href="mailto:info@shreeradhemarble.com" className="hover:text-blue-600 transition-colors">info@shreeradhemarble.com</a>
-                </li>
-              </ul>
-            </div>
+        <footer className="mt-0 relative border-t border-slate-200/50 bg-slate-900 pt-16 pb-8 text-slate-200 overflow-hidden">
+          {/* Background Image with Overlay */}
+          <div className="absolute inset-0 z-0">
+            <img 
+              src="/assets/footer_image.png" 
+              alt="Footer Background" 
+              className="w-full h-full object-cover opacity-20"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/90 to-slate-900/80" />
           </div>
 
-          {/* Bottom Bar */}
-          <div className="mt-10 pt-6 border-t border-slate-200/50 flex flex-col sm:flex-row items-center justify-between gap-4">
-            <p className="text-xs text-slate-500">
-              © 2026 Shree Radhe Marble &amp; Granite. All rights reserved.
-            </p>
-            <div className="flex items-center gap-4">
-              <a href="#" className="text-slate-400 hover:text-blue-600 transition-colors text-sm">Privacy Policy</a>
-              <a href="#" className="text-slate-400 hover:text-blue-600 transition-colors text-sm">Terms of Service</a>
-              <a href="https://wa.me/1234567890" target="_blank" rel="noopener noreferrer" className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-[#25D366] text-white text-xs hover:scale-105 transition-transform">WA</a>
+          <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
+              {/* Brand */}
+              <div className="space-y-4">
+                <div className="flex items-center gap-2">
+                  <div className="h-8 w-8 rounded-xl bg-gradient-to-br from-red-600 via-red-500 to-orange-400 shadow-md" />
+                  <span className="bg-gradient-to-r from-white via-slate-100 to-slate-200 bg-clip-text text-sm font-bold text-transparent">
+                    Shree Radhe Marble
+                  </span>
+                </div>
+                <p className="text-xs text-slate-400 leading-relaxed">
+                  Premium marble, granite, and tiles for residential and commercial projects. Trusted by architects and designers since 2004.
+                </p>
+              </div>
+
+              {/* Quick Links */}
+              <div>
+                <h4 className="text-sm font-semibold text-white mb-4">Quick Links</h4>
+                <ul className="space-y-2 text-xs text-slate-400">
+                  <li><a href="#top" className="hover:text-red-400 transition-colors">Home</a></li>
+                  <li><a href="#products" className="hover:text-red-400 transition-colors">Products</a></li>
+                  <li><button onClick={() => setIsQuoteOpen(true)} className="hover:text-red-400 transition-colors">Get a Quote</button></li>
+                </ul>
+              </div>
+
+              {/* Products */}
+              <div>
+                <h4 className="text-sm font-semibold text-white mb-4">Products</h4>
+                <ul className="space-y-2 text-xs text-slate-400">
+                  <li><a href="#products" className="hover:text-red-400 transition-colors">Italian Marble</a></li>
+                  <li><a href="#products" className="hover:text-red-400 transition-colors">Indian Granite</a></li>
+                  <li><a href="#products" className="hover:text-red-400 transition-colors">Designer Tiles</a></li>
+                  <li><a href="#products" className="hover:text-red-400 transition-colors">Handicraft Items</a></li>
+                  <li><a href="#products" className="hover:text-red-400 transition-colors">Custom Fabrication</a></li>
+                </ul>
+              </div>
+
+              {/* Contact */}
+              <div>
+                <h4 className="text-sm font-semibold text-white mb-4">Contact Us</h4>
+                <ul className="space-y-3 text-xs text-slate-400">
+                  <li className="flex items-start gap-2">
+                    <span className="text-red-400 mt-0.5">📍</span>
+                    <span>123 Stone Market Road,<br />Kishangarh, Rajasthan 305801<br />India</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <span className="text-red-400">📞</span>
+                    <a href="tel:+911234567890" className="hover:text-red-400 transition-colors">+91 12345 67890</a>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <span className="text-red-400">✉️</span>
+                    <a href="mailto:info@shreeradhemarble.com" className="hover:text-red-400 transition-colors">info@shreeradhemarble.com</a>
+                  </li>
+                </ul>
+              </div>
+            </div>
+
+            {/* Bottom Bar */}
+            <div className="mt-12 pt-6 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4">
+              <p className="text-xs text-slate-500">
+                © 2026 Shree Radhe Marble &amp; Granite. All rights reserved.
+              </p>
+              <div className="flex items-center gap-4">
+                <a href="#" className="text-slate-500 hover:text-red-400 transition-colors text-xs">Privacy Policy</a>
+                <a href="#" className="text-slate-500 hover:text-red-400 transition-colors text-xs">Terms of Service</a>
+                <a 
+                  href="https://wa.me/1234567890" 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-[#25D366] text-white hover:scale-110 transition-transform"
+                  aria-label="Chat on WhatsApp"
+                >
+                  <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4">
+                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
+                  </svg>
+                </a>
+              </div>
             </div>
           </div>
         </footer>
@@ -941,10 +972,12 @@ export default function Home() {
         initial={{ scale: 0, opacity: 0 }}
         animate={isRevealed ? { scale: 1, opacity: 1 } : { scale: 0, opacity: 0 }}
         transition={{ type: "spring", stiffness: 260, damping: 20, delay: 0.3 }}
-        className="fixed bottom-6 right-6 z-50 inline-flex h-12 w-12 items-center justify-center rounded-full bg-[#25D366] text-white shadow-lg transition hover:-translate-y-0.5 hover:shadow-xl"
+        className="fixed bottom-6 right-6 z-50 inline-flex h-14 w-14 items-center justify-center rounded-full bg-[#25D366] text-white shadow-lg transition hover:-translate-y-1 hover:shadow-xl hover:scale-110"
         aria-label="Chat on WhatsApp"
       >
-        <span className="text-xl font-semibold">WA</span>
+        <svg viewBox="0 0 24 24" fill="currentColor" className="w-8 h-8">
+          <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
+        </svg>
       </motion.a>
     </div>
   );
