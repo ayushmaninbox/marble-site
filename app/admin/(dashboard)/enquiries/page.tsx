@@ -77,13 +77,8 @@ export default function EnquiriesPage() {
 
   const handleDeleteEnquiry = async (id: string) => {
     try {
-      const response = await fetch(`/api/enquiries?id=${id}`, {
-        method: 'DELETE',
-      });
-
-      if (response.ok) {
-        await fetchEnquiries();
-      }
+      const response = await fetch(`/api/enquiries?id=${id}`, { method: 'DELETE' });
+      if (response.ok) await fetchEnquiries();
     } catch (error) {
       console.error('Error deleting enquiry:', error);
       alert('Failed to delete enquiry');
@@ -97,13 +92,10 @@ export default function EnquiriesPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id, status }),
       });
-
-      if (response.ok) {
-        await fetchEnquiries();
-      }
+      if (response.ok) await fetchEnquiries();
     } catch (error) {
-      console.error('Error updating enquiry status:', error);
-      alert('Failed to update enquiry status');
+      console.error('Error updating status:', error);
+      alert('Failed to update status');
     }
   };
 
@@ -114,41 +106,28 @@ export default function EnquiriesPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ids, status }),
       });
-
-      if (response.ok) {
-        await fetchEnquiries();
-      }
+      if (response.ok) await fetchEnquiries();
     } catch (error) {
-      console.error('Error updating enquiries status:', error);
-      alert('Failed to update enquiries status');
+      console.error('Error updating status:', error);
     }
   };
 
   const handleBatchDeleteEnquiries = async (ids: string[]) => {
     try {
-      const response = await fetch(`/api/enquiries?ids=${ids.join(',')}`, {
-        method: 'DELETE',
-      });
-
-      if (response.ok) {
-        await fetchEnquiries();
-      }
+      const response = await fetch(`/api/enquiries?ids=${ids.join(',')}`, { method: 'DELETE' });
+      if (response.ok) await fetchEnquiries();
     } catch (error) {
       console.error('Error deleting enquiries:', error);
-      alert('Failed to delete enquiries');
     }
   };
 
-  // Stats
   const totalEnquiries = enquiries.length;
   const solvedEnquiries = enquiries.filter(e => e.status === 'solved').length;
   const pendingEnquiries = totalEnquiries - solvedEnquiries;
 
-  // Filtering Logic
   const filteredEnquiries = enquiries.filter(enquiry => {
     const searchLower = enquirySearch.toLowerCase();
-    const matchesSearch =
-      enquiry.firstName.toLowerCase().includes(searchLower) ||
+    const matchesSearch = enquiry.firstName.toLowerCase().includes(searchLower) ||
       enquiry.lastName.toLowerCase().includes(searchLower) ||
       enquiry.email.toLowerCase().includes(searchLower) ||
       enquiry.productName.toLowerCase().includes(searchLower);
@@ -159,32 +138,15 @@ export default function EnquiriesPage() {
     if (enquiryFilterDate !== 'all') {
       const date = new Date(enquiry.createdAt);
       const now = new Date();
-      date.setHours(0, 0, 0, 0);
-      now.setHours(0, 0, 0, 0);
-
-      if (enquiryFilterDate === 'today') {
-        matchesDate = date.getTime() === now.getTime();
-      } else if (enquiryFilterDate === 'week') {
-        const weekAgo = new Date(now);
-        weekAgo.setDate(weekAgo.getDate() - 7);
-        matchesDate = date >= weekAgo;
-      } else if (enquiryFilterDate === 'month') {
-        const monthAgo = new Date(now);
-        monthAgo.setDate(monthAgo.getDate() - 30);
-        matchesDate = date >= monthAgo;
-      } else if (enquiryFilterDate === 'custom' && dateRange.start && dateRange.end) {
-        const start = new Date(dateRange.start);
-        const end = new Date(dateRange.end);
-        matchesDate = date >= start && date <= end;
-      }
+      date.setHours(0, 0, 0, 0); now.setHours(0, 0, 0, 0);
+      if (enquiryFilterDate === 'today') matchesDate = date.getTime() === now.getTime();
+      else if (enquiryFilterDate === 'week') matchesDate = date >= new Date(now.getTime() - 7 * 86400000);
+      else if (enquiryFilterDate === 'month') matchesDate = date >= new Date(now.getTime() - 30 * 86400000);
     }
-
+    
     let matchesQuantity = true;
-    if (quantityRange.min || quantityRange.max) {
-      const qty = enquiry.quantity;
-      if (quantityRange.min && qty < Number(quantityRange.min)) matchesQuantity = false;
-      if (quantityRange.max && qty > Number(quantityRange.max)) matchesQuantity = false;
-    }
+    if (quantityRange.min && enquiry.quantity < Number(quantityRange.min)) matchesQuantity = false;
+    if (quantityRange.max && enquiry.quantity > Number(quantityRange.max)) matchesQuantity = false;
 
     return matchesSearch && matchesStatus && matchesDate && matchesQuantity;
   }).sort((a, b) => {
@@ -198,7 +160,6 @@ export default function EnquiriesPage() {
     }
   });
 
-  // Pagination
   const totalEnquiriesFiltered = filteredEnquiries.length;
   const totalPages = Math.ceil(totalEnquiriesFiltered / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
@@ -206,50 +167,38 @@ export default function EnquiriesPage() {
   const paginatedEnquiries = filteredEnquiries.slice(startIndex, endIndex);
 
   if (loading) {
-    return (
-      <div className="flex min-h-[60vh] items-center justify-center">
-        <div className="inline-block h-8 w-8 animate-spin rounded-full border-3 border-blue-500 border-t-transparent"></div>
-      </div>
-    );
+     return (
+       <div className="flex min-h-[60vh] items-center justify-center">
+         <div className="inline-block h-8 w-8 animate-spin rounded-full border-3 border-red-500 border-t-transparent"></div>
+       </div>
+     );
   }
 
   return (
-    <main className="p-4 lg:p-6 bg-slate-50 min-h-screen">
-      {/* Page Header */}
+    <main className="p-4 lg:p-6 bg-stone-50 min-h-screen">
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-slate-900">Enquiries</h1>
         <p className="text-sm text-slate-500 mt-1">Manage customer enquiries</p>
       </div>
 
-      {/* Stats Row */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <motion.div
-          whileHover={{ scale: 1.05 }}
-          className="bg-white rounded-2xl border border-blue-100 p-4 flex flex-col items-center justify-center shadow-sm"
-        >
-          <div className="text-4xl font-bold text-blue-600">{totalEnquiries}</div>
+        <motion.div whileHover={{ scale: 1.05 }} className="bg-white rounded-2xl border border-red-100 p-4 flex flex-col items-center justify-center shadow-sm">
+          <div className="text-4xl font-bold text-red-600">{totalEnquiries}</div>
           <div className="text-xs font-bold text-slate-600 mt-2 uppercase tracking-widest text-center">Total Enquiries</div>
         </motion.div>
-
-        <motion.div
-          whileHover={{ scale: 1.05 }}
-          className="bg-white rounded-2xl border border-emerald-100 p-4 flex flex-col items-center justify-center shadow-sm"
-        >
+        
+        <motion.div whileHover={{ scale: 1.05 }} className="bg-white rounded-2xl border border-emerald-100 p-4 flex flex-col items-center justify-center shadow-sm">
           <div className="text-4xl font-bold text-emerald-500">{solvedEnquiries}</div>
           <div className="text-xs font-bold text-slate-600 mt-2 uppercase tracking-widest text-center">Solved</div>
         </motion.div>
 
-        <motion.div
-          whileHover={{ scale: 1.05 }}
-          className="bg-white rounded-2xl border border-amber-100 p-4 flex flex-col items-center justify-center shadow-sm"
-        >
+        <motion.div whileHover={{ scale: 1.05 }} className="bg-white rounded-2xl border border-amber-100 p-4 flex flex-col items-center justify-center shadow-sm">
           <div className="text-4xl font-bold text-amber-500">{pendingEnquiries}</div>
           <div className="text-xs font-bold text-slate-600 mt-2 uppercase tracking-widest text-center">Pending</div>
         </motion.div>
       </div>
 
-      {/* Filters Toolbar */}
-      <div className="bg-white rounded-xl border border-slate-200 p-4 mb-6 shadow-sm space-y-4">
+      <div className="bg-white rounded-xl border border-stone-200 p-4 mb-6 shadow-sm space-y-4">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <h3 className="text-lg font-bold text-slate-800 flex items-center gap-2">
             <SearchIcon /> ENQUIRIES
@@ -260,7 +209,7 @@ export default function EnquiriesPage() {
               placeholder="Search enquiries..."
               value={enquirySearch}
               onChange={(e) => setEnquirySearch(e.target.value)}
-              className="w-full pl-9 pr-4 py-2 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400"
+              className="w-full pl-9 pr-4 py-2 rounded-lg border border-stone-200 text-sm focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-400"
             />
             <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
               <SearchIcon />
@@ -270,7 +219,6 @@ export default function EnquiriesPage() {
 
         <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-4 pt-4 border-t border-slate-100">
           <div className="flex flex-wrap items-center gap-4">
-            {/* Sort */}
             <div className="flex items-center gap-2">
               <span className="text-xs font-bold text-slate-500 uppercase tracking-wide flex items-center gap-1">
                 <SortIcon /> Sort
@@ -278,7 +226,7 @@ export default function EnquiriesPage() {
               <select
                 value={enquirySort}
                 onChange={(e) => setEnquirySort(e.target.value as any)}
-                className="px-3 py-1.5 rounded-lg border border-slate-200 text-sm font-medium text-slate-700 bg-slate-50 focus:outline-none focus:border-blue-400"
+                className="px-3 py-1.5 rounded-lg border border-stone-200 text-sm font-medium text-slate-700 bg-stone-50 focus:outline-none focus:border-red-400"
               >
                 <option value="newest">Newest First</option>
                 <option value="oldest">Oldest First</option>
@@ -289,7 +237,6 @@ export default function EnquiriesPage() {
               </select>
             </div>
 
-            {/* Status Filter */}
             <div className="flex items-center gap-2">
               <span className="text-xs font-bold text-slate-500 uppercase tracking-wide flex items-center gap-1">
                 <FilterIcon /> Status
@@ -297,7 +244,7 @@ export default function EnquiriesPage() {
               <select
                 value={enquiryFilterStatus}
                 onChange={(e) => setEnquiryFilterStatus(e.target.value as any)}
-                className="px-3 py-1.5 rounded-lg border border-slate-200 text-sm font-medium text-slate-700 bg-slate-50 focus:outline-none focus:border-blue-400"
+                className="px-3 py-1.5 rounded-lg border border-stone-200 text-sm font-medium text-slate-700 bg-stone-50 focus:outline-none focus:border-red-400"
               >
                 <option value="all">All</option>
                 <option value="pending">Pending</option>
@@ -305,7 +252,6 @@ export default function EnquiriesPage() {
               </select>
             </div>
 
-            {/* Date Filter */}
             <div className="flex items-center gap-2">
               <span className="text-xs font-bold text-slate-500 uppercase tracking-wide flex items-center gap-1">
                 <CalendarIcon /> Date
@@ -313,7 +259,7 @@ export default function EnquiriesPage() {
               <select
                 value={enquiryFilterDate}
                 onChange={(e) => setEnquiryFilterDate(e.target.value as any)}
-                className="px-3 py-1.5 rounded-lg border border-slate-200 text-sm font-medium text-slate-700 bg-slate-50 focus:outline-none focus:border-blue-400"
+                className="px-3 py-1.5 rounded-lg border border-stone-200 text-sm font-medium text-slate-700 bg-stone-50 focus:outline-none focus:border-red-400"
               >
                 <option value="all">All Time</option>
                 <option value="today">Today</option>
@@ -321,27 +267,8 @@ export default function EnquiriesPage() {
                 <option value="month">This Month</option>
                 <option value="custom">Custom</option>
               </select>
-
-              {enquiryFilterDate === 'custom' && (
-                <div className="flex items-center gap-2">
-                  <input
-                    type="date"
-                    className="px-2 py-1 rounded border border-slate-200 text-xs"
-                    value={dateRange.start}
-                    onChange={(e) => setDateRange(prev => ({ ...prev, start: e.target.value }))}
-                  />
-                  <span className="text-slate-400">-</span>
-                  <input
-                    type="date"
-                    className="px-2 py-1 rounded border border-slate-200 text-xs"
-                    value={dateRange.end}
-                    onChange={(e) => setDateRange(prev => ({ ...prev, end: e.target.value }))}
-                  />
-                </div>
-              )}
             </div>
 
-            {/* Quantity Filter */}
             <div className="flex items-center gap-2">
               <span className="text-xs font-bold text-slate-500 uppercase tracking-wide flex items-center gap-1">
                 <HashIcon /> Qty
@@ -350,7 +277,7 @@ export default function EnquiriesPage() {
                 <input
                   type="number"
                   placeholder="Min"
-                  className="w-16 px-2 py-1.5 rounded-lg border border-slate-200 text-sm focus:outline-none focus:border-blue-400"
+                  className="w-16 px-2 py-1.5 rounded-lg border border-stone-200 text-sm focus:outline-none focus:border-red-400"
                   value={quantityRange.min}
                   onChange={(e) => setQuantityRange(prev => ({ ...prev, min: e.target.value }))}
                 />
@@ -358,7 +285,7 @@ export default function EnquiriesPage() {
                 <input
                   type="number"
                   placeholder="Max"
-                  className="w-16 px-2 py-1.5 rounded-lg border border-slate-200 text-sm focus:outline-none focus:border-blue-400"
+                  className="w-16 px-2 py-1.5 rounded-lg border border-stone-200 text-sm focus:outline-none focus:border-red-400"
                   value={quantityRange.max}
                   onChange={(e) => setQuantityRange(prev => ({ ...prev, max: e.target.value }))}
                 />
@@ -366,26 +293,25 @@ export default function EnquiriesPage() {
             </div>
           </div>
 
-          {/* Quick Filters */}
           <div className="flex items-center gap-2 overflow-x-auto pb-2 xl:pb-0">
             <span className="text-xs font-bold text-slate-500 uppercase tracking-wide whitespace-nowrap flex items-center gap-1">
               <LightningIcon /> Quick
             </span>
             <button
               onClick={() => setEnquiryFilterStatus('pending')}
-              className={`px-3 py-1 rounded-full text-xs font-medium border transition-colors whitespace-nowrap ${enquiryFilterStatus === 'pending' ? 'bg-amber-100 text-amber-700 border-amber-200' : 'bg-white text-slate-600 border-slate-200 hover:border-amber-200'}`}
+              className={`px-3 py-1 rounded-full text-xs font-medium border transition-colors whitespace-nowrap ${enquiryFilterStatus === 'pending' ? 'bg-amber-100 text-amber-700 border-amber-200' : 'bg-white text-slate-600 border-stone-200 hover:border-amber-200'}`}
             >
               Pending Only
             </button>
             <button
               onClick={() => setEnquiryFilterStatus('solved')}
-              className={`px-3 py-1 rounded-full text-xs font-medium border transition-colors whitespace-nowrap ${enquiryFilterStatus === 'solved' ? 'bg-emerald-100 text-emerald-700 border-emerald-200' : 'bg-white text-slate-600 border-slate-200 hover:border-emerald-200'}`}
+              className={`px-3 py-1 rounded-full text-xs font-medium border transition-colors whitespace-nowrap ${enquiryFilterStatus === 'solved' ? 'bg-emerald-100 text-emerald-700 border-emerald-200' : 'bg-white text-slate-600 border-stone-200 hover:border-emerald-200'}`}
             >
               Solved Only
             </button>
             <button
               onClick={() => setEnquiryFilterDate('today')}
-              className={`px-3 py-1 rounded-full text-xs font-medium border transition-colors whitespace-nowrap ${enquiryFilterDate === 'today' ? 'bg-blue-100 text-blue-700 border-blue-200' : 'bg-white text-slate-600 border-slate-200 hover:border-blue-200'}`}
+              className={`px-3 py-1 rounded-full text-xs font-medium border transition-colors whitespace-nowrap ${enquiryFilterDate === 'today' ? 'bg-red-50 text-red-700 border-red-200' : 'bg-white text-slate-600 border-stone-200 hover:border-red-200'}`}
             >
               Today's
             </button>
@@ -393,9 +319,9 @@ export default function EnquiriesPage() {
         </div>
       </div>
 
-      {/* Pagination Controls */}
-      <div className="flex items-center justify-between mb-4 bg-white rounded-lg border border-slate-200 px-4 py-3">
-        <div className="flex items-center gap-2 text-sm text-slate-600">
+      <div className="flex items-center justify-between mb-4 bg-white rounded-lg border border-stone-200 px-4 py-3">
+        {/* Pagination similar to others */}
+         <div className="flex items-center gap-2 text-sm text-slate-600">
           <span>Showing</span>
           <span className="font-semibold text-slate-900">{totalEnquiriesFiltered > 0 ? startIndex + 1 : 0}-{endIndex}</span>
           <span>of</span>
@@ -404,41 +330,18 @@ export default function EnquiriesPage() {
         </div>
         <div className="flex items-center gap-3">
           <label className="text-sm text-slate-600">Per page:</label>
-          <select
-            value={itemsPerPage}
-            onChange={(e) => {
-              setItemsPerPage(Number(e.target.value));
-              setCurrentPage(1);
-            }}
-            className="rounded-lg border border-slate-200 px-2 py-1 text-sm outline-none focus:border-blue-400"
-          >
-            <option value={5}>5</option>
-            <option value={10}>10</option>
-            <option value={20}>20</option>
-            <option value={50}>50</option>
+          <select value={itemsPerPage} onChange={(e) => { setItemsPerPage(Number(e.target.value)); setCurrentPage(1); }} className="rounded-lg border border-stone-200 px-2 py-1 text-sm outline-none focus:border-red-400">
+            <option value={5}>5</option><option value={10}>10</option><option value={20}>20</option><option value={50}>50</option>
           </select>
           <div className="flex gap-1">
-            <button
-              onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-              disabled={currentPage === 1}
-              className="px-2 py-1 rounded border border-slate-200 text-sm disabled:opacity-50 hover:bg-slate-50"
-            >
-              ←
-            </button>
-            <span className="px-3 py-1 text-sm">{currentPage} / {totalPages || 1}</span>
-            <button
-              onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
-              disabled={currentPage === totalPages || totalPages === 0}
-              className="px-2 py-1 rounded border border-slate-200 text-sm disabled:opacity-50 hover:bg-slate-50"
-            >
-              →
-            </button>
+             <button onClick={() => setCurrentPage(p => Math.max(1, p - 1))} disabled={currentPage === 1} className="px-2 py-1 rounded border border-stone-200 text-sm disabled:opacity-50 hover:bg-stone-50">←</button>
+             <span className="px-3 py-1 text-sm">{currentPage} / {totalPages || 1}</span>
+             <button onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} disabled={currentPage === totalPages || totalPages === 0} className="px-2 py-1 rounded border border-stone-200 text-sm disabled:opacity-50 hover:bg-stone-50">→</button>
           </div>
         </div>
       </div>
 
-      {/* Enquiries Table */}
-      <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
+      <div className="bg-white rounded-xl border border-stone-200 overflow-hidden">
         <EnquiriesTable
           enquiries={paginatedEnquiries}
           onDelete={handleDeleteEnquiry}
@@ -449,95 +352,52 @@ export default function EnquiriesPage() {
         />
       </div>
 
-      {/* Enquiry Detail Modal */}
       {selectedEnquiry && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm">
           <div className="mx-4 w-full max-w-lg rounded-2xl bg-white p-6 shadow-2xl">
-            <div className="flex items-center justify-between mb-5">
+             <div className="flex items-center justify-between mb-5">
               <h2 className="text-lg font-bold text-slate-900">Enquiry Details</h2>
-              <button
-                onClick={() => setSelectedEnquiry(null)}
-                className="h-8 w-8 flex items-center justify-center rounded-full hover:bg-slate-100 text-slate-500"
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
+              <button onClick={() => setSelectedEnquiry(null)} className="h-8 w-8 flex items-center justify-center rounded-full hover:bg-stone-100 text-slate-500">
+                <CloseIcon />
               </button>
             </div>
-
+            {/* Modal Content - Red/Stone */}
             <div className="space-y-4">
-              {/* Status Badge */}
               <div className="flex items-center gap-2">
                 <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${
-                  selectedEnquiry.status === 'solved'
-                    ? 'bg-emerald-100 text-emerald-700'
-                    : 'bg-amber-100 text-amber-700'
+                  selectedEnquiry.status === 'solved' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'
                 }`}>
                   {selectedEnquiry.status === 'solved' ? '✓ Solved' : '⏳ Pending'}
                 </span>
                 <span className="text-xs text-slate-400">
-                  {new Date(selectedEnquiry.createdAt).toLocaleString('en-IN', {
-                    day: 'numeric',
-                    month: 'short',
-                    year: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit'
-                  })}
+                  {new Date(selectedEnquiry.createdAt).toLocaleString('en-IN', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
                 </span>
               </div>
-
-              {/* Customer Info */}
-              <div className="bg-slate-50 rounded-xl p-4 space-y-2">
+              
+              <div className="bg-stone-50 rounded-xl p-4 space-y-2">
                 <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Customer</h3>
-                <p className="text-sm font-medium text-slate-900">
-                  {selectedEnquiry.firstName} {selectedEnquiry.lastName}
-                </p>
+                <p className="text-sm font-medium text-slate-900">{selectedEnquiry.firstName} {selectedEnquiry.lastName}</p>
                 <div className="flex flex-col gap-1 text-sm text-slate-600">
-                  <span>📞 {selectedEnquiry.phone}</span>
-                  <span>✉️ {selectedEnquiry.email}</span>
+                  <span>📞 {selectedEnquiry.phone}</span><span>✉️ {selectedEnquiry.email}</span>
                 </div>
               </div>
 
-              {/* Product Info */}
-              <div className="bg-slate-50 rounded-xl p-4 space-y-2">
+              <div className="bg-stone-50 rounded-xl p-4 space-y-2">
                 <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Product</h3>
                 <p className="text-sm font-medium text-slate-900">{selectedEnquiry.productName}</p>
-                <div className="flex items-center gap-3">
+                 <div className="flex items-center gap-3">
                   <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${
-                    selectedEnquiry.productCategory === 'Marbles' ? 'bg-blue-100 text-blue-700' :
-                    selectedEnquiry.productCategory === 'Tiles' ? 'bg-emerald-100 text-emerald-700' :
-                    'bg-purple-100 text-purple-700'
-                  }`}>
-                    {selectedEnquiry.productCategory}
-                  </span>
+                    selectedEnquiry.productCategory === 'Marbles' ? 'bg-red-50 text-red-700' : selectedEnquiry.productCategory === 'Tiles' ? 'bg-stone-100 text-stone-700' : 'bg-orange-50 text-orange-700'
+                  }`}>{selectedEnquiry.productCategory}</span>
                   <span className="text-sm text-slate-600">Quantity: {selectedEnquiry.quantity}</span>
                 </div>
               </div>
 
-              {/* Message */}
-              {selectedEnquiry.message && (
-                <div className="bg-slate-50 rounded-xl p-4 space-y-2">
-                  <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Message</h3>
-                  <p className="text-sm text-slate-700">{selectedEnquiry.message}</p>
-                </div>
-              )}
-
-              {/* Actions */}
-              <div className="flex gap-2 pt-2">
-                <a
-                  href={`https://wa.me/91${selectedEnquiry.phone.replace(/\D/g, '')}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-[#25D366] text-white rounded-lg text-sm font-medium hover:bg-[#22c55e] transition-colors"
-                >
-                  WhatsApp
-                </a>
-                <a
-                  href={`mailto:${selectedEnquiry.email}?subject=Response to Your Product Enquiry`}
-                  className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-blue-500 text-white rounded-lg text-sm font-medium hover:bg-blue-600 transition-colors"
-                >
-                  Email
-                </a>
+               {selectedEnquiry.message && <div className="bg-stone-50 rounded-xl p-4 space-y-2"><h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Message</h3><p className="text-sm text-slate-700">{selectedEnquiry.message}</p></div>}
+              
+               <div className="flex gap-2 pt-2">
+                <a href={`https://wa.me/91${selectedEnquiry.phone.replace(/\D/g, '')}`} target="_blank" rel="noopener noreferrer" className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-[#25D366] text-white rounded-lg text-sm font-medium hover:bg-[#22c55e] transition-colors">WhatsApp</a>
+                <a href={`mailto:${selectedEnquiry.email}?subject=Response to Your Product Enquiry`} className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-stone-700 text-white rounded-lg text-sm font-medium hover:bg-stone-800 transition-colors">Email</a>
               </div>
             </div>
           </div>
@@ -546,3 +406,8 @@ export default function EnquiriesPage() {
     </main>
   );
 }
+
+// Icons needed for Enquiries Page (re-declaring if needed or import)
+const CloseIcon = () => (
+  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+);

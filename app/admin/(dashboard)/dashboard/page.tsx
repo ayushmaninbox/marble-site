@@ -45,6 +45,7 @@ export default function DashboardPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [enquiries, setEnquiries] = useState<Enquiry[]>([]);
   const [loading, setLoading] = useState(true);
+  const [hoveredData, setHoveredData] = useState<{ x: number; y: number; value: number; month: string } | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -106,6 +107,19 @@ export default function DashboardPage() {
   const monthlyData = getMonthlyData();
   const maxMonthlyCount = Math.max(...monthlyData.map(m => m.count), 1);
 
+  // Chart SVG Points
+  // Y-Scale: 0 (top) to 100 (bottom).
+  // Value 0 => y=100. Value Max => y=5 (leave 5% top padding).
+  const MAX_Y_PERCENT = 5;
+  const MIN_Y_PERCENT = 100;
+  const Y_RANGE = MIN_Y_PERCENT - MAX_Y_PERCENT;
+
+  const chartPoints = monthlyData.map((d, i) => {
+    const x = (i / (monthlyData.length - 1)) * 100;
+    const y = MIN_Y_PERCENT - (d.count / maxMonthlyCount) * Y_RANGE;
+    return `${x},${y}`;
+  }).join(' ');
+
   if (loading) {
     return (
       <div className="flex min-h-[60vh] items-center justify-center">
@@ -115,12 +129,12 @@ export default function DashboardPage() {
   }
 
   return (
-    <main className="p-4 lg:p-6 bg-slate-50 min-h-screen">
+    <main className="p-4 lg:p-6 bg-stone-50 min-h-screen">
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Hello, Admin 👋</h1>
-          <p className="text-sm text-slate-500 mt-1">Here's what's happening with your business today</p>
+          <h1 className="text-2xl font-bold font-serif text-slate-900">Hello, Admin 👋</h1>
+          <p className="text-sm text-slate-500 mt-1 uppercase tracking-wide">Business Overview</p>
         </div>
         <div className="flex items-center gap-3">
           <div className="relative">
@@ -139,9 +153,9 @@ export default function DashboardPage() {
       {/* Stats Grid */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6 mb-8">
         {/* Total Products */}
-        <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm hover:shadow-md transition-shadow">
+        <div className="bg-white rounded-2xl p-5 border border-stone-100 shadow-sm hover:shadow-md transition-shadow">
           <div className="flex items-center justify-between mb-4">
-            <span className="text-sm font-medium text-slate-500">Total Products</span>
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-500">Total Products</span>
             <div className="w-10 h-10 bg-red-50 rounded-xl flex items-center justify-center text-red-600">
               <BoxIcon />
             </div>
@@ -154,24 +168,24 @@ export default function DashboardPage() {
         </div>
 
         {/* Total Enquiries */}
-        <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm hover:shadow-md transition-shadow">
+        <div className="bg-white rounded-2xl p-5 border border-stone-100 shadow-sm hover:shadow-md transition-shadow">
           <div className="flex items-center justify-between mb-4">
-            <span className="text-sm font-medium text-slate-500">Total Enquiries</span>
-            <div className="w-10 h-10 bg-emerald-50 rounded-xl flex items-center justify-center text-emerald-600">
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-500">Total Enquiries</span>
+            <div className="w-10 h-10 bg-stone-100 rounded-xl flex items-center justify-center text-stone-600">
               <ChatIcon />
             </div>
           </div>
           <div className="text-3xl font-bold text-slate-900">{totalEnquiries}</div>
-          <div className="flex items-center gap-1 mt-2 text-xs text-emerald-600">
+          <div className="flex items-center gap-1 mt-2 text-xs text-stone-600">
             <TrendUpIcon />
             <span>All time</span>
           </div>
         </div>
 
         {/* Pending */}
-        <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm hover:shadow-md transition-shadow">
+        <div className="bg-white rounded-2xl p-5 border border-stone-100 shadow-sm hover:shadow-md transition-shadow">
           <div className="flex items-center justify-between mb-4">
-            <span className="text-sm font-medium text-slate-500">Pending</span>
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-500">Pending</span>
             <div className="w-10 h-10 bg-amber-50 rounded-xl flex items-center justify-center text-amber-600">
               <ClockIcon />
             </div>
@@ -183,15 +197,15 @@ export default function DashboardPage() {
         </div>
 
         {/* Resolved */}
-        <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm hover:shadow-md transition-shadow">
+        <div className="bg-white rounded-2xl p-5 border border-stone-100 shadow-sm hover:shadow-md transition-shadow">
           <div className="flex items-center justify-between mb-4">
-            <span className="text-sm font-medium text-slate-500">Resolved</span>
-            <div className="w-10 h-10 bg-violet-50 rounded-xl flex items-center justify-center text-violet-600">
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-500">Resolved</span>
+            <div className="w-10 h-10 bg-emerald-50 rounded-xl flex items-center justify-center text-emerald-600">
               <CheckCircleIcon />
             </div>
           </div>
           <div className="text-3xl font-bold text-slate-900">{solvedEnquiries}</div>
-          <div className="flex items-center gap-1 mt-2 text-xs text-violet-600">
+          <div className="flex items-center gap-1 mt-2 text-xs text-emerald-600">
             <span>Completed</span>
           </div>
         </div>
@@ -200,57 +214,149 @@ export default function DashboardPage() {
       {/* Charts Row */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
         {/* Enquiry Statistics - Area Chart */}
-        <div className="lg:col-span-2 bg-white rounded-2xl p-6 border border-slate-100 shadow-sm">
-          <div className="flex items-center justify-between mb-6">
-            <h3 className="text-base font-semibold text-slate-800">Enquiry Statistics</h3>
-            <span className="text-xs text-slate-400 bg-slate-50 px-3 py-1 rounded-full">Monthly</span>
+        <div className="lg:col-span-2 bg-white rounded-2xl p-6 border border-stone-100 shadow-sm z-0">
+          <div className="flex items-center justify-between mb-8">
+            <h3 className="text-base font-bold text-slate-800 uppercase tracking-wide">Enquiry Trend</h3>
+            <span className="text-xs text-red-600 font-semibold bg-red-50 px-3 py-1 rounded-full">Monthly</span>
           </div>
           
-          {/* Simple Area Chart */}
-          <div className="h-48 flex items-end justify-between gap-2 px-2">
-            {monthlyData.map((data, i) => (
-              <div key={i} className="flex-1 flex flex-col items-center gap-2">
-                <div className="w-full relative group">
-                  {/* Tooltip */}
-                  <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-slate-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10">
-                    {data.count} enquiries
+          <div className="flex gap-4 h-64 w-full">
+            {/* Y Axis Labels */}
+            <div className="flex flex-col justify-between py-0 text-xs text-slate-400 font-medium text-right w-8 h-full select-none">
+              {[1, 0.75, 0.5, 0.25, 0].map((ratio) => {
+                 // Map Ratio to Y-Position? 
+                 // If chart uses 5% to 100%, labels should likely align 0% to 100% physically.
+                 // We will simply display labels at Top, 75%, 50%, 25%, Bottom. 
+                 // And matched with grid lines.
+                 // Note: Chart max value effectively touches 5% line (top padding). 
+                 // It's cleaner to label the Max Value at the 5% line? 
+                 // Let's just label strictly 0-Max at equal intervals and draw lines there.
+                 return (
+                    <span key={ratio} className="leading-none transform -translate-y-[50%] first:translate-y-0 last:translate-y-0">
+                      {Math.round(maxMonthlyCount * ratio)}
+                    </span>
+                 );
+              })}
+            </div>
+
+            {/* Chart Area */}
+            <div className="relative flex-1 h-full group z-10">
+              {/* HTML Tooltip Overlay */}
+              {hoveredData && (
+                <div 
+                  className="absolute z-50 pointer-events-none transition-all duration-75 ease-out"
+                  style={{ 
+                    left: `${hoveredData.x}%`, 
+                    top: `${hoveredData.y}%`,
+                    transform: 'translate(-50%, -120%)'
+                  }}
+                >
+                  <div className="bg-slate-800 text-white rounded-lg shadow-xl px-3 py-2 text-center min-w-[80px]">
+                    <div className="text-sm font-bold">{hoveredData.value} Enquiries</div>
+                    <div className="text-[10px] text-slate-400 font-medium uppercase tracking-wide">{hoveredData.month}</div>
+                    <div className="absolute left-1/2 -bottom-1 -translate-x-1/2 w-2 h-2 bg-slate-800 rotate-45"></div>
                   </div>
-                  {/* Bar */}
-                  <div 
-                    className="w-full bg-gradient-to-t from-emerald-500 to-emerald-400 rounded-t-lg transition-all duration-300 hover:from-emerald-600 hover:to-emerald-500"
-                    style={{ height: `${(data.count / maxMonthlyCount) * 140}px`, minHeight: '8px' }}
-                  />
                 </div>
-                <span className="text-xs text-slate-400">{data.month}</span>
+              )}
+
+              <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="w-full h-full overflow-visible">
+                <defs>
+                  <linearGradient id="chartGradient" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#ef4444" stopOpacity="0.2" />
+                    <stop offset="100%" stopColor="#ef4444" stopOpacity="0" />
+                  </linearGradient>
+                </defs>
+                
+                {/* 
+                   Grid Lines: 
+                   We have 5 labels distributed via justify-between (0, 25, 50, 75, 100% height).
+                   So lines should be at 0, 25, 50, 75, 100 y-coordinates.
+                   However, we strictly mapped data to 5-100 range. 
+                   If we want lines to match labels, we should draw lines at 0, 25, 50, 75, 100.
+                   But our Max Value (Data) hits 5%. 
+                   So Max Value label (at top, 0%) aligns with y=0 line.
+                   But Data max is y=5. So data peak is slightly below the top line. This is good behavior.
+                   Bottom label (0) aligns with y=100.
+                */}
+                {[0, 25, 50, 75, 100].map(y => (
+                  <line key={y} x1="0" y1={y} x2="100" y2={y} stroke="#f5f5f4" strokeWidth="0.5" strokeDasharray="4" />
+                ))}
+
+                {/* Area */}
+                <polygon 
+                  points={`0,100 ${chartPoints} 100,100`} 
+                  fill="url(#chartGradient)" 
+                />
+                
+                {/* Line */}
+                <polyline 
+                  points={chartPoints} 
+                  fill="none" 
+                  stroke="#ef4444" 
+                  strokeWidth="2" 
+                  vectorEffect="non-scaling-stroke"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+
+                {/* Interactive Points */}
+                {monthlyData.map((d, i) => {
+                  const x = (i / (monthlyData.length - 1)) * 100;
+                  const y = MIN_Y_PERCENT - (d.count / maxMonthlyCount) * Y_RANGE;
+                  
+                  return (
+                    <g key={i} 
+                       onMouseEnter={() => setHoveredData({ x, y, value: d.count, month: d.month })}
+                       onMouseLeave={() => setHoveredData(null)}
+                    >
+                      {/* Visible dot on hover or if matches hoveredData */}
+                      <circle 
+                         cx={x} cy={y} r="4" 
+                         className={`fill-white stroke-red-500 stroke-[2px] transition-opacity duration-200 ${hoveredData?.month === d.month ? 'opacity-100' : 'opacity-0 hover:opacity-100'}`} 
+                         vectorEffect="non-scaling-stroke" 
+                      />
+                      
+                      {/* Large invisible hit area */}
+                      <circle cx={x} cy={y} r="20" fill="transparent" vectorEffect="non-scaling-stroke" className="cursor-pointer" />
+                    </g>
+                  );
+                })}
+              </svg>
+              
+              {/* X Axis Labels */}
+              <div className="flex justify-between mt-2 text-xs text-slate-400 font-medium absolute top-full left-0 w-full pt-2">
+                {monthlyData.map((d, i) => (
+                  <span key={i}>{d.month}</span>
+                ))}
               </div>
-            ))}
+            </div>
           </div>
         </div>
 
         {/* Status Donut Chart */}
-        <div className="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm">
-          <div className="flex items-center justify-between mb-6">
-            <h3 className="text-base font-semibold text-slate-800">Enquiry Status</h3>
-            <span className="text-xs text-slate-400 bg-slate-50 px-3 py-1 rounded-full">Today</span>
+        <div className="bg-white rounded-2xl p-6 border border-stone-100 shadow-sm">
+          <div className="flex items-center justify-between mb-8">
+            <h3 className="text-base font-bold text-slate-800 uppercase tracking-wide">Status</h3>
+            <span className="text-xs text-slate-400 bg-stone-50 px-3 py-1 rounded-full font-medium">Today</span>
           </div>
           
           {/* Donut Chart */}
-          <div className="flex flex-col items-center">
-            <div className="relative w-32 h-32 mb-4">
+          <div className="flex flex-col items-center justify-center h-64">
+            <div className="relative w-40 h-40 mb-6">
               <svg viewBox="0 0 36 36" className="w-full h-full -rotate-90">
                 {/* Background circle */}
                 <circle
                   cx="18" cy="18" r="14"
                   fill="none"
-                  stroke="#f1f5f9"
-                  strokeWidth="4"
+                  stroke="#f5f5f4" // stone-100
+                  strokeWidth="3"
                 />
                 {/* Solved segment */}
                 <circle
                   cx="18" cy="18" r="14"
                   fill="none"
-                  stroke="#10b981"
-                  strokeWidth="4"
+                  stroke="#10b981" // emerald-500
+                  strokeWidth="3"
                   strokeDasharray={`${totalEnquiries > 0 ? (solvedEnquiries / totalEnquiries) * 88 : 0} 88`}
                   strokeLinecap="round"
                 />
@@ -258,15 +364,16 @@ export default function DashboardPage() {
                 <circle
                   cx="18" cy="18" r="14"
                   fill="none"
-                  stroke="#f59e0b"
-                  strokeWidth="4"
+                  stroke="#f59e0b" // amber-500
+                  strokeWidth="3"
                   strokeDasharray={`${totalEnquiries > 0 ? (pendingEnquiries / totalEnquiries) * 88 : 0} 88`}
                   strokeDashoffset={`${totalEnquiries > 0 ? -(solvedEnquiries / totalEnquiries) * 88 : 0}`}
                   strokeLinecap="round"
                 />
               </svg>
-              <div className="absolute inset-0 flex items-center justify-center">
-                <span className="text-lg font-bold text-slate-800">{totalEnquiries}</span>
+              <div className="absolute inset-0 flex flex-col items-center justify-center">
+                <span className="text-3xl font-bold text-slate-800">{totalEnquiries}</span>
+                <span className="text-[10px] uppercase tracking-wider text-slate-400">Total</span>
               </div>
             </div>
             
@@ -274,11 +381,17 @@ export default function DashboardPage() {
             <div className="flex gap-6">
               <div className="flex items-center gap-2">
                 <div className="w-3 h-3 bg-emerald-500 rounded-full" />
-                <span className="text-xs text-slate-600">Resolved</span>
+                <div className="flex flex-col">
+                  <span className="text-xs font-bold text-slate-700">Resolved</span>
+                  <span className="text-[10px] text-slate-400">{(totalEnquiries > 0 ? (solvedEnquiries / totalEnquiries * 100) : 0).toFixed(0)}%</span>
+                </div>
               </div>
               <div className="flex items-center gap-2">
                 <div className="w-3 h-3 bg-amber-500 rounded-full" />
-                <span className="text-xs text-slate-600">Pending</span>
+                <div className="flex flex-col">
+                  <span className="text-xs font-bold text-slate-700">Pending</span>
+                  <span className="text-[10px] text-slate-400">{(totalEnquiries > 0 ? (pendingEnquiries / totalEnquiries * 100) : 0).toFixed(0)}%</span>
+                </div>
               </div>
             </div>
           </div>
@@ -288,9 +401,9 @@ export default function DashboardPage() {
       {/* Bottom Row */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Recent Enquiries */}
-        <div className="lg:col-span-2 bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
-          <div className="flex items-center justify-between p-5 border-b border-slate-100">
-            <h3 className="text-base font-semibold text-slate-800">Recent Enquiries</h3>
+        <div className="lg:col-span-2 bg-white rounded-2xl border border-stone-100 shadow-sm overflow-hidden">
+          <div className="flex items-center justify-between p-5 border-b border-stone-100">
+            <h3 className="text-base font-bold text-slate-800 uppercase tracking-wide">Recent Enquiries</h3>
             <Link
               href="/admin/enquiries"
               className="text-xs text-red-600 hover:text-red-700 font-bold uppercase tracking-wider flex items-center gap-1"
@@ -302,12 +415,12 @@ export default function DashboardPage() {
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
-                <tr className="bg-slate-50">
-                  <th className="text-left text-xs font-semibold text-slate-500 px-5 py-3">Product</th>
-                  <th className="text-left text-xs font-semibold text-slate-500 px-5 py-3">Customer</th>
-                  <th className="text-left text-xs font-semibold text-slate-500 px-5 py-3">Date</th>
-                  <th className="text-left text-xs font-semibold text-slate-500 px-5 py-3">Qty</th>
-                  <th className="text-left text-xs font-semibold text-slate-500 px-5 py-3">Status</th>
+                <tr className="bg-stone-50">
+                  <th className="text-left text-xs font-bold text-slate-500 uppercase tracking-wider px-5 py-3">Product</th>
+                  <th className="text-left text-xs font-bold text-slate-500 uppercase tracking-wider px-5 py-3">Customer</th>
+                  <th className="text-left text-xs font-bold text-slate-500 uppercase tracking-wider px-5 py-3">Date</th>
+                  <th className="text-left text-xs font-bold text-slate-500 uppercase tracking-wider px-5 py-3">Qty</th>
+                  <th className="text-left text-xs font-bold text-slate-500 uppercase tracking-wider px-5 py-3">Status</th>
                 </tr>
               </thead>
               <tbody>
@@ -319,9 +432,9 @@ export default function DashboardPage() {
                   </tr>
                 ) : (
                   recentEnquiries.map((enquiry) => (
-                    <tr key={enquiry.id} className="border-b border-slate-50 hover:bg-slate-50/50 transition-colors">
+                    <tr key={enquiry.id} className="border-b border-stone-50 hover:bg-red-50/10 transition-colors">
                       <td className="px-5 py-3">
-                        <span className="text-sm font-medium text-slate-800 truncate max-w-[150px] block">
+                        <span className="text-sm font-semibold text-slate-800 truncate max-w-[150px] block">
                           {enquiry.productName}
                         </span>
                       </td>
@@ -340,15 +453,15 @@ export default function DashboardPage() {
                         </span>
                       </td>
                       <td className="px-5 py-3">
-                        <span className="text-sm text-slate-600">{enquiry.quantity}</span>
+                        <span className="text-sm font-medium text-slate-700">{enquiry.quantity}</span>
                       </td>
                       <td className="px-5 py-3">
-                        <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${
+                        <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold uppercase tracking-wide ${
                           enquiry.status === 'solved' 
                             ? 'bg-emerald-50 text-emerald-700' 
                             : 'bg-amber-50 text-amber-700'
                         }`}>
-                          {enquiry.status === 'solved' ? 'Completed' : 'Pending'}
+                          {enquiry.status === 'solved' ? 'Solved' : 'Pending'}
                         </span>
                       </td>
                     </tr>
@@ -360,62 +473,62 @@ export default function DashboardPage() {
         </div>
 
         {/* Category Overview */}
-        <div className="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm">
+        <div className="bg-white rounded-2xl p-6 border border-stone-100 shadow-sm">
           <div className="flex items-center justify-between mb-6">
-            <h3 className="text-base font-semibold text-slate-800">Category Overview</h3>
-            <span className="text-xs text-slate-400 bg-slate-50 px-3 py-1 rounded-full">Enquiries</span>
+            <h3 className="text-base font-bold text-slate-800 uppercase tracking-wide">Categories</h3>
+            <span className="text-xs text-slate-400 bg-stone-50 px-3 py-1 rounded-full font-medium">Breakdown</span>
           </div>
           
-          <div className="space-y-5">
+          <div className="space-y-6">
             {/* Marbles */}
             <div>
               <div className="flex items-center justify-between mb-2">
-                <span className="text-sm font-medium text-slate-700">Marbles</span>
-                <span className="text-sm font-bold text-slate-800">
+                <span className="text-sm font-bold text-slate-700">Marbles</span>
+                <span className="text-sm font-bold text-red-600">
                   {((categoryEnquiries.Marbles / (totalEnquiries || 1)) * 100).toFixed(0)}%
                 </span>
               </div>
-              <div className="h-2.5 bg-slate-100 rounded-full overflow-hidden">
+              <div className="h-2 bg-stone-100 rounded-full overflow-hidden">
                 <div 
                   className="h-full bg-gradient-to-r from-red-500 to-red-400 rounded-full transition-all duration-500"
                   style={{ width: `${(categoryEnquiries.Marbles / (totalEnquiries || 1)) * 100}%` }}
                 />
               </div>
-              <span className="text-xs text-slate-400 mt-1">{categoryEnquiries.Marbles} enquiries</span>
+              <span className="text-xs text-slate-400 mt-1.5 block">{categoryEnquiries.Marbles} enquiries</span>
             </div>
 
             {/* Tiles */}
             <div>
               <div className="flex items-center justify-between mb-2">
-                <span className="text-sm font-medium text-slate-700">Tiles</span>
-                <span className="text-sm font-bold text-slate-800">
+                <span className="text-sm font-bold text-slate-700">Tiles</span>
+                <span className="text-sm font-bold text-stone-600">
                   {((categoryEnquiries.Tiles / (totalEnquiries || 1)) * 100).toFixed(0)}%
                 </span>
               </div>
-              <div className="h-2.5 bg-slate-100 rounded-full overflow-hidden">
+              <div className="h-2 bg-stone-100 rounded-full overflow-hidden">
                 <div 
-                  className="h-full bg-gradient-to-r from-emerald-500 to-emerald-400 rounded-full transition-all duration-500"
+                  className="h-full bg-gradient-to-r from-stone-500 to-stone-400 rounded-full transition-all duration-500"
                   style={{ width: `${(categoryEnquiries.Tiles / (totalEnquiries || 1)) * 100}%` }}
                 />
               </div>
-              <span className="text-xs text-slate-400 mt-1">{categoryEnquiries.Tiles} enquiries</span>
+              <span className="text-xs text-slate-400 mt-1.5 block">{categoryEnquiries.Tiles} enquiries</span>
             </div>
 
             {/* Handicraft */}
             <div>
               <div className="flex items-center justify-between mb-2">
-                <span className="text-sm font-medium text-slate-700">Handicraft</span>
-                <span className="text-sm font-bold text-slate-800">
+                <span className="text-sm font-bold text-slate-700">Handicraft</span>
+                <span className="text-sm font-bold text-orange-600">
                   {((categoryEnquiries.Handicraft / (totalEnquiries || 1)) * 100).toFixed(0)}%
                 </span>
               </div>
-              <div className="h-2.5 bg-slate-100 rounded-full overflow-hidden">
+              <div className="h-2 bg-stone-100 rounded-full overflow-hidden">
                 <div 
-                  className="h-full bg-gradient-to-r from-violet-500 to-violet-400 rounded-full transition-all duration-500"
+                  className="h-full bg-gradient-to-r from-orange-500 to-orange-400 rounded-full transition-all duration-500"
                   style={{ width: `${(categoryEnquiries.Handicraft / (totalEnquiries || 1)) * 100}%` }}
                 />
               </div>
-              <span className="text-xs text-slate-400 mt-1">{categoryEnquiries.Handicraft} enquiries</span>
+              <span className="text-xs text-slate-400 mt-1.5 block">{categoryEnquiries.Handicraft} enquiries</span>
             </div>
           </div>
         </div>

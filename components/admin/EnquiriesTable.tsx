@@ -70,10 +70,10 @@ export default function EnquiriesTable({
     <div className="flex flex-col gap-3">
       {/* Selection Toolbar */}
       {selectedIds.size > 0 && (
-        <div className="bg-blue-50 border border-blue-100 px-4 py-2 rounded-xl flex items-center justify-between animate-in fade-in slide-in-from-top-1 duration-200">
+        <div className="bg-red-50 border border-red-100 px-4 py-2 rounded-xl flex items-center justify-between animate-in fade-in slide-in-from-top-1 duration-200">
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2">
-              <div className="h-5 w-5 rounded-full bg-blue-100 flex items-center justify-center text-blue-600">
+              <div className="h-5 w-5 rounded-full bg-red-100 flex items-center justify-center text-red-600">
                 <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
                 </svg>
@@ -96,7 +96,7 @@ export default function EnquiriesTable({
 
               <button
                 onClick={handleBatchDelete}
-                className="flex items-center gap-1.5 px-3 py-1.5 bg-red-500 hover:bg-red-600 text-white rounded-lg text-xs font-semibold transition-colors shadow-sm"
+                className="flex items-center gap-1.5 px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded-lg text-xs font-semibold transition-colors shadow-sm"
               >
                 <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -115,17 +115,17 @@ export default function EnquiriesTable({
         </div>
       )}
 
-      <div className="overflow-hidden rounded-xl border border-slate-200 bg-white">
+      <div className="overflow-hidden rounded-xl border border-stone-200 bg-white">
         <div className="overflow-x-auto">
           <table className="w-full">
-            <thead className="bg-slate-50/80 border-b border-slate-100">
+            <thead className="bg-stone-50/80 border-b border-stone-100">
               <tr>
                 <th className="w-10 px-4 py-3">
                   <input
                     type="checkbox"
                     checked={selectedIds.size === enquiries.length && enquiries.length > 0}
                     onChange={toggleAll}
-                    className="rounded border-slate-300 text-blue-600 focus:ring-blue-500 h-4 w-4"
+                    className="rounded border-stone-300 text-red-600 focus:ring-red-500 h-4 w-4"
                   />
                 </th>
                 <th className="w-10 px-4 py-3 text-left text-xs font-semibold text-slate-600 uppercase">
@@ -138,7 +138,7 @@ export default function EnquiriesTable({
                 <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100">
+            <tbody className="divide-y divide-stone-100">
               {enquiries.length === 0 ? (
                 <tr>
                   <td colSpan={7} className="px-4 py-16 text-center text-sm text-slate-400">
@@ -153,14 +153,14 @@ export default function EnquiriesTable({
                   <tr
                     key={enquiry.id}
                     onClick={() => onRowClick?.(enquiry)}
-                    className={`transition-colors hover:bg-slate-50 cursor-pointer ${selectedIds.has(enquiry.id) ? 'bg-blue-50/30' : ''}`}
+                    className={`transition-colors hover:bg-red-50/20 cursor-pointer ${selectedIds.has(enquiry.id) ? 'bg-red-50/30' : ''}`}
                   >
                     <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
                       <input
                         type="checkbox"
                         checked={selectedIds.has(enquiry.id)}
                         onChange={() => toggleSelection(enquiry.id)}
-                        className="rounded border-slate-300 text-blue-600 focus:ring-blue-500 h-4 w-4"
+                        className="rounded border-slate-300 text-red-600 focus:ring-red-500 h-4 w-4"
                       />
                     </td>
                     <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
@@ -189,9 +189,9 @@ export default function EnquiriesTable({
                       <div className="flex flex-col gap-1">
                         <span className="text-xs font-medium text-slate-900 line-clamp-1">{enquiry.productName}</span>
                         <div className="flex items-center gap-2">
-                          <span className={`inline-flex items-center rounded-full px-1.5 py-0.5 text-[10px] font-medium ${enquiry.productCategory === 'Marbles' ? 'bg-blue-50 text-blue-700' :
-                            enquiry.productCategory === 'Tiles' ? 'bg-emerald-50 text-emerald-700' :
-                              'bg-purple-50 text-purple-700'
+                          <span className={`inline-flex items-center rounded-full px-1.5 py-0.5 text-[10px] font-medium ${enquiry.productCategory === 'Marbles' ? 'bg-red-50 text-red-700' :
+                            enquiry.productCategory === 'Tiles' ? 'bg-stone-100 text-stone-700' :
+                              'bg-orange-50 text-orange-700'
                             }`}>
                             {enquiry.productCategory}
                           </span>
@@ -227,7 +227,7 @@ export default function EnquiriesTable({
                           href={`https://mail.google.com/mail/?view=cm&to=${encodeURIComponent(enquiry.email)}&su=${encodeURIComponent('Response to Your Product Enquiry')}`}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="px-2.5 py-1.5 bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white rounded-lg transition-colors"
+                          className="px-2.5 py-1.5 bg-stone-100 text-stone-600 hover:bg-stone-600 hover:text-white rounded-lg transition-colors"
                           title="Email"
                         >
                           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -240,7 +240,7 @@ export default function EnquiriesTable({
                               onDelete(enquiry.id);
                             }
                           }}
-                          className="px-2.5 py-1.5 bg-red-50 text-red-500 hover:bg-red-500 hover:text-white rounded-lg transition-colors"
+                          className="px-2.5 py-1.5 bg-red-50 text-red-600 hover:bg-red-600 hover:text-white rounded-lg transition-colors"
                           title="Delete"
                         >
                           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
