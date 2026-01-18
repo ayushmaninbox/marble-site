@@ -34,13 +34,13 @@ export default function Home() {
     quantity?: string;
   }>({});
   
-  // Cinematic reveal state - triggers after video plays for 1.5 seconds
+  // Cinematic reveal state - triggers after video plays for 0.7 seconds
   const [isRevealed, setIsRevealed] = useState(false);
   
   useEffect(() => {
     const revealTimer = setTimeout(() => {
       setIsRevealed(true);
-    }, 1500);
+    }, 700);
     return () => clearTimeout(revealTimer);
   }, []);
 
