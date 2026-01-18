@@ -1,3 +1,14 @@
 id,firstName,lastName,email,phone,productCategory,productName,quantity,message,createdAt,status
-1768677542033,Naman,Gupta,wsder@waesrgf,3245674,Tiles,Glossy Vitrified Tiles,1,defrg,2026-01-17T19:19:02.033Z,pending
-1768678625899,"Ayushman ",Moha,naman@gmail.com12,1234567890,Tiles,Glossy Vitrified Tiles,1,,2026-01-17T19:37:05.899Z,pending
+1737120100001,Rajesh,Sharma,rajesh.sharma@gmail.com,9876543210,Marbles,Italian Carrara White Marble,50,Looking for premium marble for my new villa flooring. Need bulk pricing.,2025-10-12T09:15:00.000Z,solved
+1737120100002,Priya,Patel,priya.patel@outlook.com,8765432109,Tiles,Glossy Vitrified Floor Tiles,200,We need tiles for our office building renovation. Please share catalogue.,2025-10-28T14:30:00.000Z,solved
+1737120100003,Amit,Verma,amit.verma@yahoo.com,7654321098,Handicraft,Marble Ganesha Murti,2,Want to gift for housewarming ceremony. Need delivery by Diwali.,2025-11-05T11:45:00.000Z,solved
+1737120100004,Sunita,Agarwal,sunita.agarwal@hotmail.com,9123456780,Marbles,Indian Makrana Pure White,30,Building a temple in our society. Need authentic Makrana marble.,2025-11-18T16:20:00.000Z,pending
+1737120100005,Vikram,Joshi,vikram.joshi@gmail.com,8234567891,Tiles,Wooden Oak Finish Tiles,150,Interested in wooden finish for living room. What are installation options?,2025-12-02T10:00:00.000Z,solved
+1737120100006,Meera,Gupta,meera.gupta@gmail.com,7345678902,Marbles,Statuario Venato Marble,15,For kitchen countertop. Please confirm slab sizes available.,2025-12-14T13:30:00.000Z,pending
+1737120100007,Anand,Singh,anand.singh@yahoo.in,9456789013,Handicraft,Marble Inlay Coaster Set,10,Need as corporate gifts. Can you do custom logo inlay?,2025-12-22T09:45:00.000Z,solved
+1737120100008,Kavitha,Reddy,kavitha.reddy@outlook.com,8567890124,Tiles,Moroccan Zellige Pattern Tiles,80,For boutique hotel lobby design. Need samples first.,2026-01-03T15:10:00.000Z,pending
+1737120100009,Deepak,Kumar,deepak.kumar@gmail.com,7678901235,Marbles,Emperador Dark Brown Marble,25,For executive office cabin flooring. Premium look required.,2026-01-08T11:25:00.000Z,pending
+1737120100010,Pooja,Mehta,pooja.mehta@hotmail.com,9789012346,Handicraft,Handcrafted Marble Chess Set,1,Looking for anniversary gift. Is gift wrapping available?,2026-01-10T17:40:00.000Z,solved
+1737120100011,Rahul,Saxena,rahul.saxena@gmail.com,8890123457,Tiles,Subway Metro White Tiles,300,For restaurant kitchen backsplash. Need delivery in Mumbai.,2026-01-12T08:55:00.000Z,pending
+1737120100012,Anjali,Kapoor,anjali.kapoor@yahoo.com,7901234568,Marbles,Rajnagar Pink Marble,40,Renovating heritage bungalow. Need matching pink marble.,2026-01-14T14:15:00.000Z,pending
+1737120100013,Sanjay,Malhotra,sanjay.malhotra@outlook.com,9012345679,Handicraft,Marble Flower Vase,5,For interior decoration project. Bulk order discount?,2026-01-16T10:30:00.000Z,pending

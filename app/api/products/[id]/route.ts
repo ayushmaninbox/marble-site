@@ -1,5 +1,28 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { updateProduct, deleteProduct } from '@/lib/csvUtils';
+import { readProducts, updateProduct, deleteProduct } from '@/lib/csvUtils';
+import { unlink } from 'fs/promises';
+import { existsSync } from 'fs';
+import path from 'path';
+
+// Helper function to delete an uploaded image
+async function deleteUploadedImage(imagePath: string): Promise<boolean> {
+  if (!imagePath || !imagePath.startsWith('/uploads/products/')) {
+    return false;
+  }
+  
+  try {
+    const filename = path.basename(imagePath);
+    const filePath = path.join(process.cwd(), 'public', 'uploads', 'products', filename);
+    
+    if (existsSync(filePath)) {
+      await unlink(filePath);
+      return true;
+    }
+  } catch (error) {
+    console.error('Error deleting image:', error);
+  }
+  return false;
+}
 
 export async function PUT(
   request: NextRequest,
@@ -9,13 +32,27 @@ export async function PUT(
     const { id } = await params;
     const body = await request.json();
     
-    const updatedProduct = updateProduct(id, body);
+    // Get the current product to check if image is being changed
+    const products = readProducts();
+    const currentProduct = products.find(p => p.id === id);
     
-    if (!updatedProduct) {
+    if (!currentProduct) {
       return NextResponse.json(
         { error: 'Product not found' },
         { status: 404 }
       );
+    }
+    
+    // Check if image is being changed to a new uploaded image
+    const oldImage = currentProduct.image;
+    const newImage = body.image;
+    
+    // Update the product first
+    const updatedProduct = updateProduct(id, body);
+    
+    // If image changed and old image was an uploaded file, delete it
+    if (oldImage && newImage && oldImage !== newImage && oldImage.startsWith('/uploads/products/')) {
+      await deleteUploadedImage(oldImage);
     }
     
     return NextResponse.json(updatedProduct);
@@ -34,13 +71,31 @@ export async function DELETE(
 ) {
   try {
     const { id } = await params;
-    const success = deleteProduct(id);
     
-    if (!success) {
+    // Get the product to find its image before deleting
+    const products = readProducts();
+    const product = products.find(p => p.id === id);
+    
+    if (!product) {
       return NextResponse.json(
         { error: 'Product not found' },
         { status: 404 }
       );
+    }
+    
+    // Delete the product from CSV
+    const success = deleteProduct(id);
+    
+    if (!success) {
+      return NextResponse.json(
+        { error: 'Failed to delete product' },
+        { status: 500 }
+      );
+    }
+    
+    // Delete the associated image if it's an uploaded file
+    if (product.image && product.image.startsWith('/uploads/products/')) {
+      await deleteUploadedImage(product.image);
     }
     
     return NextResponse.json({ message: 'Product deleted successfully' });
@@ -52,3 +107,4 @@ export async function DELETE(
     );
   }
 }
+
