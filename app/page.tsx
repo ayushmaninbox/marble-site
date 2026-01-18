@@ -33,6 +33,16 @@ export default function Home() {
     email?: string;
     quantity?: string;
   }>({});
+  
+  // Cinematic reveal state - triggers after video plays for 1.5 seconds
+  const [isRevealed, setIsRevealed] = useState(false);
+  
+  useEffect(() => {
+    const revealTimer = setTimeout(() => {
+      setIsRevealed(true);
+    }, 1500);
+    return () => clearTimeout(revealTimer);
+  }, []);
 
   const { scrollY } = useScroll();
   const bgY = useTransform(scrollY, [0, 500], [0, 150]);
@@ -190,8 +200,13 @@ export default function Home() {
         style={{ y: circleY }}
       />
 
-      {/* Header */}
-      <header className="fixed top-0 left-0 right-0 z-50 border-b border-blue-100/50 bg-gradient-to-r from-white/95 via-blue-50/90 to-sky-50/85 backdrop-blur-xl shadow-[0_4px_30px_rgba(59,130,246,0.1)]">
+      {/* Header - Animates in after video reveal */}
+      <motion.header 
+        initial={{ y: -100, opacity: 0 }}
+        animate={isRevealed ? { y: 0, opacity: 1 } : { y: -100, opacity: 0 }}
+        transition={{ duration: 0.8, ease: [0.22, 0.61, 0.36, 1] }}
+        className="fixed top-0 left-0 right-0 z-50 border-b border-blue-100/50 bg-gradient-to-r from-white/95 via-blue-50/90 to-sky-50/85 backdrop-blur-xl shadow-[0_4px_30px_rgba(59,130,246,0.1)]"
+      >
         <div className="mx-auto flex w-full max-w-7xl items-center justify-between px-3 py-3 sm:px-6 lg:px-4">
           <div className="flex items-center gap-3">
             <div className="relative">
@@ -238,21 +253,22 @@ export default function Home() {
             <span className="block h-[2px] w-4 rounded-full bg-gradient-to-r from-blue-600 to-sky-500" />
           </button>
         </div>
-      </header>
+      </motion.header>
 
 
-      <main id="top" className="mx-auto w-full max-w-7xl px-3 pt-16 sm:px-6 lg:px-4">
-        {/* Hero Section - Full Width */}
-        <div className="min-h-[85vh] relative overflow-hidden flex items-center justify-center bg-black" style={{ marginLeft: 'calc(-50vw + 50%)', marginRight: 'calc(-50vw + 50%)', width: '100vw' }}>
+      <main id="top" className="mx-auto w-full max-w-7xl px-3 pt-0 sm:px-6 lg:px-4">
+        {/* Hero Section - Full Screen */}
+        <div className="h-screen relative overflow-hidden flex items-center justify-center bg-black" style={{ marginLeft: 'calc(-50vw + 50%)', marginRight: 'calc(-50vw + 50%)', width: '100vw' }}>
 
-          {/* Video Background */}
+          {/* Video Background - Zoomed to cover full screen */}
           <div className="absolute inset-0 overflow-hidden">
             <video
               autoPlay
               loop
               muted
               playsInline
-              className="absolute w-full h-full object-cover"
+              className="absolute w-full h-full object-cover scale-110"
+              style={{ minWidth: '100%', minHeight: '100%' }}
             >
               <source src="/assets/MarbleVideo.mp4" type="video/mp4" />
             </video>
@@ -260,13 +276,13 @@ export default function Home() {
             <div className="absolute inset-0 bg-black/40" />
           </div>
 
-          {/* Hero Content - Centered */}
+          {/* Hero Content - Centered, animates after reveal */}
           <div className="relative z-10 text-center px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto">
             {/* Breadcrumb / Tagline */}
             <motion.p
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2, duration: 0.6 }}
+              initial={{ opacity: 0, y: -20 }}
+              animate={isRevealed ? { opacity: 1, y: 0 } : { opacity: 0, y: -20 }}
+              transition={{ duration: 0.7, ease: [0.22, 0.61, 0.36, 1] }}
               className="text-white/80 text-sm sm:text-base tracking-wide mb-6"
             >
               Premium marble & granite for modern spaces
@@ -274,9 +290,9 @@ export default function Home() {
 
             {/* Main Heading - Uppercase, Light Weight */}
             <motion.h1
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4, duration: 0.8, ease: [0.22, 0.61, 0.36, 1] }}
+              initial={{ opacity: 0, y: 40 }}
+              animate={isRevealed ? { opacity: 1, y: 0 } : { opacity: 0, y: 40 }}
+              transition={{ duration: 0.9, delay: 0.1, ease: [0.22, 0.61, 0.36, 1] }}
               className="text-4xl sm:text-5xl lg:text-6xl font-light text-white uppercase tracking-wider leading-tight"
             >
               Elevate Every Surface
@@ -285,9 +301,9 @@ export default function Home() {
 
             {/* Subtitle */}
             <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.6, duration: 0.6 }}
+              initial={{ opacity: 0, y: 30 }}
+              animate={isRevealed ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
+              transition={{ duration: 0.7, delay: 0.25, ease: [0.22, 0.61, 0.36, 1] }}
               className="mt-8 text-white/90 text-base sm:text-lg max-w-2xl mx-auto leading-relaxed"
             >
               From luxury residences to high-traffic commercial spaces, we source and craft premium marble, granite, and tiles to match your design vision.
@@ -295,9 +311,9 @@ export default function Home() {
 
             {/* Buttons - Ghost Style */}
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.8, duration: 0.6 }}
+              initial={{ opacity: 0, y: 30 }}
+              animate={isRevealed ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
+              transition={{ duration: 0.7, delay: 0.4, ease: [0.22, 0.61, 0.36, 1] }}
               className="mt-10 flex flex-wrap items-center justify-center gap-4"
             >
               <button
@@ -318,8 +334,8 @@ export default function Home() {
             {/* Trust Badges */}
             <motion.div
               initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 1, duration: 0.6 }}
+              animate={isRevealed ? { opacity: 1 } : { opacity: 0 }}
+              transition={{ duration: 0.8, delay: 0.55, ease: "easeOut" }}
               className="mt-12 flex flex-wrap items-center justify-center gap-6 text-white/70 text-xs sm:text-sm uppercase tracking-wide"
             >
               <span>20+ Years of Expertise</span>
@@ -917,14 +933,14 @@ export default function Home() {
         </div>
       )}
 
-      {/* Floating WhatsApp Button */}
+      {/* Floating WhatsApp Button - Animates in with reveal */}
       <motion.a
         href="https://wa.me/1234567890"
         target="_blank"
         rel="noopener noreferrer"
         initial={{ scale: 0, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        transition={{ delay: 1, type: "spring" }}
+        animate={isRevealed ? { scale: 1, opacity: 1 } : { scale: 0, opacity: 0 }}
+        transition={{ type: "spring", stiffness: 260, damping: 20, delay: 0.3 }}
         className="fixed bottom-6 right-6 z-50 inline-flex h-12 w-12 items-center justify-center rounded-full bg-[#25D366] text-white shadow-lg transition hover:-translate-y-0.5 hover:shadow-xl"
         aria-label="Chat on WhatsApp"
       >
