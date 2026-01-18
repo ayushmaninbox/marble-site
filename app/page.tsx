@@ -238,7 +238,7 @@ export default function Home() {
               playsInline
               className="absolute w-full h-full object-cover"
             >
-              <source src="/Assets/MarbleVideo.mp4" type="video/mp4" />
+              <source src="/assets/MarbleVideo.mp4" type="video/mp4" />
             </video>
             {/* Black overlay for text contrast */}
             <div className="absolute inset-0 bg-black/40" />
