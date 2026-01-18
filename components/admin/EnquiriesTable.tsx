@@ -9,6 +9,7 @@ interface EnquiriesTableProps {
   onStatusUpdate: (id: string, status: 'pending' | 'solved') => void;
   onBatchDelete: (ids: string[]) => void;
   onBatchStatusUpdate: (ids: string[], status: 'pending' | 'solved') => void;
+  onRowClick?: (enquiry: Enquiry) => void;
 }
 
 export default function EnquiriesTable({
@@ -16,7 +17,8 @@ export default function EnquiriesTable({
   onDelete,
   onStatusUpdate,
   onBatchDelete,
-  onBatchStatusUpdate
+  onBatchStatusUpdate,
+  onRowClick
 }: EnquiriesTableProps) {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
 
@@ -150,9 +152,10 @@ export default function EnquiriesTable({
                 enquiries.map((enquiry) => (
                   <tr
                     key={enquiry.id}
-                    className={`transition-colors hover:bg-slate-50 ${selectedIds.has(enquiry.id) ? 'bg-blue-50/30' : ''}`}
+                    onClick={() => onRowClick?.(enquiry)}
+                    className={`transition-colors hover:bg-slate-50 cursor-pointer ${selectedIds.has(enquiry.id) ? 'bg-blue-50/30' : ''}`}
                   >
-                    <td className="px-4 py-3">
+                    <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
                       <input
                         type="checkbox"
                         checked={selectedIds.has(enquiry.id)}
@@ -160,7 +163,7 @@ export default function EnquiriesTable({
                         className="rounded border-slate-300 text-blue-600 focus:ring-blue-500 h-4 w-4"
                       />
                     </td>
-                    <td className="px-4 py-3">
+                    <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
                       <button
                         onClick={() => handleStatusClick(enquiry)}
                         title={enquiry.status === 'solved' ? 'Mark as Pending' : 'Mark as Solved'}
@@ -207,7 +210,7 @@ export default function EnquiriesTable({
                         month: 'short'
                       })}
                     </td>
-                    <td className="px-4 py-3">
+                    <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
                       <div className="flex gap-1.5">
                         <a
                           href={`https://wa.me/91${enquiry.phone.replace(/\D/g, '')}`}

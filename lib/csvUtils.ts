@@ -17,25 +17,59 @@ const ensureDataDirectory = () => {
 const initializeCsvFile = () => {
   ensureDataDirectory();
   if (!fs.existsSync(CSV_FILE_PATH)) {
-    const headers = 'id,name,category,description,price,image,createdAt\n';
+    const headers = 'id,name,category,description,price,images,createdAt\n';
     fs.writeFileSync(CSV_FILE_PATH, headers, 'utf-8');
   }
 };
+
+// Parse images from CSV (handles JSON array or legacy single image)
+const parseImages = (imagesValue: string | undefined, legacyImage?: string): string[] => {
+  if (imagesValue) {
+    try {
+      const parsed = JSON.parse(imagesValue);
+      if (Array.isArray(parsed)) return parsed;
+    } catch {
+      // If not valid JSON, treat as single image
+      if (imagesValue.trim()) return [imagesValue.trim()];
+    }
+  }
+  // Fallback to legacy image field
+  if (legacyImage && legacyImage.trim()) {
+    return [legacyImage.trim()];
+  }
+  return [];
+};
+
+interface RawProductRow {
+  id: string;
+  name: string;
+  category: 'Marbles' | 'Tiles' | 'Handicraft';
+  description: string;
+  price: string;
+  images?: string;
+  image?: string; // Legacy field
+  createdAt: string;
+}
 
 export const readProducts = (): Product[] => {
   initializeCsvFile();
 
   try {
     const fileContent = fs.readFileSync(CSV_FILE_PATH, 'utf-8');
-    const parsed = Papa.parse<Product>(fileContent, {
+    const parsed = Papa.parse<RawProductRow>(fileContent, {
       header: true,
       skipEmptyLines: true,
       dynamicTyping: false,
     });
 
     return parsed.data.map(row => ({
-      ...row,
-      price: parseFloat(row.price as unknown as string) || 0,
+      id: row.id,
+      name: row.name,
+      category: row.category,
+      description: row.description,
+      price: parseFloat(row.price) || 0,
+      images: parseImages(row.images, row.image),
+      createdAt: row.createdAt,
     }));
   } catch (error) {
     console.error('Error reading CSV:', error);
@@ -47,9 +81,20 @@ export const writeProducts = (products: Product[]): void => {
   ensureDataDirectory();
 
   try {
-    const csv = Papa.unparse(products, {
+    // Convert products to CSV format with images as JSON string
+    const csvData = products.map(p => ({
+      id: p.id,
+      name: p.name,
+      category: p.category,
+      description: p.description,
+      price: p.price,
+      images: JSON.stringify(p.images || []),
+      createdAt: p.createdAt,
+    }));
+
+    const csv = Papa.unparse(csvData, {
       header: true,
-      columns: ['id', 'name', 'category', 'description', 'price', 'image', 'createdAt'],
+      columns: ['id', 'name', 'category', 'description', 'price', 'images', 'createdAt'],
       quotes: true,
     });
     fs.writeFileSync(CSV_FILE_PATH, csv, 'utf-8');
@@ -63,6 +108,7 @@ export const addProduct = (product: Omit<Product, 'id' | 'createdAt'>): Product 
   const products = readProducts();
   const newProduct: Product = {
     ...product,
+    images: product.images || [],
     id: crypto.randomUUID(),
     createdAt: new Date().toISOString(),
   };

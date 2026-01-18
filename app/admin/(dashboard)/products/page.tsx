@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Product, Enquiry, ProductCategory } from '@/lib/types';
 import ProductTable from '@/components/admin/ProductTable';
+import Image from 'next/image';
 
 // SVG Icons
 const BoxIcon = () => (
@@ -48,11 +49,13 @@ const UploadIcon = () => (
   </svg>
 );
 
-const LinkIcon = () => (
-  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+const PlusIcon = () => (
+  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
   </svg>
 );
+
+const MAX_IMAGES = 7;
 
 export default function ProductsPage() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -60,20 +63,20 @@ export default function ProductsPage() {
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | undefined>();
+  const [previewProduct, setPreviewProduct] = useState<Product | null>(null);
+  const [previewImageIndex, setPreviewImageIndex] = useState(0);
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [currentPage, setCurrentPage] = useState(1);
   
-  // Form state
+  // Form state - updated for multi-image
   const [formData, setFormData] = useState({
     name: '',
     category: 'Marbles' as ProductCategory,
     description: '',
     price: '',
-    image: '',
   });
-  const [imageFile, setImageFile] = useState<File | null>(null);
-  const [imagePreview, setImagePreview] = useState<string>('');
-  const [uploadMode, setUploadMode] = useState<'file' | 'url'>('file');
+  const [formImages, setFormImages] = useState<string[]>([]);
+  const [pendingFiles, setPendingFiles] = useState<File[]>([]);
   const [isUploading, setIsUploading] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [formError, setFormError] = useState('');
@@ -113,27 +116,36 @@ export default function ProductsPage() {
   };
 
   // Image upload handlers
-  const handleFileSelect = (file: File) => {
+  const handleFileSelect = (files: FileList | File[]) => {
+    const fileArray = Array.from(files);
     const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
-    if (!allowedTypes.includes(file.type)) {
-      setFormError('Invalid file type. Please upload JPEG, PNG, WebP, or GIF.');
+    
+    const remainingSlots = MAX_IMAGES - formImages.length - pendingFiles.length;
+    if (fileArray.length > remainingSlots) {
+      setFormError(`Can only add ${remainingSlots} more image(s). Maximum is ${MAX_IMAGES}.`);
       return;
     }
-    if (file.size > 5 * 1024 * 1024) {
-      setFormError('File too large. Maximum size is 5MB.');
-      return;
+
+    for (const file of fileArray) {
+      if (!allowedTypes.includes(file.type)) {
+        setFormError('Invalid file type. Please upload JPEG, PNG, WebP, or GIF.');
+        return;
+      }
+      if (file.size > 5 * 1024 * 1024) {
+        setFormError('File too large. Maximum size is 5MB.');
+        return;
+      }
     }
+    
     setFormError('');
-    setImageFile(file);
-    setImagePreview(URL.createObjectURL(file));
-    setFormData({ ...formData, image: '' }); // Clear URL if file selected
+    setPendingFiles(prev => [...prev, ...fileArray]);
   };
 
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
     setIsDragging(false);
-    const file = e.dataTransfer.files[0];
-    if (file) handleFileSelect(file);
+    const files = e.dataTransfer.files;
+    if (files.length > 0) handleFileSelect(files);
   };
 
   const handleDragOver = (e: React.DragEvent) => {
@@ -146,13 +158,10 @@ export default function ProductsPage() {
     setIsDragging(false);
   };
 
-  const uploadImage = async (): Promise<string | null> => {
-    if (!imageFile) return null;
-    
-    setIsUploading(true);
+  const uploadImage = async (file: File): Promise<string | null> => {
     try {
       const formDataUpload = new FormData();
-      formDataUpload.append('file', imageFile);
+      formDataUpload.append('file', file);
       
       const response = await fetch('/api/upload', {
         method: 'POST',
@@ -168,9 +177,16 @@ export default function ProductsPage() {
       return result.path;
     } catch (error) {
       console.error('Upload error:', error);
-      throw error;
-    } finally {
-      setIsUploading(false);
+      return null;
+    }
+  };
+
+  const removeImage = (index: number, isExisting: boolean) => {
+    if (isExisting) {
+      setFormImages(prev => prev.filter((_, i) => i !== index));
+    } else {
+      const pendingIndex = index - formImages.length;
+      setPendingFiles(prev => prev.filter((_, i) => i !== pendingIndex));
     }
   };
 
@@ -191,9 +207,13 @@ export default function ProductsPage() {
       return;
     }
     
-    // Check if we have an image (either file or URL)
-    if (!imageFile && !formData.image.trim()) {
-      setFormError('Please upload an image or provide an image URL');
+    const totalImages = formImages.length + pendingFiles.length;
+    if (totalImages === 0) {
+      setFormError('Please add at least one image');
+      return;
+    }
+    if (totalImages > MAX_IMAGES) {
+      setFormError(`Maximum ${MAX_IMAGES} images allowed`);
       return;
     }
 
@@ -208,26 +228,31 @@ export default function ProductsPage() {
     }
 
     setFormSubmitting(true);
+    setIsUploading(true);
 
     try {
-      // Upload image first if we have a file
-      let imagePath = formData.image.trim();
-      if (imageFile) {
-        const uploadedPath = await uploadImage();
-        if (!uploadedPath) {
-          setFormError('Failed to upload image. Please try again.');
+      // Upload all pending files
+      const uploadedPaths: string[] = [];
+      for (const file of pendingFiles) {
+        const path = await uploadImage(file);
+        if (path) {
+          uploadedPaths.push(path);
+        } else {
+          setFormError('Failed to upload one or more images. Please try again.');
           setFormSubmitting(false);
+          setIsUploading(false);
           return;
         }
-        imagePath = uploadedPath;
       }
+
+      const allImages = [...formImages, ...uploadedPaths];
 
       const productData = {
         name: formData.name.trim(),
         category: formData.category,
         description: formData.description.trim(),
         price: parseFloat(formData.price),
-        image: imagePath,
+        images: allImages,
       };
 
       const url = editingProduct
@@ -244,13 +269,15 @@ export default function ProductsPage() {
         await fetchProducts();
         closeForm();
       } else {
-        setFormError('Failed to save product. Please try again.');
+        const error = await response.json();
+        setFormError(error.error || 'Failed to save product. Please try again.');
       }
     } catch (error) {
       console.error('Error saving product:', error);
       setFormError('Failed to save product. Please try again.');
     } finally {
       setFormSubmitting(false);
+      setIsUploading(false);
     }
   };
 
@@ -261,11 +288,9 @@ export default function ProductsPage() {
       category: 'Marbles',
       description: '',
       price: '',
-      image: '',
     });
-    setImageFile(null);
-    setImagePreview('');
-    setUploadMode('file');
+    setFormImages([]);
+    setPendingFiles([]);
     setFormError('');
     setShowForm(true);
   };
@@ -277,11 +302,9 @@ export default function ProductsPage() {
       category: product.category,
       description: product.description,
       price: product.price.toString(),
-      image: product.image,
     });
-    setImageFile(null);
-    setImagePreview(product.image); // Show existing image
-    setUploadMode(product.image.startsWith('/uploads') ? 'file' : 'url');
+    setFormImages(product.images || (product.image ? [product.image] : []));
+    setPendingFiles([]);
     setFormError('');
     setShowForm(true);
   };
@@ -294,10 +317,9 @@ export default function ProductsPage() {
       category: 'Marbles',
       description: '',
       price: '',
-      image: '',
     });
-    setImageFile(null);
-    setImagePreview('');
+    setFormImages([]);
+    setPendingFiles([]);
     setFormError('');
   };
 
@@ -366,6 +388,12 @@ export default function ProductsPage() {
 
   const inputClasses = "w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-blue-400 focus:ring-2 focus:ring-blue-500/20";
 
+  // Get all images for display (existing + pending)
+  const allFormImages = [
+    ...formImages.map(url => ({ type: 'existing' as const, url })),
+    ...pendingFiles.map(file => ({ type: 'pending' as const, file, url: URL.createObjectURL(file) })),
+  ];
+
   if (loading) {
     return (
       <div className="flex min-h-[60vh] items-center justify-center">
@@ -375,7 +403,7 @@ export default function ProductsPage() {
   }
 
   return (
-    <main className="p-4 lg:p-6">
+    <main className="p-4 lg:p-6 bg-slate-50 min-h-screen">
       {/* Page Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
@@ -515,13 +543,17 @@ export default function ProductsPage() {
           products={paginatedProducts}
           onEdit={openEditForm}
           onDelete={handleDeleteProduct}
+          onPreview={(product) => {
+            setPreviewProduct(product);
+            setPreviewImageIndex(0);
+          }}
         />
       </div>
 
       {/* Product Form Modal */}
       {showForm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm">
-          <div className="mx-4 w-full max-w-lg rounded-2xl bg-white p-6 shadow-2xl">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm overflow-y-auto py-8">
+          <div className="mx-4 w-full max-w-2xl rounded-2xl bg-white p-6 shadow-2xl max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-5">
               <h2 className="text-lg font-bold text-slate-900">
                 {editingProduct ? 'Edit Product' : 'Add New Product'}
@@ -560,122 +592,84 @@ export default function ProductsPage() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-semibold text-slate-600 mb-1.5">Price (₹)</label>
-                  <input
-                    type="number"
-                    min="0"
-                    step="0.01"
-                    value={formData.price}
-                    onChange={(e) => setFormData({ ...formData, price: e.target.value })}
-                    placeholder="25000"
-                    className={inputClasses}
-                  />
-                </div>
+              <div>
+                <label className="block text-xs font-semibold text-slate-600 mb-1.5">Price (₹)</label>
+                <input
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  value={formData.price}
+                  onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+                  placeholder="25000"
+                  className={inputClasses}
+                />
               </div>
 
-              {/* Image Upload Section */}
+              {/* Multi-Image Upload Section */}
               <div>
-                <div className="flex items-center justify-between mb-1.5">
-                  <label className="block text-xs font-semibold text-slate-600">Product Image</label>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setUploadMode(uploadMode === 'file' ? 'url' : 'file');
-                      setImageFile(null);
-                      setImagePreview(editingProduct?.image || '');
-                    }}
-                    className="text-xs text-blue-600 hover:text-blue-700 flex items-center gap-1"
-                  >
-                    <LinkIcon />
-                    {uploadMode === 'file' ? 'Use URL instead' : 'Upload file instead'}
-                  </button>
+                <div className="flex items-center justify-between mb-2">
+                  <label className="block text-xs font-semibold text-slate-600">
+                    Product Images ({allFormImages.length}/{MAX_IMAGES})
+                  </label>
                 </div>
 
-                {uploadMode === 'file' ? (
-                  <div
-                    onDrop={handleDrop}
-                    onDragOver={handleDragOver}
-                    onDragLeave={handleDragLeave}
-                    className={`relative border-2 border-dashed rounded-lg transition-all ${
-                      isDragging 
-                        ? 'border-blue-500 bg-blue-50' 
-                        : 'border-slate-300 hover:border-slate-400'
-                    } ${imagePreview ? 'p-2' : 'p-6'}`}
-                  >
-                    {imagePreview ? (
-                      <div className="relative">
-                        <img 
-                          src={imagePreview} 
-                          alt="Preview" 
-                          className="w-full h-32 object-cover rounded-lg"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setImageFile(null);
-                            setImagePreview('');
-                          }}
-                          className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
-                        >
-                          <CloseIcon />
-                        </button>
-                        {imageFile && (
-                          <div className="mt-2 text-xs text-slate-600 truncate">
-                            {imageFile.name}
-                          </div>
-                        )}
-                      </div>
-                    ) : (
-                      <div className="text-center">
-                        <div className="mx-auto text-slate-400 mb-2">
-                          <UploadIcon />
-                        </div>
-                        <p className="text-sm text-slate-600 mb-1">
-                          Drag & drop an image here, or
-                        </p>
-                        <label className="cursor-pointer text-sm text-blue-600 hover:text-blue-700 font-medium">
-                          browse to upload
-                          <input
-                            type="file"
-                            accept="image/jpeg,image/png,image/webp,image/gif"
-                            onChange={(e) => {
-                              const file = e.target.files?.[0];
-                              if (file) handleFileSelect(file);
-                            }}
-                            className="hidden"
-                          />
-                        </label>
-                        <p className="text-xs text-slate-400 mt-2">
-                          JPEG, PNG, WebP, GIF up to 5MB
-                        </p>
-                      </div>
-                    )}
-                  </div>
-                ) : (
-                  <input
-                    type="text"
-                    value={formData.image}
-                    onChange={(e) => {
-                      setFormData({ ...formData, image: e.target.value });
-                      setImagePreview(e.target.value);
-                    }}
-                    placeholder="https://example.com/image.jpg"
-                    className={inputClasses}
-                  />
-                )}
+                {/* Image Grid */}
+                <div className="grid grid-cols-4 gap-3 mb-3">
+                  {allFormImages.map((img, index) => (
+                    <div key={index} className="relative aspect-square rounded-lg overflow-hidden bg-slate-100 group">
+                      <img
+                        src={img.url}
+                        alt={`Image ${index + 1}`}
+                        className="w-full h-full object-cover"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => removeImage(index, img.type === 'existing')}
+                        className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 opacity-0 group-hover:opacity-100 transition"
+                      >
+                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                      </button>
+                      {index === 0 && (
+                        <span className="absolute bottom-1 left-1 bg-blue-500 text-white text-[10px] px-1.5 py-0.5 rounded">
+                          Primary
+                        </span>
+                      )}
+                    </div>
+                  ))}
 
-                {uploadMode === 'url' && imagePreview && (
-                  <div className="mt-2">
-                    <img 
-                      src={imagePreview} 
-                      alt="Preview" 
-                      className="w-full h-24 object-cover rounded-lg"
-                      onError={() => setImagePreview('')}
-                    />
-                  </div>
-                )}
+                  {/* Add Image Button */}
+                  {allFormImages.length < MAX_IMAGES && (
+                    <label
+                      onDrop={handleDrop}
+                      onDragOver={handleDragOver}
+                      onDragLeave={handleDragLeave}
+                      className={`aspect-square rounded-lg border-2 border-dashed cursor-pointer flex flex-col items-center justify-center transition ${
+                        isDragging
+                          ? 'border-blue-500 bg-blue-50'
+                          : 'border-slate-300 hover:border-slate-400 bg-slate-50'
+                      }`}
+                    >
+                      <PlusIcon />
+                      <span className="text-xs text-slate-500 mt-1">Add</span>
+                      <input
+                        type="file"
+                        accept="image/jpeg,image/png,image/webp,image/gif"
+                        multiple
+                        onChange={(e) => {
+                          if (e.target.files) handleFileSelect(e.target.files);
+                          e.target.value = '';
+                        }}
+                        className="hidden"
+                      />
+                    </label>
+                  )}
+                </div>
+
+                <p className="text-xs text-slate-400">
+                  Drag & drop or click to add images. First image is the primary display image.
+                </p>
               </div>
 
               <div>
@@ -684,7 +678,7 @@ export default function ProductsPage() {
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                   placeholder="Brief product description..."
-                  rows={2}
+                  rows={3}
                   className={inputClasses + " resize-none"}
                 />
               </div>
@@ -712,6 +706,131 @@ export default function ProductsPage() {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Product Preview Modal - Redesigned */}
+      {previewProduct && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm overflow-y-auto py-8">
+          <div className="mx-4 w-full max-w-4xl rounded-2xl bg-white shadow-2xl max-h-[90vh] overflow-hidden">
+            {/* Header */}
+            <div className="flex items-center justify-between p-4 border-b border-slate-100">
+              <div className="flex items-center gap-2">
+                <svg className="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                </svg>
+                <span className="text-sm font-medium text-slate-600">Customer View Preview</span>
+              </div>
+              <button
+                onClick={() => setPreviewProduct(null)}
+                className="h-8 w-8 flex items-center justify-center rounded-full hover:bg-slate-100 text-slate-500"
+              >
+                <CloseIcon />
+              </button>
+            </div>
+
+            {/* Product Content */}
+            <div className="grid md:grid-cols-2 gap-6 p-6 overflow-y-auto max-h-[calc(90vh-60px)]">
+              {/* Image Gallery */}
+              <div className="space-y-3">
+                {/* Main Image */}
+                <div className="relative aspect-square rounded-xl overflow-hidden bg-slate-100 group">
+                  {(() => {
+                    const images = previewProduct.images?.length ? previewProduct.images : (previewProduct.image ? [previewProduct.image] : []);
+                    const currentImage = images[previewImageIndex];
+                    return currentImage ? (
+                      <>
+                        <img
+                          src={currentImage}
+                          alt={previewProduct.name}
+                          className="w-full h-full object-cover"
+                        />
+                        {images.length > 1 && (
+                          <>
+                            <button
+                              onClick={() => setPreviewImageIndex(prev => prev === 0 ? images.length - 1 : prev - 1)}
+                              className="absolute left-2 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full bg-white/90 shadow flex items-center justify-center text-slate-700 hover:bg-white opacity-0 group-hover:opacity-100 transition"
+                            >
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                              </svg>
+                            </button>
+                            <button
+                              onClick={() => setPreviewImageIndex(prev => prev === images.length - 1 ? 0 : prev + 1)}
+                              className="absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full bg-white/90 shadow flex items-center justify-center text-slate-700 hover:bg-white opacity-0 group-hover:opacity-100 transition"
+                            >
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                              </svg>
+                            </button>
+                          </>
+                        )}
+                      </>
+                    ) : (
+                      <div className="absolute inset-0 flex items-center justify-center text-slate-300">
+                        <svg className="h-16 w-16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                      </div>
+                    );
+                  })()}
+                </div>
+
+                {/* Thumbnails */}
+                {(() => {
+                  const images = previewProduct.images?.length ? previewProduct.images : (previewProduct.image ? [previewProduct.image] : []);
+                  return images.length > 1 && (
+                    <div className="flex gap-2 overflow-x-auto pb-1">
+                      {images.map((img, index) => (
+                        <button
+                          key={index}
+                          onClick={() => setPreviewImageIndex(index)}
+                          className={`relative flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden transition-all ${
+                            index === previewImageIndex
+                              ? 'ring-2 ring-blue-500 ring-offset-1'
+                              : 'opacity-60 hover:opacity-100'
+                          }`}
+                        >
+                          <img
+                            src={img}
+                            alt={`${previewProduct.name} - ${index + 1}`}
+                            className="w-full h-full object-cover"
+                          />
+                        </button>
+                      ))}
+                    </div>
+                  );
+                })()}
+              </div>
+
+              {/* Details */}
+              <div className="flex flex-col">
+                <span className={`self-start inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium mb-3 ${
+                  previewProduct.category === 'Marbles' ? 'bg-blue-100 text-blue-700' :
+                  previewProduct.category === 'Tiles' ? 'bg-emerald-100 text-emerald-700' :
+                  'bg-violet-100 text-violet-700'
+                }`}>
+                  {previewProduct.category}
+                </span>
+
+                <h2 className="text-2xl font-bold text-slate-900 mb-3">{previewProduct.name}</h2>
+
+                <p className="text-sm text-slate-600 mb-6 flex-grow leading-relaxed">{previewProduct.description}</p>
+
+                <div className="text-3xl font-bold text-slate-900 mb-6">
+                  ₹{previewProduct.price.toLocaleString('en-IN')}
+                  <span className="text-sm font-normal text-slate-500 ml-2">per unit</span>
+                </div>
+
+                {/* Action Preview */}
+                <div className="bg-slate-900 text-white rounded-xl p-4 text-center">
+                  <p className="text-sm font-medium">Send Enquiry</p>
+                  <p className="text-xs opacity-70 mt-1">Get a quote for this product</p>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       )}

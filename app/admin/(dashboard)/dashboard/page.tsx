@@ -378,7 +378,7 @@ export default function DashboardPage() {
               <div className="h-2.5 bg-slate-100 rounded-full overflow-hidden">
                 <div 
                   className="h-full bg-gradient-to-r from-blue-500 to-blue-400 rounded-full transition-all duration-500"
-                  style={{ width: `${(categoryEnquiries.Marbles / maxCategoryEnquiries) * 100}%` }}
+                  style={{ width: `${(categoryEnquiries.Marbles / (totalEnquiries || 1)) * 100}%` }}
                 />
               </div>
               <span className="text-xs text-slate-400 mt-1">{categoryEnquiries.Marbles} enquiries</span>
@@ -395,7 +395,7 @@ export default function DashboardPage() {
               <div className="h-2.5 bg-slate-100 rounded-full overflow-hidden">
                 <div 
                   className="h-full bg-gradient-to-r from-emerald-500 to-emerald-400 rounded-full transition-all duration-500"
-                  style={{ width: `${(categoryEnquiries.Tiles / maxCategoryEnquiries) * 100}%` }}
+                  style={{ width: `${(categoryEnquiries.Tiles / (totalEnquiries || 1)) * 100}%` }}
                 />
               </div>
               <span className="text-xs text-slate-400 mt-1">{categoryEnquiries.Tiles} enquiries</span>
@@ -412,7 +412,7 @@ export default function DashboardPage() {
               <div className="h-2.5 bg-slate-100 rounded-full overflow-hidden">
                 <div 
                   className="h-full bg-gradient-to-r from-violet-500 to-violet-400 rounded-full transition-all duration-500"
-                  style={{ width: `${(categoryEnquiries.Handicraft / maxCategoryEnquiries) * 100}%` }}
+                  style={{ width: `${(categoryEnquiries.Handicraft / (totalEnquiries || 1)) * 100}%` }}
                 />
               </div>
               <span className="text-xs text-slate-400 mt-1">{categoryEnquiries.Handicraft} enquiries</span>

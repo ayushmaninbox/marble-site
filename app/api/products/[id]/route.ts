@@ -24,6 +24,13 @@ async function deleteUploadedImage(imagePath: string): Promise<boolean> {
   return false;
 }
 
+// Delete multiple images
+async function deleteImages(images: string[]): Promise<void> {
+  for (const img of images) {
+    await deleteUploadedImage(img);
+  }
+}
+
 export async function PUT(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -32,7 +39,7 @@ export async function PUT(
     const { id } = await params;
     const body = await request.json();
     
-    // Get the current product to check if image is being changed
+    // Get the current product to check if images are being changed
     const products = readProducts();
     const currentProduct = products.find(p => p.id === id);
     
@@ -42,18 +49,35 @@ export async function PUT(
         { status: 404 }
       );
     }
+
+    // Validate images array if provided
+    if (body.images !== undefined) {
+      const imageArray = Array.isArray(body.images) ? body.images : [body.images];
+      if (imageArray.length === 0) {
+        return NextResponse.json(
+          { error: 'At least one image is required' },
+          { status: 400 }
+        );
+      }
+      if (imageArray.length > 7) {
+        return NextResponse.json(
+          { error: 'Maximum 7 images allowed' },
+          { status: 400 }
+        );
+      }
+      body.images = imageArray;
+    }
     
-    // Check if image is being changed to a new uploaded image
-    const oldImage = currentProduct.image;
-    const newImage = body.image;
+    // Track old images for cleanup
+    const oldImages = currentProduct.images || [];
+    const newImages = body.images || oldImages;
     
     // Update the product first
     const updatedProduct = updateProduct(id, body);
     
-    // If image changed and old image was an uploaded file, delete it
-    if (oldImage && newImage && oldImage !== newImage && oldImage.startsWith('/uploads/products/')) {
-      await deleteUploadedImage(oldImage);
-    }
+    // Find and delete removed images
+    const removedImages = oldImages.filter(img => !newImages.includes(img));
+    await deleteImages(removedImages);
     
     return NextResponse.json(updatedProduct);
   } catch (error) {
@@ -72,7 +96,7 @@ export async function DELETE(
   try {
     const { id } = await params;
     
-    // Get the product to find its image before deleting
+    // Get the product to find its images before deleting
     const products = readProducts();
     const product = products.find(p => p.id === id);
     
@@ -93,10 +117,8 @@ export async function DELETE(
       );
     }
     
-    // Delete the associated image if it's an uploaded file
-    if (product.image && product.image.startsWith('/uploads/products/')) {
-      await deleteUploadedImage(product.image);
-    }
+    // Delete all associated images
+    await deleteImages(product.images || []);
     
     return NextResponse.json({ message: 'Product deleted successfully' });
   } catch (error) {

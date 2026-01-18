@@ -45,6 +45,11 @@ const LightningIcon = () => (
 export default function EnquiriesPage() {
   const [enquiries, setEnquiries] = useState<Enquiry[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedEnquiry, setSelectedEnquiry] = useState<Enquiry | null>(null);
+
+  // Pagination State
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
 
   // Filter State
   const [enquirySearch, setEnquirySearch] = useState('');
@@ -193,6 +198,13 @@ export default function EnquiriesPage() {
     }
   });
 
+  // Pagination
+  const totalEnquiriesFiltered = filteredEnquiries.length;
+  const totalPages = Math.ceil(totalEnquiriesFiltered / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = Math.min(startIndex + itemsPerPage, totalEnquiriesFiltered);
+  const paginatedEnquiries = filteredEnquiries.slice(startIndex, endIndex);
+
   if (loading) {
     return (
       <div className="flex min-h-[60vh] items-center justify-center">
@@ -202,7 +214,7 @@ export default function EnquiriesPage() {
   }
 
   return (
-    <main className="p-4 lg:p-6">
+    <main className="p-4 lg:p-6 bg-slate-50 min-h-screen">
       {/* Page Header */}
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-slate-900">Enquiries</h1>
@@ -381,16 +393,156 @@ export default function EnquiriesPage() {
         </div>
       </div>
 
+      {/* Pagination Controls */}
+      <div className="flex items-center justify-between mb-4 bg-white rounded-lg border border-slate-200 px-4 py-3">
+        <div className="flex items-center gap-2 text-sm text-slate-600">
+          <span>Showing</span>
+          <span className="font-semibold text-slate-900">{totalEnquiriesFiltered > 0 ? startIndex + 1 : 0}-{endIndex}</span>
+          <span>of</span>
+          <span className="font-semibold text-slate-900">{totalEnquiriesFiltered}</span>
+          <span>enquiries</span>
+        </div>
+        <div className="flex items-center gap-3">
+          <label className="text-sm text-slate-600">Per page:</label>
+          <select
+            value={itemsPerPage}
+            onChange={(e) => {
+              setItemsPerPage(Number(e.target.value));
+              setCurrentPage(1);
+            }}
+            className="rounded-lg border border-slate-200 px-2 py-1 text-sm outline-none focus:border-blue-400"
+          >
+            <option value={5}>5</option>
+            <option value={10}>10</option>
+            <option value={20}>20</option>
+            <option value={50}>50</option>
+          </select>
+          <div className="flex gap-1">
+            <button
+              onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+              disabled={currentPage === 1}
+              className="px-2 py-1 rounded border border-slate-200 text-sm disabled:opacity-50 hover:bg-slate-50"
+            >
+              ←
+            </button>
+            <span className="px-3 py-1 text-sm">{currentPage} / {totalPages || 1}</span>
+            <button
+              onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+              disabled={currentPage === totalPages || totalPages === 0}
+              className="px-2 py-1 rounded border border-slate-200 text-sm disabled:opacity-50 hover:bg-slate-50"
+            >
+              →
+            </button>
+          </div>
+        </div>
+      </div>
+
       {/* Enquiries Table */}
       <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
         <EnquiriesTable
-          enquiries={filteredEnquiries}
+          enquiries={paginatedEnquiries}
           onDelete={handleDeleteEnquiry}
           onStatusUpdate={handleUpdateEnquiryStatus}
           onBatchDelete={handleBatchDeleteEnquiries}
           onBatchStatusUpdate={handleBatchUpdateEnquiryStatus}
+          onRowClick={(enquiry) => setSelectedEnquiry(enquiry)}
         />
       </div>
+
+      {/* Enquiry Detail Modal */}
+      {selectedEnquiry && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm">
+          <div className="mx-4 w-full max-w-lg rounded-2xl bg-white p-6 shadow-2xl">
+            <div className="flex items-center justify-between mb-5">
+              <h2 className="text-lg font-bold text-slate-900">Enquiry Details</h2>
+              <button
+                onClick={() => setSelectedEnquiry(null)}
+                className="h-8 w-8 flex items-center justify-center rounded-full hover:bg-slate-100 text-slate-500"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              {/* Status Badge */}
+              <div className="flex items-center gap-2">
+                <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${
+                  selectedEnquiry.status === 'solved'
+                    ? 'bg-emerald-100 text-emerald-700'
+                    : 'bg-amber-100 text-amber-700'
+                }`}>
+                  {selectedEnquiry.status === 'solved' ? '✓ Solved' : '⏳ Pending'}
+                </span>
+                <span className="text-xs text-slate-400">
+                  {new Date(selectedEnquiry.createdAt).toLocaleString('en-IN', {
+                    day: 'numeric',
+                    month: 'short',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                  })}
+                </span>
+              </div>
+
+              {/* Customer Info */}
+              <div className="bg-slate-50 rounded-xl p-4 space-y-2">
+                <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Customer</h3>
+                <p className="text-sm font-medium text-slate-900">
+                  {selectedEnquiry.firstName} {selectedEnquiry.lastName}
+                </p>
+                <div className="flex flex-col gap-1 text-sm text-slate-600">
+                  <span>📞 {selectedEnquiry.phone}</span>
+                  <span>✉️ {selectedEnquiry.email}</span>
+                </div>
+              </div>
+
+              {/* Product Info */}
+              <div className="bg-slate-50 rounded-xl p-4 space-y-2">
+                <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Product</h3>
+                <p className="text-sm font-medium text-slate-900">{selectedEnquiry.productName}</p>
+                <div className="flex items-center gap-3">
+                  <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${
+                    selectedEnquiry.productCategory === 'Marbles' ? 'bg-blue-100 text-blue-700' :
+                    selectedEnquiry.productCategory === 'Tiles' ? 'bg-emerald-100 text-emerald-700' :
+                    'bg-purple-100 text-purple-700'
+                  }`}>
+                    {selectedEnquiry.productCategory}
+                  </span>
+                  <span className="text-sm text-slate-600">Quantity: {selectedEnquiry.quantity}</span>
+                </div>
+              </div>
+
+              {/* Message */}
+              {selectedEnquiry.message && (
+                <div className="bg-slate-50 rounded-xl p-4 space-y-2">
+                  <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Message</h3>
+                  <p className="text-sm text-slate-700">{selectedEnquiry.message}</p>
+                </div>
+              )}
+
+              {/* Actions */}
+              <div className="flex gap-2 pt-2">
+                <a
+                  href={`https://wa.me/91${selectedEnquiry.phone.replace(/\D/g, '')}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-[#25D366] text-white rounded-lg text-sm font-medium hover:bg-[#22c55e] transition-colors"
+                >
+                  WhatsApp
+                </a>
+                <a
+                  href={`mailto:${selectedEnquiry.email}?subject=Response to Your Product Enquiry`}
+                  className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-blue-500 text-white rounded-lg text-sm font-medium hover:bg-blue-600 transition-colors"
+                >
+                  Email
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   );
 }

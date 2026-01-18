@@ -25,11 +25,26 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { name, category, description, price, image } = body;
+    const { name, category, description, price, images } = body;
     
-    if (!name || !category || !description || price === undefined || !image) {
+    if (!name || !category || !description || price === undefined) {
       return NextResponse.json(
         { error: 'Missing required fields' },
+        { status: 400 }
+      );
+    }
+
+    // Validate images array
+    const imageArray = Array.isArray(images) ? images : (images ? [images] : []);
+    if (imageArray.length === 0) {
+      return NextResponse.json(
+        { error: 'At least one image is required' },
+        { status: 400 }
+      );
+    }
+    if (imageArray.length > 7) {
+      return NextResponse.json(
+        { error: 'Maximum 7 images allowed' },
         { status: 400 }
       );
     }
@@ -39,7 +54,7 @@ export async function POST(request: NextRequest) {
       category,
       description,
       price: parseFloat(price),
-      image,
+      images: imageArray,
     });
     
     return NextResponse.json(newProduct, { status: 201 });

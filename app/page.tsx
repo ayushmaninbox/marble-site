@@ -172,9 +172,9 @@ export default function Home() {
             <a href="#top" className="px-4 py-2 rounded-full text-slate-700 hover:text-blue-600 hover:bg-blue-50/50 transition-all duration-200">
               Home
             </a>
-            <a href="#products" className="px-4 py-2 rounded-full text-slate-700 hover:text-blue-600 hover:bg-blue-50/50 transition-all duration-200">
+            <Link href="/products" className="px-4 py-2 rounded-full text-slate-700 hover:text-blue-600 hover:bg-blue-50/50 transition-all duration-200">
               Products
-            </a>
+            </Link>
             <a href="#gallery" className="px-4 py-2 rounded-full text-slate-700 hover:text-blue-600 hover:bg-blue-50/50 transition-all duration-200">
               Gallery
             </a>
@@ -266,12 +266,12 @@ export default function Home() {
                 >
                   Send Inquiry
                 </button>
-                <a
-                  href="#products"
+                <Link
+                  href="/products"
                   className="inline-flex items-center justify-center rounded-full border border-sky-200 bg-white/90 px-6 py-3 text-sm font-medium text-slate-900 shadow-sm transition duration-200 hover:border-sky-300 hover:bg-gradient-to-r hover:from-sky-50 hover:to-blue-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:ring-offset-2"
                 >
                   View Products
-                </a>
+                </Link>
               </motion.div>
 
               <motion.div

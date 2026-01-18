@@ -4,7 +4,8 @@ export interface Product {
   category: 'Marbles' | 'Tiles' | 'Handicraft';
   description: string;
   price: number;
-  image: string;
+  images: string[]; // Array of up to 7 image URLs/paths
+  image?: string; // Legacy field for backward compatibility
   createdAt: string;
 }
 
