@@ -14,6 +14,8 @@ export const metadata: Metadata = {
   keywords: ["marble", "tiles", "granite", "handicraft", "premium marble", "Indian marble"],
 };
 
+import FloatingWhatsApp from "@/components/FloatingWhatsApp";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -23,6 +25,7 @@ export default function RootLayout({
     <html lang="en" className="scroll-smooth">
       <body className={`${jost.variable} antialiased`}>
         {children}
+        <FloatingWhatsApp />
       </body>
     </html>
   );

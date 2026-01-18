@@ -109,7 +109,7 @@ export default function DashboardPage() {
   if (loading) {
     return (
       <div className="flex min-h-[60vh] items-center justify-center">
-        <div className="inline-block h-8 w-8 animate-spin rounded-full border-3 border-blue-500 border-t-transparent"></div>
+        <div className="inline-block h-8 w-8 animate-spin rounded-full border-3 border-red-500 border-t-transparent"></div>
       </div>
     );
   }
@@ -127,7 +127,7 @@ export default function DashboardPage() {
             <input
               type="text"
               placeholder="Search..."
-              className="w-48 lg:w-64 pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400"
+              className="w-48 lg:w-64 pl-10 pr-4 py-2.5 rounded-xl border border-stone-200 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-400"
             />
             <svg className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -142,12 +142,12 @@ export default function DashboardPage() {
         <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm hover:shadow-md transition-shadow">
           <div className="flex items-center justify-between mb-4">
             <span className="text-sm font-medium text-slate-500">Total Products</span>
-            <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center text-blue-600">
+            <div className="w-10 h-10 bg-red-50 rounded-xl flex items-center justify-center text-red-600">
               <BoxIcon />
             </div>
           </div>
           <div className="text-3xl font-bold text-slate-900">{totalProducts}</div>
-          <div className="flex items-center gap-1 mt-2 text-xs text-emerald-600">
+          <div className="flex items-center gap-1 mt-2 text-xs text-red-600">
             <TrendUpIcon />
             <span>Active listings</span>
           </div>
@@ -293,7 +293,7 @@ export default function DashboardPage() {
             <h3 className="text-base font-semibold text-slate-800">Recent Enquiries</h3>
             <Link
               href="/admin/enquiries"
-              className="text-xs text-blue-600 hover:text-blue-700 font-medium flex items-center gap-1"
+              className="text-xs text-red-600 hover:text-red-700 font-bold uppercase tracking-wider flex items-center gap-1"
             >
               View All <ArrowRightIcon />
             </Link>
@@ -377,7 +377,7 @@ export default function DashboardPage() {
               </div>
               <div className="h-2.5 bg-slate-100 rounded-full overflow-hidden">
                 <div 
-                  className="h-full bg-gradient-to-r from-blue-500 to-blue-400 rounded-full transition-all duration-500"
+                  className="h-full bg-gradient-to-r from-red-500 to-red-400 rounded-full transition-all duration-500"
                   style={{ width: `${(categoryEnquiries.Marbles / (totalEnquiries || 1)) * 100}%` }}
                 />
               </div>

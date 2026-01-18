@@ -95,7 +95,7 @@ export default function AdminLayout({ children }: LayoutProps) {
       href: '/admin/products', 
       icon: BoxIcon, 
       badge: productCount,
-      badgeColor: 'bg-slate-100 text-slate-500',
+      badgeColor: 'bg-stone-100 text-stone-600',
       isActive: pathname === '/admin/products'
     },
     { 
@@ -103,13 +103,13 @@ export default function AdminLayout({ children }: LayoutProps) {
       href: '/admin/enquiries', 
       icon: ChatIcon, 
       badge: enquiryCount,
-      badgeColor: 'bg-orange-500 text-white',
+      badgeColor: 'bg-red-500 text-white',
       isActive: pathname === '/admin/enquiries'
     },
   ];
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900">
+    <div className="min-h-screen bg-stone-50 text-slate-900">
       {/* Sidebar Overlay */}
       {sidebarOpen && (
         <div
@@ -119,13 +119,13 @@ export default function AdminLayout({ children }: LayoutProps) {
       )}
 
       {/* Sidebar */}
-      <aside className={`fixed top-0 left-0 h-full w-64 bg-white border-r border-slate-200 z-50 transform transition-transform duration-300 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0`}>
-        <div className="p-4 border-b border-slate-100">
+      <aside className={`fixed top-0 left-0 h-full w-64 bg-white border-r border-stone-200 z-50 transform transition-transform duration-300 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0`}>
+        <div className="p-6 border-b border-stone-100">
           <div className="flex items-center gap-3">
-            <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-blue-600 to-sky-500 shadow-sm" />
+            <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-red-600 via-red-500 to-orange-400 shadow-sm" />
             <div>
-              <div className="text-sm font-bold text-slate-900">Admin Panel</div>
-              <div className="text-[10px] text-slate-400">Shree Radhe Marble</div>
+              <div className="text-sm font-bold text-slate-900 font-serif">Admin Panel</div>
+              <div className="text-[10px] uppercase tracking-wider text-slate-400">Shree Radhe Marble</div>
             </div>
           </div>
         </div>
@@ -136,27 +136,27 @@ export default function AdminLayout({ children }: LayoutProps) {
               key={item.name}
               href={item.href}
               onClick={() => setSidebarOpen(false)}
-              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
+              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-colors ${
                 item.isActive 
-                  ? 'bg-blue-50 text-blue-700' 
-                  : 'text-slate-600 hover:bg-slate-50'
+                  ? 'bg-red-50 text-red-700' 
+                  : 'text-slate-500 hover:bg-stone-50 hover:text-slate-900'
               }`}
             >
               <item.icon />
               {item.name}
               {item.badge !== undefined && item.badge > 0 && (
-                <span className={`ml-auto text-xs px-2 py-0.5 rounded-full font-bold ${item.badgeColor}`}>
+                <span className={`ml-auto text-[10px] px-2 py-0.5 rounded-full font-bold ${item.badgeColor}`}>
                   {item.badge}
                 </span>
               )}
             </Link>
           ))}
 
-          <hr className="my-3 border-slate-100" />
+          <hr className="my-3 border-stone-100" />
 
           <a
             href="/"
-            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-600 hover:bg-slate-50 transition-colors"
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs font-bold uppercase tracking-wider text-slate-500 hover:bg-stone-50 hover:text-slate-900 transition-colors"
           >
             <GlobeIcon />
             View Website
@@ -164,7 +164,7 @@ export default function AdminLayout({ children }: LayoutProps) {
 
           <button
             onClick={handleLogout}
-            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-red-600 hover:bg-red-50 transition-colors"
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs font-bold uppercase tracking-wider text-red-600 hover:bg-red-50 transition-colors"
           >
             <LogoutIcon />
             Logout
@@ -175,15 +175,15 @@ export default function AdminLayout({ children }: LayoutProps) {
       {/* Main Content */}
       <div className="lg:ml-64">
         {/* Mobile Header */}
-        <header className="sticky top-0 z-30 bg-white/80 backdrop-blur-sm border-b border-slate-200 lg:hidden">
+        <header className="sticky top-0 z-30 bg-white/80 backdrop-blur-sm border-b border-stone-200 lg:hidden">
           <div className="flex items-center justify-between px-4 py-3">
             <button
               onClick={() => setSidebarOpen(true)}
-              className="h-9 w-9 flex items-center justify-center rounded-lg border border-slate-200 hover:bg-slate-50"
+              className="h-9 w-9 flex items-center justify-center rounded-lg border border-stone-200 hover:bg-stone-50"
             >
               <MenuIcon />
             </button>
-            <div className="h-7 w-7 rounded-lg bg-gradient-to-br from-blue-600 to-sky-500" />
+            <div className="h-7 w-7 rounded-lg bg-gradient-to-br from-red-600 via-red-500 to-orange-400" />
           </div>
         </header>
 
