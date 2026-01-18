@@ -1,10 +1,8 @@
 'use client';
 
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Product, ProductCategory } from '@/lib/types';
-import ProductCard from '@/components/ProductCard';
-import ProductTabs from '@/components/ProductTabs';
 import { AnimatedSection } from '@/components/AnimatedSection';
 import { TextReveal } from '@/components/TextReveal';
 import { TypewriterText } from '@/components/TypewriterText';
@@ -13,8 +11,10 @@ import { motion, useScroll, useTransform } from 'framer-motion';
 
 export default function Home() {
   const [products, setProducts] = useState<Product[]>([]);
-  const [activeTab, setActiveTab] = useState<ProductCategory>('Marbles');
   const [loading, setLoading] = useState(true);
+  const [marbleIndex, setMarbleIndex] = useState(0);
+  const [tilesIndex, setTilesIndex] = useState(0);
+  const [handicraftIndex, setHandicraftIndex] = useState(0);
   const [isQuoteOpen, setIsQuoteOpen] = useState(false);
   const [quoteSuccess, setQuoteSuccess] = useState(false);
   const [quoteSubmitting, setQuoteSubmitting] = useState(false);
@@ -64,24 +64,45 @@ export default function Home() {
     return () => clearInterval(interval);
   }, []);
 
-  // Auto-scroll carousel every 4 seconds
+  // Filter products by category
+  const marbleProducts = products.filter(p => p.category === 'Marbles');
+  const tilesProducts = products.filter(p => p.category === 'Tiles');
+  const handicraftProducts = products.filter(p => p.category === 'Handicraft');
+
+  // Auto-advance carousels (infinite loop - cycles through 2x length then resets)
   useEffect(() => {
-    const container = document.getElementById('carousel-container');
-    if (!container || products.length === 0) return;
-
-    const scrollInterval = setInterval(() => {
-      const maxScroll = container.scrollWidth - container.clientWidth;
-      if (container.scrollLeft >= maxScroll - 10) {
-        // Reset to beginning when reaching end
-        container.scrollTo({ left: 0, behavior: 'smooth' });
-      } else {
-        // Scroll right by one card width
-        container.scrollBy({ left: 300, behavior: 'smooth' });
-      }
+    if (marbleProducts.length === 0) return;
+    const interval = setInterval(() => {
+      setMarbleIndex((prev) => {
+        const next = prev + 1;
+        // When we reach end of 2nd copy, reset to start (3rd copy provides seamless view)
+        return next >= marbleProducts.length * 2 ? 0 : next;
+      });
     }, 4000);
+    return () => clearInterval(interval);
+  }, [marbleProducts.length]);
 
-    return () => clearInterval(scrollInterval);
-  }, [products, activeTab]);
+  useEffect(() => {
+    if (tilesProducts.length === 0) return;
+    const interval = setInterval(() => {
+      setTilesIndex((prev) => {
+        const next = prev + 1;
+        return next >= tilesProducts.length * 2 ? 0 : next;
+      });
+    }, 4500);
+    return () => clearInterval(interval);
+  }, [tilesProducts.length]);
+
+  useEffect(() => {
+    if (handicraftProducts.length === 0) return;
+    const interval = setInterval(() => {
+      setHandicraftIndex((prev) => {
+        const next = prev + 1;
+        return next >= handicraftProducts.length * 2 ? 0 : next;
+      });
+    }, 5000);
+    return () => clearInterval(interval);
+  }, [handicraftProducts.length]);
 
   const validateForm = () => {
     const errors: { phone?: string; email?: string; quantity?: string } = {};
@@ -153,8 +174,6 @@ export default function Home() {
     }
   };
 
-  const filteredProducts = products.filter((p) => p.category === activeTab);
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-sky-100/40 via-purple-50/20 to-rose-100/40 text-slate-900 overflow-x-hidden">
 
@@ -194,9 +213,6 @@ export default function Home() {
             <Link href="/products" className="px-4 py-2 rounded-full text-slate-700 hover:text-blue-600 hover:bg-blue-50/50 transition-all duration-200">
               Products
             </Link>
-            <a href="#gallery" className="px-4 py-2 rounded-full text-slate-700 hover:text-blue-600 hover:bg-blue-50/50 transition-all duration-200">
-              Gallery
-            </a>
             <button
               type="button"
               onClick={() => setIsQuoteOpen(true)}
@@ -325,32 +341,21 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Tabbed Navigation */}
-          <div className="flex items-center justify-center gap-4 sm:gap-8 mb-12 text-sm sm:text-base">
-            <ProductTabs activeTab={activeTab} onTabChange={setActiveTab} />
-          </div>
-
           {/* Content: Left Description + Right Carousel */}
           <div className="grid gap-8 lg:grid-cols-[280px_1fr] lg:gap-12 items-start">
             {/* Left Column - Description */}
             <div className="space-y-4">
               <h3 className="text-3xl sm:text-4xl font-light text-red-500 leading-tight">
-                {activeTab === 'Marbles' ? 'Popular' : activeTab === 'Tiles' ? 'Premium' : 'Artisan'}<br />{activeTab}
+                Premium<br />Marbles
               </h3>
               <p className="text-slate-600 text-sm leading-relaxed">
-                {activeTab === 'Marbles'
-                  ? "Indulge in the glory of class-apart Imported Marble from Shree Radhe. Our popular offerings range from a variety of Statuario Marble, Travertine Marble and Flawless White & Cat's Eye Marble."
-                  : activeTab === 'Tiles'
-                    ? "Discover our exclusive tile collection featuring Italian porcelain, designer floor tiles, and premium wall coverings for modern interiors."
-                    : "Handcrafted masterpieces created by skilled artisans, each piece tells a unique story of tradition and excellence."
-                }
+                Indulge in the glory of class-apart Imported Marble from Shree Radhe. Our popular offerings range from Statuario Marble, Travertine Marble to Flawless White & Cat's Eye Marble.
               </p>
               {/* Navigation Arrows */}
               <div className="flex items-center gap-4 pt-4">
                 <button
                   onClick={() => {
-                    const container = document.getElementById('carousel-container');
-                    if (container) container.scrollBy({ left: -320, behavior: 'smooth' });
+                    setMarbleIndex((prev: number) => (prev - 1 + marbleProducts.length * 2) % (marbleProducts.length * 2));
                   }}
                   className="w-10 h-10 rounded-full border border-slate-300 flex items-center justify-center text-slate-500 hover:border-red-500 hover:text-red-500 transition-colors"
                 >
@@ -358,8 +363,7 @@ export default function Home() {
                 </button>
                 <button
                   onClick={() => {
-                    const container = document.getElementById('carousel-container');
-                    if (container) container.scrollBy({ left: 320, behavior: 'smooth' });
+                    setMarbleIndex((prev: number) => (prev + 1) % (marbleProducts.length * 2));
                   }}
                   className="w-10 h-10 rounded-full border border-slate-300 flex items-center justify-center text-slate-500 hover:border-red-500 hover:text-red-500 transition-colors"
                 >
@@ -375,176 +379,269 @@ export default function Home() {
                   <div className="inline-block h-10 w-10 animate-spin rounded-full border-4 border-blue-500 border-t-transparent" />
                   <p className="mt-4 text-sm text-slate-500">Loading products...</p>
                 </div>
-              ) : filteredProducts.length === 0 ? (
+              ) : marbleProducts.length === 0 ? (
                 <div className="py-16 text-center text-sm text-slate-500">
-                  No products available in this category yet.
+                  No marble products available yet.
                 </div>
               ) : (
-                <motion.div
-                  id="carousel-container"
-                  key={activeTab}
-                  initial={{ opacity: 0, x: 50 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 0.5 }}
-                  className="flex gap-6 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-hide"
-                  style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-                >
-                  {filteredProducts.map((product, index) => {
-                    const isCenter = index === 1;
-                    return (
-                      <motion.div
-                        key={product.id}
-                        initial={{ opacity: 0, x: 100 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ duration: 0.5, delay: index * 0.1 }}
-                        className={`flex-shrink-0 snap-center ${isCenter ? 'scale-105 z-10' : 'scale-100'} transition-transform duration-300`}
+                <div className="pt-4 pb-6">
+                  {/* Sliding Track - products repeated 3x for infinite effect */}
+                  <div 
+                    className="flex gap-5"
+                    style={{ 
+                      transform: `translateX(calc(-${marbleIndex} * (280px + 20px)))`,
+                      transition: 'transform 0.4s ease-out'
+                    }}
+                  >
+                    {[...marbleProducts, ...marbleProducts, ...marbleProducts].map((product, idx) => (
+                      <div 
+                        key={`marble-${idx}`} 
+                        className="flex-shrink-0 group cursor-pointer transition-all duration-300 hover:-translate-y-3"
                         style={{ width: '280px' }}
                       >
-                        <div className="group cursor-pointer">
-                          <div className={`relative overflow-hidden rounded-xl aspect-[3/4] shadow-lg ${isCenter ? 'ring-2 ring-red-500/30' : ''}`}>
-                            {product.image ? (
+                        <Link href={`/products/${product.id}`}>
+                          <div className="relative overflow-hidden rounded-2xl aspect-[3/4] shadow-md transition-shadow duration-300 group-hover:shadow-2xl group-hover:shadow-slate-400/30">
+                            {product.images && product.images.length > 0 ? (
                               <img
-                                src={product.image}
+                                src={product.images[0]}
                                 alt={product.name}
-                                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                               />
                             ) : (
                               <div className="w-full h-full bg-gradient-to-br from-slate-200 via-slate-100 to-slate-200" />
                             )}
-                            {/* Badge */}
-                            <span className="absolute top-3 left-3 px-2 py-1 bg-white/90 backdrop-blur-sm text-xs font-medium text-slate-700 rounded">
-                              {product.category}
-                            </span>
                           </div>
-                          <div className="mt-4 space-y-1">
-                            <h4 className="text-base font-semibold text-slate-900 truncate">{product.name}</h4>
-                            <p className="text-xs text-slate-500 line-clamp-2">{product.description}</p>
-                            <div className="flex items-center justify-between pt-2">
-                              <span className="text-lg font-bold text-slate-900">₹{product.price.toLocaleString()}</span>
-                              <button
-                                onClick={() => setIsQuoteOpen(true)}
-                                className="px-3 py-1.5 text-xs font-medium border border-slate-300 rounded-full hover:border-red-500 hover:text-red-500 transition-colors"
-                              >
-                                View Details
-                              </button>
-                            </div>
+                        </Link>
+                        <div className="mt-4 space-y-1.5 px-1">
+                          <h4 className="text-base font-semibold text-slate-900 truncate group-hover:text-red-600 transition-colors duration-200">{product.name}</h4>
+                          <p className="text-xs text-slate-500 line-clamp-2 leading-relaxed">{product.description}</p>
+                          <div className="flex items-center justify-between pt-2">
+                            <span className="text-lg font-bold text-slate-900">₹{product.price.toLocaleString()}</span>
+                            <Link
+                              href={`/products/${product.id}`}
+                              className="px-4 py-2 text-xs font-medium border border-slate-200 rounded-full transition-all duration-200 hover:border-red-500 hover:text-red-500 hover:bg-red-50"
+                            >
+                              View Details
+                            </Link>
                           </div>
                         </div>
-                      </motion.div>
-                    );
-                  })}
-                </motion.div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
               )}
             </div>
           </div>
         </AnimatedSection>
 
-        {/* Why Choose Us */}
-        <AnimatedSection className="space-y-8 py-10 lg:py-14" staggerChildren={0.1}>
-          <div className="max-w-2xl">
-            <h2 className="text-2xl font-semibold tracking-tight text-slate-900 sm:text-3xl">
-              Why choose Shree Radhe
-            </h2>
-            <p className="mt-1 text-sm text-slate-600">
-              A single partner for sourcing, cutting, finishing, and delivering premium stone on time.
-            </p>
-          </div>
-
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            {[
-              {
-                title: 'Premium quality',
-                desc: 'Handpicked slabs, strict inspection, and consistent finishes for every batch.',
-                color: 'from-emerald-400 to-emerald-600',
-              },
-              {
-                title: 'Best pricing',
-                desc: 'Direct relationships with quarries and suppliers keep your project on budget.',
-                color: 'from-amber-400 to-orange-500',
-              },
-              {
-                title: 'Custom solutions',
-                desc: 'Edges, inlays, patterns, and finishes tailored to your drawings and site.',
-                color: 'from-sky-400 to-blue-600',
-              },
-              {
-                title: 'Fast delivery',
-                desc: 'Optimised cutting and logistics to align with site schedules.',
-                color: 'from-rose-400 to-pink-600',
-              },
-            ].map((item) => (
-              <motion.article
-                key={item.title}
-                variants={{
-                  hidden: { opacity: 0, y: 30 },
-                  visible: { opacity: 1, y: 0, transition: { duration: 0.5 } }
-                }}
-                className="flex flex-col gap-3 rounded-2xl border border-slate-100 bg-white p-5 shadow-[0_18px_45px_rgba(15,23,42,0.06)]"
-              >
-                <div className={`inline-flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br ${item.color} text-white shadow-sm`}>
-                  <span className="text-xs font-semibold">◆</span>
-                </div>
-                <div>
-                  <h3 className="text-sm font-semibold text-slate-900">{item.title}</h3>
-                  <p className="mt-1 text-xs text-slate-600">{item.desc}</p>
-                </div>
-              </motion.article>
-            ))}
-          </div>
-        </AnimatedSection>
-
-        {/* Gallery placeholder */}
-        <AnimatedSection id="gallery" className="space-y-8 py-10 lg:py-14" staggerChildren={0.1}>
-          <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-end">
-            <div>
-              <h2 className="text-2xl font-semibold tracking-tight text-slate-900 sm:text-3xl">
-                Project gallery
+        {/* Tiles Collection Carousel Section */}
+        <AnimatedSection className="py-16 lg:py-24 bg-gradient-to-b from-transparent via-slate-50/50 to-transparent" staggerChildren={0.1}>
+          {/* Section Header with Decorative Brackets */}
+          <div className="text-center mb-12">
+            <div className="inline-block relative">
+              <span className="absolute -top-3 -left-6 w-5 h-5 border-l-2 border-t-2 border-red-500" />
+              <h2 className="text-3xl sm:text-4xl font-light tracking-wide text-slate-900 uppercase">
+                Tiles Collection
               </h2>
-              <p className="mt-1 max-w-xl text-sm text-slate-600">
-                Showcase residential, commercial, and hospitality spaces finished with our stone.
-              </p>
+              <span className="absolute -bottom-3 -right-6 w-5 h-5 border-r-2 border-b-2 border-red-500" />
             </div>
           </div>
 
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {[1, 2, 3, 4, 5, 6].map((i) => (
-              <motion.div
-                key={i}
-                variants={{
-                  hidden: { opacity: 0, scale: 0.9 },
-                  visible: { opacity: 1, scale: 1, transition: { duration: 0.5 } }
-                }}
-                className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-sky-100 via-blue-50 to-slate-100 shadow-[0_18px_45px_rgba(56,189,248,0.18)]"
-              >
-                <div className="aspect-[4/3] bg-[radial-gradient(circle_at_top,_rgba(59,130,246,0.25),_transparent_55%),_radial-gradient(circle_at_bottom,_rgba(37,99,235,0.22),_transparent_55%)] transition-transform duration-500 group-hover:scale-105" />
-              </motion.div>
-            ))}
+          {/* Content: Left Description + Right Carousel */}
+          <div className="grid gap-8 lg:grid-cols-[280px_1fr] lg:gap-12 items-start">
+            {/* Left Column - Description */}
+            <div className="space-y-4">
+              <h3 className="text-3xl sm:text-4xl font-light text-red-500 leading-tight">
+                Designer<br />Tiles
+              </h3>
+              <p className="text-slate-600 text-sm leading-relaxed">
+                Discover our exclusive tile collection featuring Italian porcelain, designer floor tiles, and premium wall coverings for modern interiors.
+              </p>
+              {/* Navigation Arrows */}
+              <div className="flex items-center gap-4 pt-4">
+                <button
+                  onClick={() => {
+                    setTilesIndex((prev: number) => (prev - 1 + tilesProducts.length * 2) % (tilesProducts.length * 2));
+                  }}
+                  className="w-10 h-10 rounded-full border border-slate-300 flex items-center justify-center text-slate-500 hover:border-red-500 hover:text-red-500 transition-colors"
+                >
+                  ←
+                </button>
+                <button
+                  onClick={() => {
+                    setTilesIndex((prev: number) => (prev + 1) % (tilesProducts.length * 2));
+                  }}
+                  className="w-10 h-10 rounded-full border border-slate-300 flex items-center justify-center text-slate-500 hover:border-red-500 hover:text-red-500 transition-colors"
+                >
+                  →
+                </button>
+              </div>
+            </div>
+
+            {/* Right Column - Carousel */}
+            <div className="relative overflow-hidden">
+              {loading ? (
+                <div className="py-16 text-center">
+                  <div className="inline-block h-10 w-10 animate-spin rounded-full border-4 border-red-500 border-t-transparent" />
+                  <p className="mt-4 text-sm text-slate-500">Loading products...</p>
+                </div>
+              ) : tilesProducts.length === 0 ? (
+                <div className="py-16 text-center text-sm text-slate-500">
+                  No tiles available yet.
+                </div>
+              ) : (
+                <div className="pt-4 pb-6">
+                  {/* Sliding Track - products repeated 3x for infinite effect */}
+                  <div 
+                    className="flex gap-5"
+                    style={{ 
+                      transform: `translateX(calc(-${tilesIndex} * (280px + 20px)))`,
+                      transition: 'transform 0.4s ease-out'
+                    }}
+                  >
+                    {[...tilesProducts, ...tilesProducts, ...tilesProducts].map((product, idx) => (
+                      <div 
+                        key={`tiles-${idx}`} 
+                        className="flex-shrink-0 group cursor-pointer transition-all duration-300 hover:-translate-y-3"
+                        style={{ width: '280px' }}
+                      >
+                        <Link href={`/products/${product.id}`}>
+                          <div className="relative overflow-hidden rounded-2xl aspect-[3/4] shadow-md transition-shadow duration-300 group-hover:shadow-2xl group-hover:shadow-slate-400/30">
+                            {product.images && product.images.length > 0 ? (
+                              <img
+                                src={product.images[0]}
+                                alt={product.name}
+                                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                              />
+                            ) : (
+                              <div className="w-full h-full bg-gradient-to-br from-slate-200 via-slate-100 to-slate-200" />
+                            )}
+                          </div>
+                        </Link>
+                        <div className="mt-4 space-y-1.5 px-1">
+                          <h4 className="text-base font-semibold text-slate-900 truncate group-hover:text-red-600 transition-colors duration-200">{product.name}</h4>
+                          <p className="text-xs text-slate-500 line-clamp-2 leading-relaxed">{product.description}</p>
+                          <div className="flex items-center justify-between pt-2">
+                            <span className="text-lg font-bold text-slate-900">₹{product.price.toLocaleString()}</span>
+                            <Link
+                              href={`/products/${product.id}`}
+                              className="px-4 py-2 text-xs font-medium border border-slate-200 rounded-full transition-all duration-200 hover:border-red-500 hover:text-red-500 hover:bg-red-50"
+                            >
+                              View Details
+                            </Link>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         </AnimatedSection>
 
-        {/* CTA Banner */}
-        <AnimatedSection className="py-10 lg:py-14" direction="scale">
-          <div className="overflow-hidden rounded-3xl bg-gradient-to-r from-slate-900 via-slate-900 to-blue-900 px-6 py-8 text-white shadow-[0_30px_80px_rgba(15,23,42,0.6)] sm:px-10 sm:py-10">
-            <div className="flex flex-col items-start justify-between gap-6 sm:flex-row sm:items-center">
-              <div>
-                <p className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-[11px] font-medium text-slate-100">
-                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
-                  Fast response · typically within 24 hours
-                </p>
-                <h2 className="mt-3 text-2xl font-semibold tracking-tight sm:text-3xl">
-                  Looking for premium stone?
-                </h2>
-                <p className="mt-2 max-w-xl text-sm text-slate-200">
-                  Share your requirements and our team will help you choose the right stone, finish, and sizing for your project.
-                </p>
+        {/* Handicraft Collection Carousel Section */}
+        <AnimatedSection className="py-16 lg:py-24" staggerChildren={0.1}>
+          {/* Section Header with Decorative Brackets */}
+          <div className="text-center mb-12">
+            <div className="inline-block relative">
+              <span className="absolute -top-3 -left-6 w-5 h-5 border-l-2 border-t-2 border-red-500" />
+              <h2 className="text-3xl sm:text-4xl font-light tracking-wide text-slate-900 uppercase">
+                Handicraft Collection
+              </h2>
+              <span className="absolute -bottom-3 -right-6 w-5 h-5 border-r-2 border-b-2 border-red-500" />
+            </div>
+          </div>
+
+          {/* Content: Left Description + Right Carousel */}
+          <div className="grid gap-8 lg:grid-cols-[280px_1fr] lg:gap-12 items-start">
+            {/* Left Column - Description */}
+            <div className="space-y-4">
+              <h3 className="text-3xl sm:text-4xl font-light text-red-500 leading-tight">
+                Artisan<br />Handicrafts
+              </h3>
+              <p className="text-slate-600 text-sm leading-relaxed">
+                Handcrafted masterpieces created by skilled artisans. Each piece tells a unique story of tradition and excellence in marble craftsmanship.
+              </p>
+              {/* Navigation Arrows */}
+              <div className="flex items-center gap-4 pt-4">
+                <button
+                  onClick={() => {
+                    setHandicraftIndex((prev: number) => (prev - 1 + handicraftProducts.length * 2) % (handicraftProducts.length * 2));
+                  }}
+                  className="w-10 h-10 rounded-full border border-slate-300 flex items-center justify-center text-slate-500 hover:border-red-500 hover:text-red-500 transition-colors"
+                >
+                  ←
+                </button>
+                <button
+                  onClick={() => {
+                    setHandicraftIndex((prev: number) => (prev + 1) % (handicraftProducts.length * 2));
+                  }}
+                  className="w-10 h-10 rounded-full border border-slate-300 flex items-center justify-center text-slate-500 hover:border-red-500 hover:text-red-500 transition-colors"
+                >
+                  →
+                </button>
               </div>
-              <button
-                type="button"
-                onClick={() => setIsQuoteOpen(true)}
-                className="inline-flex items-center justify-center rounded-full bg-gradient-to-r from-blue-600 to-sky-500 px-6 py-3 text-sm font-medium text-white shadow-sm transition hover:brightness-110 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900"
-              >
-                Get a Quote
-              </button>
+            </div>
+
+            {/* Right Column - Carousel */}
+            <div className="relative overflow-hidden">
+              {loading ? (
+                <div className="py-16 text-center">
+                  <div className="inline-block h-10 w-10 animate-spin rounded-full border-4 border-red-500 border-t-transparent" />
+                  <p className="mt-4 text-sm text-slate-500">Loading products...</p>
+                </div>
+              ) : handicraftProducts.length === 0 ? (
+                <div className="py-16 text-center text-sm text-slate-500">
+                  No handicraft items available yet.
+                </div>
+              ) : (
+                <div className="pt-4 pb-6">
+                  {/* Sliding Track - products repeated 3x for infinite effect */}
+                  <div 
+                    className="flex gap-5"
+                    style={{ 
+                      transform: `translateX(calc(-${handicraftIndex} * (280px + 20px)))`,
+                      transition: 'transform 0.4s ease-out'
+                    }}
+                  >
+                    {[...handicraftProducts, ...handicraftProducts, ...handicraftProducts].map((product, idx) => (
+                      <div 
+                        key={`handicraft-${idx}`} 
+                        className="flex-shrink-0 group cursor-pointer transition-all duration-300 hover:-translate-y-3"
+                        style={{ width: '280px' }}
+                      >
+                        <Link href={`/products/${product.id}`}>
+                          <div className="relative overflow-hidden rounded-2xl aspect-[3/4] shadow-md transition-shadow duration-300 group-hover:shadow-2xl group-hover:shadow-slate-400/30">
+                            {product.images && product.images.length > 0 ? (
+                              <img
+                                src={product.images[0]}
+                                alt={product.name}
+                                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                              />
+                            ) : (
+                              <div className="w-full h-full bg-gradient-to-br from-slate-200 via-slate-100 to-slate-200" />
+                            )}
+                          </div>
+                        </Link>
+                        <div className="mt-4 space-y-1.5 px-1">
+                          <h4 className="text-base font-semibold text-slate-900 truncate group-hover:text-red-600 transition-colors duration-200">{product.name}</h4>
+                          <p className="text-xs text-slate-500 line-clamp-2 leading-relaxed">{product.description}</p>
+                          <div className="flex items-center justify-between pt-2">
+                            <span className="text-lg font-bold text-slate-900">₹{product.price.toLocaleString()}</span>
+                            <Link
+                              href={`/products/${product.id}`}
+                              className="px-4 py-2 text-xs font-medium border border-slate-200 rounded-full transition-all duration-200 hover:border-red-500 hover:text-red-500 hover:bg-red-50"
+                            >
+                              View Details
+                            </Link>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </AnimatedSection>
@@ -571,7 +668,6 @@ export default function Home() {
               <ul className="space-y-2 text-xs text-slate-600">
                 <li><a href="#top" className="hover:text-blue-600 transition-colors">Home</a></li>
                 <li><a href="#products" className="hover:text-blue-600 transition-colors">Products</a></li>
-                <li><a href="#gallery" className="hover:text-blue-600 transition-colors">Gallery</a></li>
                 <li><button onClick={() => setIsQuoteOpen(true)} className="hover:text-blue-600 transition-colors">Get a Quote</button></li>
               </ul>
             </div>
