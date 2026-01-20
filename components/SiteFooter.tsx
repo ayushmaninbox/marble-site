@@ -10,9 +10,9 @@ export default function SiteFooter({ setIsQuoteOpen }: SiteFooterProps) {
     <footer className="mt-0 relative border-t border-slate-200/50 bg-slate-900 pt-16 pb-8 text-slate-200 overflow-hidden">
       {/* Background Image with Overlay */}
       <div className="absolute inset-0 z-0">
-        <img 
-          src="/assets/footer_image.png" 
-          alt="Footer Background" 
+        <img
+          src="/assets/footer_image.png"
+          alt="Footer Background"
           className="w-full h-full object-cover"
         />
         {/* Red brand gradient overlay: Left (Red) to Right (Dark), lighter opacity */}
@@ -73,6 +73,24 @@ export default function SiteFooter({ setIsQuoteOpen }: SiteFooterProps) {
                 <a href="mailto:info@shreeradhemarble.com" className="hover:text-red-400 transition-colors">info@shreeradhemarble.com</a>
               </li>
             </ul>
+          </div>
+        </div>
+
+        {/* Google Maps Embed */}
+        <div className="mt-12">
+          <h4 className="text-sm font-semibold text-white mb-4">Find Us</h4>
+          <div className="rounded-xl overflow-hidden shadow-lg">
+            <iframe
+              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d4095.993942801531!2d91.3212724!3d23.8423724!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3753f3ece8c5082f%3A0x3560794d63797140!2sShree%20Radhe%20Marble%20%26%20Granite!5e1!3m2!1sen!2sin!4v1768924787517!5m2!1sen!2sin"
+              width="100%"
+              height="300"
+              style={{ border: 0 }}
+              allowFullScreen
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+              title="Shree Radhe Marble & Granite Location"
+              className="w-full"
+            />
           </div>
         </div>
 
