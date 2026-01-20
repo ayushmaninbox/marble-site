@@ -9,6 +9,7 @@ import { TypewriterText } from '@/components/TypewriterText';
 import { DynamicBackground } from '@/components/DynamicBackground';
 import SiteHeader from '@/components/SiteHeader';
 import SiteFooter from '@/components/SiteFooter';
+import QuoteModal from '@/components/QuoteModal';
 import { motion, useScroll, useTransform } from 'framer-motion';
 
 export default function Home() {
@@ -19,23 +20,6 @@ export default function Home() {
   const [tilesIndex, setTilesIndex] = useState(0);
   const [handicraftIndex, setHandicraftIndex] = useState(0);
   const [isQuoteOpen, setIsQuoteOpen] = useState(false);
-  const [quoteSuccess, setQuoteSuccess] = useState(false);
-  const [quoteSubmitting, setQuoteSubmitting] = useState(false);
-  const [quoteForm, setQuoteForm] = useState({
-    firstName: '',
-    lastName: '',
-    email: '',
-    phone: '',
-    productCategory: 'Marbles' as ProductCategory,
-    productName: '',
-    quantity: '1',
-    message: '',
-  });
-  const [formErrors, setFormErrors] = useState<{
-    phone?: string;
-    email?: string;
-    quantity?: string;
-  }>({});
 
   // Cinematic reveal state - triggers after video plays for 0.5 seconds
   const [isRevealed, setIsRevealed] = useState(false);
@@ -128,75 +112,9 @@ export default function Home() {
     return () => clearInterval(interval);
   }, [handicraftProducts.length]);
 
-  const validateForm = () => {
-    const errors: { phone?: string; email?: string; quantity?: string } = {};
 
-    // Phone validation - exactly 10 digits
-    const phoneDigits = quoteForm.phone.replace(/\D/g, '');
-    if (phoneDigits.length !== 10) {
-      errors.phone = 'Phone must be exactly 10 digits';
-    }
 
-    // Email validation - must contain @ and be valid format
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(quoteForm.email)) {
-      errors.email = 'Please enter a valid email address';
-    }
 
-    // Quantity validation - 1 to 9999
-    const qty = parseInt(quoteForm.quantity);
-    if (isNaN(qty) || qty < 1 || qty > 9999) {
-      errors.quantity = 'Quantity must be between 1 and 9999';
-    }
-
-    setFormErrors(errors);
-    return Object.keys(errors).length === 0;
-  };
-
-  const handleQuoteSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (!validateForm()) {
-      return;
-    }
-
-    setQuoteSubmitting(true);
-
-    try {
-      const response = await fetch('/api/enquiries', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(quoteForm),
-      });
-
-      if (response.ok) {
-        setQuoteSuccess(true);
-        setQuoteForm({
-          firstName: '',
-          lastName: '',
-          email: '',
-          phone: '',
-          productCategory: 'Marbles',
-          productName: '',
-          quantity: '1',
-          message: '',
-        });
-        setFormErrors({});
-        // Auto close after 3 seconds
-        setTimeout(() => {
-          setIsQuoteOpen(false);
-          setQuoteSuccess(false);
-        }, 3000);
-      } else {
-        alert('Failed to submit enquiry. Please try again.');
-      }
-    } catch (error) {
-      console.error('Error submitting enquiry:', error);
-      alert('Failed to submit enquiry. Please try again.');
-    } finally {
-      setQuoteSubmitting(false);
-    }
-  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-sky-100/40 via-purple-50/20 to-rose-100/40 text-slate-900 overflow-x-hidden">

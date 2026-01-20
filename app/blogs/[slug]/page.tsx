@@ -4,6 +4,8 @@ import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { Blog } from '@/lib/types';
+import SiteHeader from '@/components/SiteHeader';
+import QuoteModal from '@/components/QuoteModal';
 
 const HeartIcon = ({ filled }: { filled?: boolean }) => (
   <svg
@@ -30,6 +32,7 @@ export default function BlogPostPage() {
   const [loading, setLoading] = useState(true);
   const [liked, setLiked] = useState(false);
   const [likeCount, setLikeCount] = useState(0);
+  const [isQuoteOpen, setIsQuoteOpen] = useState(false);
 
   // Comment form
   const [commentForm, setCommentForm] = useState({ name: '', email: '', content: '' });
@@ -116,30 +119,7 @@ export default function BlogPostPage() {
   return (
     <div className="min-h-screen bg-stone-50">
       {/* Header */}
-      <header className="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-stone-100">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <Link href="/" className="flex items-center gap-3">
-              <div className="relative h-8 w-8 flex-shrink-0">
-                <img
-                  src="/Assets/logo_new.png"
-                  alt="Shree Radhe Marble Logo"
-                  className="h-full w-full object-contain"
-                />
-              </div>
-              <div className="flex flex-col leading-tight">
-                <span className="text-base font-bold text-slate-900">Shree Radhe</span>
-                <span className="text-[10px] text-red-600 font-medium uppercase tracking-wider">Marble & Granite</span>
-              </div>
-            </Link>
-            <nav className="flex items-center gap-6">
-              <Link href="/" className="text-sm font-medium text-slate-600 hover:text-red-600 transition">Home</Link>
-              <Link href="/products" className="text-sm font-medium text-slate-600 hover:text-red-600 transition">Products</Link>
-              <Link href="/blogs" className="text-sm font-medium text-red-600">Blog</Link>
-            </nav>
-          </div>
-        </div>
-      </header>
+      <SiteHeader setIsQuoteOpen={setIsQuoteOpen} />
 
       {/* Back Link */}
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
@@ -284,6 +264,7 @@ export default function BlogPostPage() {
           </p>
         </div>
       </footer>
+      <QuoteModal isOpen={isQuoteOpen} onClose={() => setIsQuoteOpen(false)} />
     </div>
   );
 }

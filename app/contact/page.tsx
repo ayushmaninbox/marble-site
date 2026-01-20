@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { motion } from 'framer-motion';
 import SiteHeader from '@/components/SiteHeader';
 import SiteFooter from '@/components/SiteFooter';
+import QuoteModal from '@/components/QuoteModal';
 
 export default function ContactPage() {
   const [isQuoteOpen, setIsQuoteOpen] = useState(false);

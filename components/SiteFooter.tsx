@@ -53,7 +53,6 @@ export default function SiteFooter({ setIsQuoteOpen }: SiteFooterProps) {
               <li><Link href="/products" className="hover:text-red-400 transition-colors">Products</Link></li>
               <li><Link href="/blogs" className="hover:text-red-400 transition-colors">Blog</Link></li>
               <li><Link href="/contact" className="hover:text-red-400 transition-colors">Contact</Link></li>
-              <li><button onClick={() => setIsQuoteOpen(true)} className="hover:text-red-400 transition-colors">Get a Quote</button></li>
             </ul>
           </div>
 
@@ -61,11 +60,10 @@ export default function SiteFooter({ setIsQuoteOpen }: SiteFooterProps) {
           <div>
             <h4 className="text-base font-semibold text-white mb-5">Products</h4>
             <ul className="space-y-3 text-sm text-slate-300">
-              <li><Link href="/products?category=Italian%20Marble" className="hover:text-red-400 transition-colors">Italian Marble</Link></li>
-              <li><Link href="/products?category=Indian%20Granite" className="hover:text-red-400 transition-colors">Indian Granite</Link></li>
-              <li><Link href="/products?category=Designer%20Tiles" className="hover:text-red-400 transition-colors">Designer Tiles</Link></li>
-              <li><Link href="/products?category=Handicraft%20Items" className="hover:text-red-400 transition-colors">Handicraft Items</Link></li>
-              <li><Link href="/products?category=Custom%20Fabrication" className="hover:text-red-400 transition-colors">Custom Fabrication</Link></li>
+              <li><Link href="/products?category=Marbles" className="hover:text-red-400 transition-colors">Italian Marble</Link></li>
+              <li><Link href="/products?category=Marbles" className="hover:text-red-400 transition-colors">Indian Granite</Link></li>
+              <li><Link href="/products?category=Tiles" className="hover:text-red-400 transition-colors">Designer Tiles</Link></li>
+              <li><Link href="/products?category=Handicraft" className="hover:text-red-400 transition-colors">Handicraft Items</Link></li>
             </ul>
           </div>
 
@@ -88,22 +86,29 @@ export default function SiteFooter({ setIsQuoteOpen }: SiteFooterProps) {
 
             <ul className="space-y-4 text-sm text-slate-300">
               <li className="flex items-start gap-3">
-                <span className="text-red-400 text-lg mt-0.5">📍</span>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5 text-white flex-shrink-0 mt-0.5">
+                  <path fillRule="evenodd" d="M11.54 22.351l.07.04.028.016a.76.76 0 00.723 0l.028-.015.071-.041a16.975 16.975 0 001.144-.742 19.58 19.58 0 002.683-2.282c1.944-1.99 3.963-4.98 3.963-8.827a8.25 8.25 0 00-16.5 0c0 3.846 2.02 6.837 3.963 8.827a19.58 19.58 0 002.682 2.282 16.975 16.975 0 001.145.742zM12 13.5a3 3 0 100-6 3 3 0 000 6z" clipRule="evenodd" />
+                </svg>
                 <span>Godown: AA Road,<br />Kashipur Bazar, Agartala-799008</span>
               </li>
               <li className="flex items-center gap-3">
-                <span className="text-red-400 text-lg">📱</span>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5 text-white flex-shrink-0">
+                  <path fillRule="evenodd" d="M1.5 4.5a3 3 0 013-3h1.372c.86 0 1.61.586 1.819 1.42l1.105 4.423a1.875 1.875 0 01-.694 1.955l-1.293.97c-.135.101-.164.249-.126.352a11.285 11.285 0 006.697 6.697c.103.038.25.009.352-.126l.97-1.293a1.875 1.875 0 011.955-.694l4.423 1.105c.834.209 1.42.959 1.42 1.82V19.5a3 3 0 01-3 3h-2.25C8.552 22.5 1.5 15.448 1.5 5.25V4.5z" clipRule="evenodd" />
+                </svg>
                 <a
                   href="https://wa.me/918794946566"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="hover:text-red-400 transition-colors"
                 >
-                  +91 8794946566 (WhatsApp)
+                  +91 8794946566
                 </a>
               </li>
               <li className="flex items-center gap-3">
-                <span className="text-red-400 text-lg">✉️</span>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5 text-white flex-shrink-0">
+                  <path d="M1.5 8.67v8.58a3 3 0 003 3h15a3 3 0 003-3V8.67l-8.928 5.493a3 3 0 01-3.144 0L1.5 8.67z" />
+                  <path d="M22.5 6.908V6.75a3 3 0 00-3-3h-15a3 3 0 00-3 3v.158l9.714 5.978a1.5 1.5 0 001.572 0L22.5 6.908z" />
+                </svg>
                 <a
                   href="https://mail.google.com/mail/?view=cm&fs=1&to=shreeradhesr@gmail.com"
                   target="_blank"
@@ -122,10 +127,7 @@ export default function SiteFooter({ setIsQuoteOpen }: SiteFooterProps) {
           <p className="text-sm text-slate-400">
             © 2026 Shree Radhe Marble &amp; Granite. All rights reserved.
           </p>
-          <div className="flex items-center gap-6">
-            <a href="#" className="text-slate-400 hover:text-red-400 transition-colors text-sm">Privacy Policy</a>
-            <a href="#" className="text-slate-400 hover:text-red-400 transition-colors text-sm">Terms of Service</a>
-          </div>
+
         </div>
       </div>
     </footer>
