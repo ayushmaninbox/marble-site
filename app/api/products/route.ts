@@ -25,7 +25,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { name, category, description, price, images } = body;
+    const { name, category, description, price, images, specifications } = body;
     
     if (!name || !category || !description || price === undefined) {
       return NextResponse.json(
@@ -48,6 +48,9 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
+
+    // Validate specifications array if provided
+    const specsArray = Array.isArray(specifications) ? specifications : [];
     
     const newProduct = addProduct({
       name,
@@ -55,6 +58,7 @@ export async function POST(request: NextRequest) {
       description,
       price: parseFloat(price),
       images: imageArray,
+      specifications: specsArray,
     });
     
     return NextResponse.json(newProduct, { status: 201 });

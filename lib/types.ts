@@ -1,3 +1,8 @@
+export interface ProductSpecification {
+  key: string;
+  value: string;
+}
+
 export interface Product {
   id: string;
   name: string;
@@ -6,6 +11,7 @@ export interface Product {
   price: number;
   images: string[]; // Array of up to 7 image URLs/paths
   image?: string; // Legacy field for backward compatibility
+  specifications?: ProductSpecification[]; // Custom key-value specifications
   createdAt: string;
 }
 
@@ -24,3 +30,15 @@ export interface Enquiry {
   createdAt: string;
   status: 'pending' | 'solved';
 }
+
+export type AdminRole = 'super_admin' | 'admin';
+
+export interface AdminUser {
+  id: string;
+  email: string;
+  passwordHash: string;
+  role: AdminRole;
+  createdAt: string;
+  lastLogin?: string;
+}
+

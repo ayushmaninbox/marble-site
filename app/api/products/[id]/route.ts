@@ -67,6 +67,11 @@ export async function PUT(
       }
       body.images = imageArray;
     }
+
+    // Handle specifications array if provided
+    if (body.specifications !== undefined) {
+      body.specifications = Array.isArray(body.specifications) ? body.specifications : [];
+    }
     
     // Track old images for cleanup
     const oldImages = currentProduct.images || [];

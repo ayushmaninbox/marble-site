@@ -41,6 +41,18 @@ const MenuIcon = () => (
   </svg>
 );
 
+const UsersIcon = () => (
+  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+  </svg>
+);
+
+const KeyIcon = () => (
+  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+  </svg>
+);
+
 interface LayoutProps {
   children: React.ReactNode;
 }
@@ -49,6 +61,12 @@ export default function AdminLayout({ children }: LayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [productCount, setProductCount] = useState(0);
   const [enquiryCount, setEnquiryCount] = useState(0);
+  const [userRole, setUserRole] = useState<string>('');
+  const [userId, setUserId] = useState<string>('');
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [passwordForm, setPasswordForm] = useState({ current: '', new: '', confirm: '' });
+  const [passwordError, setPasswordError] = useState('');
+  const [passwordSubmitting, setPasswordSubmitting] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
 
@@ -57,6 +75,16 @@ export default function AdminLayout({ children }: LayoutProps) {
     if (!isAuthenticated) {
       router.push('/admin');
       return;
+    }
+
+    // Get user info
+    const userInfo = localStorage.getItem('adminUser');
+    if (userInfo) {
+      try {
+        const parsed = JSON.parse(userInfo);
+        setUserRole(parsed.role || '');
+        setUserId(parsed.id || '');
+      } catch {}
     }
 
     // Fetch counts for sidebar badges
@@ -80,7 +108,48 @@ export default function AdminLayout({ children }: LayoutProps) {
 
   const handleLogout = () => {
     localStorage.removeItem('isAdminAuthenticated');
+    localStorage.removeItem('adminUser');
     router.push('/admin');
+  };
+
+  const handleChangePassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setPasswordError('');
+
+    if (passwordForm.new !== passwordForm.confirm) {
+      setPasswordError('New passwords do not match');
+      return;
+    }
+    if (passwordForm.new.length < 6) {
+      setPasswordError('New password must be at least 6 characters');
+      return;
+    }
+
+    setPasswordSubmitting(true);
+    try {
+      const response = await fetch('/api/users/change-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId,
+          currentPassword: passwordForm.current,
+          newPassword: passwordForm.new,
+        }),
+      });
+
+      if (response.ok) {
+        setShowPasswordModal(false);
+        setPasswordForm({ current: '', new: '', confirm: '' });
+        alert('Password changed successfully');
+      } else {
+        const data = await response.json();
+        setPasswordError(data.error || 'Failed to change password');
+      }
+    } catch {
+      setPasswordError('Failed to change password');
+    } finally {
+      setPasswordSubmitting(false);
+    }
   };
 
   const navItems = [
@@ -106,6 +175,12 @@ export default function AdminLayout({ children }: LayoutProps) {
       badgeColor: 'bg-red-500 text-white',
       isActive: pathname === '/admin/enquiries'
     },
+    ...(userRole === 'super_admin' ? [{ 
+      name: 'Users', 
+      href: '/admin/users', 
+      icon: UsersIcon,
+      isActive: pathname === '/admin/users'
+    }] : []),
   ];
 
   return (
@@ -163,6 +238,14 @@ export default function AdminLayout({ children }: LayoutProps) {
           </a>
 
           <button
+            onClick={() => setShowPasswordModal(true)}
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs font-bold uppercase tracking-wider text-slate-500 hover:bg-stone-50 hover:text-slate-900 transition-colors"
+          >
+            <KeyIcon />
+            Change Password
+          </button>
+
+          <button
             onClick={handleLogout}
             className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs font-bold uppercase tracking-wider text-red-600 hover:bg-red-50 transition-colors"
           >
@@ -189,6 +272,82 @@ export default function AdminLayout({ children }: LayoutProps) {
 
         {children}
       </div>
+
+      {/* Change Password Modal */}
+      {showPasswordModal && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/50 backdrop-blur-sm">
+          <div className="mx-4 w-full max-w-sm rounded-2xl bg-white p-6 shadow-2xl">
+            <div className="flex items-center justify-between mb-5">
+              <h2 className="text-lg font-bold text-slate-900">Change Password</h2>
+              <button 
+                onClick={() => { setShowPasswordModal(false); setPasswordForm({ current: '', new: '', confirm: '' }); setPasswordError(''); }}
+                className="h-8 w-8 flex items-center justify-center rounded-full hover:bg-stone-100 text-slate-500"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            <form onSubmit={handleChangePassword} className="space-y-4">
+              <div>
+                <label className="block text-xs font-semibold text-slate-600 mb-1.5">Current Password</label>
+                <input
+                  type="password"
+                  value={passwordForm.current}
+                  onChange={(e) => setPasswordForm({ ...passwordForm, current: e.target.value })}
+                  required
+                  className="w-full rounded-lg border border-stone-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none transition focus:border-red-400 focus:ring-2 focus:ring-red-500/20"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-semibold text-slate-600 mb-1.5">New Password</label>
+                <input
+                  type="password"
+                  value={passwordForm.new}
+                  onChange={(e) => setPasswordForm({ ...passwordForm, new: e.target.value })}
+                  required
+                  placeholder="Minimum 6 characters"
+                  className="w-full rounded-lg border border-stone-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none transition focus:border-red-400 focus:ring-2 focus:ring-red-500/20"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-semibold text-slate-600 mb-1.5">Confirm New Password</label>
+                <input
+                  type="password"
+                  value={passwordForm.confirm}
+                  onChange={(e) => setPasswordForm({ ...passwordForm, confirm: e.target.value })}
+                  required
+                  className="w-full rounded-lg border border-stone-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none transition focus:border-red-400 focus:ring-2 focus:ring-red-500/20"
+                />
+              </div>
+
+              {passwordError && (
+                <div className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-600">
+                  {passwordError}
+                </div>
+              )}
+
+              <div className="flex gap-3 pt-2">
+                <button
+                  type="submit"
+                  disabled={passwordSubmitting}
+                  className="flex-1 inline-flex items-center justify-center rounded-lg bg-red-600 hover:bg-red-700 px-4 py-2.5 text-sm font-semibold text-white transition-colors disabled:opacity-50"
+                >
+                  {passwordSubmitting ? 'Changing...' : 'Change Password'}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => { setShowPasswordModal(false); setPasswordForm({ current: '', new: '', confirm: '' }); setPasswordError(''); }}
+                  className="flex-1 inline-flex items-center justify-center rounded-lg border border-stone-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-600 hover:bg-stone-50 transition-colors"
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

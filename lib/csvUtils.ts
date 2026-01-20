@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import Papa from 'papaparse';
-import { Product } from './types';
+import { Product, ProductSpecification } from './types';
 
 const CSV_FILE_PATH = path.join(process.cwd(), 'data', 'products.csv');
 
@@ -17,7 +17,7 @@ const ensureDataDirectory = () => {
 const initializeCsvFile = () => {
   ensureDataDirectory();
   if (!fs.existsSync(CSV_FILE_PATH)) {
-    const headers = 'id,name,category,description,price,images,createdAt\n';
+    const headers = 'id,name,category,description,price,images,specifications,createdAt\n';
     fs.writeFileSync(CSV_FILE_PATH, headers, 'utf-8');
   }
 };
@@ -40,6 +40,19 @@ const parseImages = (imagesValue: string | undefined, legacyImage?: string): str
   return [];
 };
 
+// Parse specifications from CSV (handles JSON array)
+const parseSpecifications = (specsValue: string | undefined): ProductSpecification[] => {
+  if (specsValue) {
+    try {
+      const parsed = JSON.parse(specsValue);
+      if (Array.isArray(parsed)) return parsed;
+    } catch {
+      // If not valid JSON, return empty array
+    }
+  }
+  return [];
+};
+
 interface RawProductRow {
   id: string;
   name: string;
@@ -48,6 +61,7 @@ interface RawProductRow {
   price: string;
   images?: string;
   image?: string; // Legacy field
+  specifications?: string;
   createdAt: string;
 }
 
@@ -69,6 +83,7 @@ export const readProducts = (): Product[] => {
       description: row.description,
       price: parseFloat(row.price) || 0,
       images: parseImages(row.images, row.image),
+      specifications: parseSpecifications(row.specifications),
       createdAt: row.createdAt,
     }));
   } catch (error) {
@@ -81,7 +96,7 @@ export const writeProducts = (products: Product[]): void => {
   ensureDataDirectory();
 
   try {
-    // Convert products to CSV format with images as JSON string
+    // Convert products to CSV format with images and specifications as JSON strings
     const csvData = products.map(p => ({
       id: p.id,
       name: p.name,
@@ -89,12 +104,13 @@ export const writeProducts = (products: Product[]): void => {
       description: p.description,
       price: p.price,
       images: JSON.stringify(p.images || []),
+      specifications: JSON.stringify(p.specifications || []),
       createdAt: p.createdAt,
     }));
 
     const csv = Papa.unparse(csvData, {
       header: true,
-      columns: ['id', 'name', 'category', 'description', 'price', 'images', 'createdAt'],
+      columns: ['id', 'name', 'category', 'description', 'price', 'images', 'specifications', 'createdAt'],
       quotes: true,
     });
     fs.writeFileSync(CSV_FILE_PATH, csv, 'utf-8');

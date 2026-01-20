@@ -25,6 +25,10 @@ export default function AdminLogin() {
 
       if (data.success) {
         localStorage.setItem('isAdminAuthenticated', 'true');
+        // Store user info for role-based features
+        if (data.user) {
+          localStorage.setItem('adminUser', JSON.stringify(data.user));
+        }
         router.push('/admin/dashboard');
       } else {
         setError(data.message || 'Invalid credentials');

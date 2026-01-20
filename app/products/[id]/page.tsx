@@ -282,6 +282,21 @@ export default function ProductDetailPage() {
                    <div className="w-1.5 h-1.5 bg-slate-300 rounded-full" /> Custom Sizes
                 </div>
               </div>
+
+              {/* Product Specifications */}
+              {product.specifications && product.specifications.length > 0 && (
+                <div className="pt-6 border-t border-stone-100 mt-6">
+                  <h3 className="text-sm font-semibold text-slate-900 mb-4 uppercase tracking-wider">Specifications</h3>
+                  <div className="divide-y divide-stone-100">
+                    {product.specifications.map((spec, index) => (
+                      <div key={index} className="flex py-3">
+                        <span className="text-sm text-slate-500 w-2/5">{spec.key}</span>
+                        <span className="text-sm text-slate-900 font-medium w-3/5">{spec.value}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Enquiry Form Card */}

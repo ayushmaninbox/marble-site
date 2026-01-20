@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Product, Enquiry, ProductCategory } from '@/lib/types';
+import { Product, Enquiry, ProductCategory, ProductSpecification } from '@/lib/types';
 import ProductTable from '@/components/admin/ProductTable';
 
 // SVG Icons
@@ -68,6 +68,7 @@ export default function ProductsPage() {
     price: '',
   });
   const [formImages, setFormImages] = useState<string[]>([]);
+  const [formSpecifications, setFormSpecifications] = useState<ProductSpecification[]>([]);
   const [pendingFiles, setPendingFiles] = useState<File[]>([]);
   const [isUploading, setIsUploading] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
@@ -216,12 +217,17 @@ export default function ProductsPage() {
       }
 
       const allImages = [...formImages, ...uploadedPaths];
+      
+      // Filter out empty specifications
+      const validSpecs = formSpecifications.filter(s => s.key.trim() && s.value.trim());
+      
       const productData = {
         name: formData.name.trim(),
         category: formData.category,
         description: formData.description.trim(),
         price: parseFloat(formData.price),
         images: allImages,
+        specifications: validSpecs,
       };
 
       const url = editingProduct ? `/api/products/${editingProduct.id}` : '/api/products';
@@ -251,6 +257,7 @@ export default function ProductsPage() {
     setEditingProduct(undefined);
     setFormData({ name: '', category: 'Marbles', description: '', price: '' });
     setFormImages([]);
+    setFormSpecifications([]);
     setPendingFiles([]);
     setFormError('');
     setShowForm(true);
@@ -265,6 +272,7 @@ export default function ProductsPage() {
       price: product.price.toString(),
     });
     setFormImages(product.images || (product.image ? [product.image] : []));
+    setFormSpecifications(product.specifications || []);
     setPendingFiles([]);
     setFormError('');
     setShowForm(true);
@@ -275,6 +283,7 @@ export default function ProductsPage() {
     setEditingProduct(undefined);
     setFormData({ name: '', category: 'Marbles', description: '', price: '' });
     setFormImages([]);
+    setFormSpecifications([]);
     setPendingFiles([]);
     setFormError('');
   };
@@ -566,6 +575,62 @@ export default function ProductsPage() {
                   )}
                 </div>
                 <p className="text-xs text-slate-400">Drag & drop or click to add images.</p>
+              </div>
+
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <label className="block text-xs font-semibold text-slate-600">
+                    Specifications
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => setFormSpecifications([...formSpecifications, { key: '', value: '' }])}
+                    className="inline-flex items-center gap-1 text-xs text-red-600 hover:text-red-700 font-semibold"
+                  >
+                    <PlusIcon /> Add Specification
+                  </button>
+                </div>
+                {formSpecifications.length > 0 ? (
+                  <div className="space-y-2">
+                    {formSpecifications.map((spec, index) => (
+                      <div key={index} className="flex gap-2 items-center">
+                        <input
+                          type="text"
+                          placeholder="e.g., Thickness"
+                          value={spec.key}
+                          onChange={(e) => {
+                            const newSpecs = [...formSpecifications];
+                            newSpecs[index] = { ...newSpecs[index], key: e.target.value };
+                            setFormSpecifications(newSpecs);
+                          }}
+                          className={inputClasses + " flex-1"}
+                        />
+                        <input
+                          type="text"
+                          placeholder="e.g., 20 mm"
+                          value={spec.value}
+                          onChange={(e) => {
+                            const newSpecs = [...formSpecifications];
+                            newSpecs[index] = { ...newSpecs[index], value: e.target.value };
+                            setFormSpecifications(newSpecs);
+                          }}
+                          className={inputClasses + " flex-1"}
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setFormSpecifications(formSpecifications.filter((_, i) => i !== index))}
+                          className="text-red-500 hover:text-red-700 p-1"
+                        >
+                          <CloseIcon />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-xs text-slate-400 py-3 text-center border border-dashed border-stone-200 rounded-lg">
+                    No specifications added. Click &quot;Add Specification&quot; to add product details like Thickness, Color, etc.
+                  </p>
+                )}
               </div>
 
               <div>
