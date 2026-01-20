@@ -35,10 +35,10 @@ export default function Home() {
     email?: string;
     quantity?: string;
   }>({});
-  
+
   // Cinematic reveal state - triggers after video plays for 0.5 seconds
   const [isRevealed, setIsRevealed] = useState(false);
-  
+
   useEffect(() => {
     const revealTimer = setTimeout(() => {
       setIsRevealed(true);
@@ -214,7 +214,7 @@ export default function Home() {
       />
 
       {/* Header - Elegant Red Theme */}
-      <motion.header 
+      <motion.header
         initial={{ y: -100, opacity: 0 }}
         animate={isRevealed ? { y: 0, opacity: 1 } : { y: -100, opacity: 0 }}
         transition={{ duration: 0.8, ease: [0.22, 0.61, 0.36, 1] }}
@@ -225,7 +225,7 @@ export default function Home() {
           <div className="flex flex-col">
             <div className="flex items-center gap-3">
               <div className="h-10 w-10 border border-red-200 rounded-sm flex items-center justify-center p-1 bg-red-50">
-                 <div className="h-full w-full bg-gradient-to-br from-red-600 to-orange-500 opacity-80" />
+                <div className="h-full w-full bg-gradient-to-br from-red-600 to-orange-500 opacity-80" />
               </div>
               <div>
                 <h1 className="text-2xl font-serif text-slate-900 tracking-tight leading-none">
@@ -246,6 +246,9 @@ export default function Home() {
             <Link href="/products" className="text-xs font-semibold tracking-[0.2em] text-slate-600 hover:text-red-600 uppercase transition-colors">
               Product
             </Link>
+            <Link href="/blogs" className="text-xs font-semibold tracking-[0.2em] text-slate-600 hover:text-red-600 uppercase transition-colors">
+              Blog
+            </Link>
             <button
               onClick={() => setIsQuoteOpen(true)}
               className="text-xs font-semibold tracking-[0.2em] text-slate-600 hover:text-red-600 uppercase transition-colors"
@@ -256,15 +259,15 @@ export default function Home() {
 
           {/* Right Actions */}
           <div className="flex items-center gap-4">
-             <button 
-               onClick={() => setIsQuoteOpen(true)}
-               className="hidden md:inline-flex px-6 py-2.5 bg-gradient-to-r from-red-600 to-orange-500 text-white text-xs font-semibold tracking-widest uppercase hover:shadow-lg hover:shadow-red-500/20 transition-all duration-300"
-             >
-               Get a Quote
-             </button>
-             
-             {/* Mobile Menu Button */}
-             <button
+            <button
+              onClick={() => setIsQuoteOpen(true)}
+              className="hidden md:inline-flex px-6 py-2.5 bg-gradient-to-r from-red-600 to-orange-500 text-white text-xs font-semibold tracking-widest uppercase hover:shadow-lg hover:shadow-red-500/20 transition-all duration-300"
+            >
+              Get a Quote
+            </button>
+
+            {/* Mobile Menu Button */}
+            <button
               type="button"
               className="md:hidden text-slate-900"
               aria-label="Open navigation"
@@ -424,16 +427,16 @@ export default function Home() {
               ) : (
                 <div className="pt-4 pb-6">
                   {/* Sliding Track - products repeated 3x for infinite effect */}
-                  <div 
+                  <div
                     className="flex gap-5"
-                    style={{ 
+                    style={{
                       transform: `translateX(calc(-${marbleIndex} * (280px + 20px)))`,
                       transition: 'transform 0.4s ease-out'
                     }}
                   >
                     {[...marbleProducts, ...marbleProducts, ...marbleProducts].map((product, idx) => (
-                      <div 
-                        key={`marble-${idx}`} 
+                      <div
+                        key={`marble-${idx}`}
                         className="flex-shrink-0 group cursor-pointer transition-all duration-300 hover:-translate-y-3"
                         style={{ width: '280px' }}
                       >
@@ -530,16 +533,16 @@ export default function Home() {
               ) : (
                 <div className="pt-4 pb-6">
                   {/* Sliding Track - products repeated 3x for infinite effect */}
-                  <div 
+                  <div
                     className="flex gap-5"
-                    style={{ 
+                    style={{
                       transform: `translateX(calc(-${tilesIndex} * (280px + 20px)))`,
                       transition: 'transform 0.4s ease-out'
                     }}
                   >
                     {[...tilesProducts, ...tilesProducts, ...tilesProducts].map((product, idx) => (
-                      <div 
-                        key={`tiles-${idx}`} 
+                      <div
+                        key={`tiles-${idx}`}
                         className="flex-shrink-0 group cursor-pointer transition-all duration-300 hover:-translate-y-3"
                         style={{ width: '280px' }}
                       >
@@ -636,16 +639,16 @@ export default function Home() {
               ) : (
                 <div className="pt-4 pb-6">
                   {/* Sliding Track - products repeated 3x for infinite effect */}
-                  <div 
+                  <div
                     className="flex gap-5"
-                    style={{ 
+                    style={{
                       transform: `translateX(calc(-${handicraftIndex} * (280px + 20px)))`,
                       transition: 'transform 0.4s ease-out'
                     }}
                   >
                     {[...handicraftProducts, ...handicraftProducts, ...handicraftProducts].map((product, idx) => (
-                      <div 
-                        key={`handicraft-${idx}`} 
+                      <div
+                        key={`handicraft-${idx}`}
                         className="flex-shrink-0 group cursor-pointer transition-all duration-300 hover:-translate-y-3"
                         style={{ width: '280px' }}
                       >
@@ -686,7 +689,7 @@ export default function Home() {
 
         {/* Blog Section */}
         {blogs.length > 0 && (
-          <AnimatedSection className="py-16 lg:py-24 bg-gradient-to-b from-transparent via-red-50/30 to-transparent" staggerChildren={0.1}>
+          <AnimatedSection id="blog" className="py-16 lg:py-24 bg-gradient-to-b from-transparent via-red-50/30 to-transparent" staggerChildren={0.1}>
             {/* Section Header with Decorative Brackets */}
             <div className="text-center mb-12">
               <div className="inline-block relative">
@@ -708,8 +711,8 @@ export default function Home() {
                   <article className="bg-white rounded-2xl overflow-hidden border border-stone-200 shadow-sm hover:shadow-lg transition-all duration-300 h-full flex flex-col">
                     {blog.coverImage ? (
                       <div className="aspect-[16/9] overflow-hidden">
-                        <img 
-                          src={blog.coverImage} 
+                        <img
+                          src={blog.coverImage}
                           alt={blog.title}
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                         />

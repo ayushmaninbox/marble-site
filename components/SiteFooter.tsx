@@ -40,6 +40,7 @@ export default function SiteFooter({ setIsQuoteOpen }: SiteFooterProps) {
             <ul className="space-y-2 text-xs text-slate-400">
               <li><Link href="/" className="hover:text-red-400 transition-colors">Home</Link></li>
               <li><Link href="/products" className="hover:text-red-400 transition-colors">Products</Link></li>
+              <li><Link href="/blogs" className="hover:text-red-400 transition-colors">Blog</Link></li>
               <li><button onClick={() => setIsQuoteOpen(true)} className="hover:text-red-400 transition-colors">Get a Quote</button></li>
             </ul>
           </div>
