@@ -53,14 +53,20 @@ export default function AdminLogin() {
         <div className="rounded-3xl border border-white/60 bg-white/80 p-8 shadow-xl shadow-stone-200/50 backdrop-blur-xl">
           {/* Logo */}
           <div className="mb-6 flex justify-center">
-            <div className="h-14 w-14 rounded-2xl bg-gradient-to-br from-red-600 via-red-500 to-orange-400 shadow-lg shadow-red-500/30" />
+            <div className="relative h-14 w-14 flex-shrink-0">
+              <img
+                src="/Assets/logo_new.png"
+                alt="Shree Radhe Marble Logo"
+                className="h-full w-full object-contain"
+              />
+            </div>
           </div>
 
           <h1 className="bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-center text-2xl font-serif font-bold text-transparent">
             Admin Login
           </h1>
-          <p className="mt-2 text-center text-sm text-slate-500 font-medium tracking-wide uppercase">
-            Shree Radhe Marble & Granite
+          <p className="mt-2 text-center text-sm text-slate-500 font-medium tracking-wide">
+            <span className="font-bold text-slate-900">Shree Radhe</span> <span className="uppercase text-red-600 tracking-wider">Marble & Granite</span>
           </p>
 
           <form onSubmit={handleSubmit} className="mt-8 space-y-5">

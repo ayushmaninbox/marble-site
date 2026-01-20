@@ -6,10 +6,10 @@ import Link from 'next/link';
 import { Blog } from '@/lib/types';
 
 const HeartIcon = ({ filled }: { filled?: boolean }) => (
-  <svg 
-    className="w-5 h-5" 
-    fill={filled ? "currentColor" : "none"} 
-    stroke="currentColor" 
+  <svg
+    className="w-5 h-5"
+    fill={filled ? "currentColor" : "none"}
+    stroke="currentColor"
     viewBox="0 0 24 24"
   >
     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
@@ -25,12 +25,12 @@ const ArrowLeftIcon = () => (
 export default function BlogPostPage() {
   const params = useParams();
   const slug = params.slug as string;
-  
+
   const [blog, setBlog] = useState<Blog | null>(null);
   const [loading, setLoading] = useState(true);
   const [liked, setLiked] = useState(false);
   const [likeCount, setLikeCount] = useState(0);
-  
+
   // Comment form
   const [commentForm, setCommentForm] = useState({ name: '', email: '', content: '' });
   const [commentSubmitting, setCommentSubmitting] = useState(false);
@@ -59,7 +59,7 @@ export default function BlogPostPage() {
 
   const handleLike = async () => {
     if (!blog || liked) return;
-    
+
     try {
       const response = await fetch(`/api/blogs/${blog.id}/like`, { method: 'POST' });
       if (response.ok) {
@@ -120,8 +120,17 @@ export default function BlogPostPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <Link href="/" className="flex items-center gap-3">
-              <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-red-600 via-red-500 to-orange-400 shadow-sm" />
-              <span className="text-lg font-bold text-slate-900 font-serif">Shree Radhe</span>
+              <div className="relative h-8 w-8 flex-shrink-0">
+                <img
+                  src="/Assets/logo_new.png"
+                  alt="Shree Radhe Marble Logo"
+                  className="h-full w-full object-contain"
+                />
+              </div>
+              <div className="flex flex-col leading-tight">
+                <span className="text-base font-bold text-slate-900">Shree Radhe</span>
+                <span className="text-[10px] text-red-600 font-medium uppercase tracking-wider">Marble & Granite</span>
+              </div>
             </Link>
             <nav className="flex items-center gap-6">
               <Link href="/" className="text-sm font-medium text-slate-600 hover:text-red-600 transition">Home</Link>
@@ -144,8 +153,8 @@ export default function BlogPostPage() {
         {/* Cover Image */}
         {blog.coverImage && (
           <div className="aspect-[21/9] rounded-2xl overflow-hidden mb-8">
-            <img 
-              src={blog.coverImage} 
+            <img
+              src={blog.coverImage}
               alt={blog.title}
               className="w-full h-full object-cover"
             />
@@ -186,11 +195,10 @@ export default function BlogPostPage() {
           <button
             onClick={handleLike}
             disabled={liked}
-            className={`inline-flex items-center gap-2 px-6 py-3 rounded-full font-semibold transition-all ${
-              liked 
-                ? 'bg-red-100 text-red-600 cursor-default' 
-                : 'bg-red-600 text-white hover:bg-red-700'
-            }`}
+            className={`inline-flex items-center gap-2 px-6 py-3 rounded-full font-semibold transition-all ${liked
+              ? 'bg-red-100 text-red-600 cursor-default'
+              : 'bg-red-600 text-white hover:bg-red-700'
+              }`}
           >
             <HeartIcon filled={liked} />
             {liked ? 'Liked!' : 'Like this post'}

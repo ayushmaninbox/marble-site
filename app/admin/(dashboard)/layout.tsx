@@ -84,7 +84,7 @@ export default function AdminLayout({ children }: LayoutProps) {
         const parsed = JSON.parse(userInfo);
         setUserRole(parsed.role || '');
         setUserId(parsed.id || '');
-      } catch {}
+      } catch { }
     }
 
     // Fetch counts for sidebar badges
@@ -170,42 +170,42 @@ export default function AdminLayout({ children }: LayoutProps) {
   );
 
   const allNavItems = [
-    { 
+    {
       key: 'dashboard',
-      name: 'Dashboard', 
-      href: '/admin/dashboard', 
+      name: 'Dashboard',
+      href: '/admin/dashboard',
       icon: DashboardIcon,
       isActive: pathname === '/admin/dashboard'
     },
-    { 
+    {
       key: 'products',
-      name: 'Products', 
-      href: '/admin/products', 
-      icon: BoxIcon, 
+      name: 'Products',
+      href: '/admin/products',
+      icon: BoxIcon,
       badge: productCount,
       badgeColor: 'bg-stone-100 text-stone-600',
       isActive: pathname === '/admin/products'
     },
-    { 
+    {
       key: 'enquiries',
-      name: 'Enquiries', 
-      href: '/admin/enquiries', 
-      icon: ChatIcon, 
+      name: 'Enquiries',
+      href: '/admin/enquiries',
+      icon: ChatIcon,
       badge: enquiryCount,
       badgeColor: 'bg-red-500 text-white',
       isActive: pathname === '/admin/enquiries'
     },
-    { 
+    {
       key: 'blogs',
-      name: 'Blogs', 
-      href: '/admin/blogs', 
+      name: 'Blogs',
+      href: '/admin/blogs',
       icon: BlogIcon,
       isActive: pathname === '/admin/blogs'
     },
-    { 
+    {
       key: 'users',
-      name: 'Users', 
-      href: '/admin/users', 
+      name: 'Users',
+      href: '/admin/users',
       icon: UsersIcon,
       isActive: pathname === '/admin/users'
     },
@@ -227,10 +227,18 @@ export default function AdminLayout({ children }: LayoutProps) {
       <aside className={`fixed top-0 left-0 h-full w-64 bg-white border-r border-stone-200 z-50 transform transition-transform duration-300 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0`}>
         <div className="p-6 border-b border-stone-100">
           <div className="flex items-center gap-3">
-            <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-red-600 via-red-500 to-orange-400 shadow-sm" />
+            <div className="relative h-8 w-8 flex-shrink-0">
+              <img
+                src="/Assets/logo_new.png"
+                alt="Shree Radhe Marble Logo"
+                className="h-full w-full object-contain"
+              />
+            </div>
             <div>
               <div className="text-sm font-bold text-slate-900 font-serif">Admin Panel</div>
-              <div className="text-[10px] uppercase tracking-wider text-slate-400">Shree Radhe Marble</div>
+              <div className="text-[10px] tracking-wider text-slate-400">
+                <span className="font-bold text-slate-900">Shree Radhe</span> <span className="text-red-500 uppercase">Marble & Granite</span>
+              </div>
             </div>
           </div>
         </div>
@@ -241,11 +249,10 @@ export default function AdminLayout({ children }: LayoutProps) {
               key={item.name}
               href={item.href}
               onClick={() => setSidebarOpen(false)}
-              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-colors ${
-                item.isActive 
-                  ? 'bg-red-50 text-red-700' 
-                  : 'text-slate-500 hover:bg-stone-50 hover:text-slate-900'
-              }`}
+              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-colors ${item.isActive
+                ? 'bg-red-50 text-red-700'
+                : 'text-slate-500 hover:bg-stone-50 hover:text-slate-900'
+                }`}
             >
               <item.icon />
               {item.name}
@@ -296,7 +303,13 @@ export default function AdminLayout({ children }: LayoutProps) {
             >
               <MenuIcon />
             </button>
-            <div className="h-7 w-7 rounded-lg bg-gradient-to-br from-red-600 via-red-500 to-orange-400" />
+            <div className="relative h-7 w-7 flex-shrink-0">
+              <img
+                src="/Assets/logo_new.png"
+                alt="Shree Radhe Marble Logo"
+                className="h-full w-full object-contain"
+              />
+            </div>
           </div>
         </header>
 
@@ -309,7 +322,7 @@ export default function AdminLayout({ children }: LayoutProps) {
           <div className="mx-4 w-full max-w-sm rounded-2xl bg-white p-6 shadow-2xl">
             <div className="flex items-center justify-between mb-5">
               <h2 className="text-lg font-bold text-slate-900">Change Password</h2>
-              <button 
+              <button
                 onClick={() => { setShowPasswordModal(false); setPasswordForm({ current: '', new: '', confirm: '' }); setPasswordError(''); }}
                 className="h-8 w-8 flex items-center justify-center rounded-full hover:bg-stone-100 text-slate-500"
               >

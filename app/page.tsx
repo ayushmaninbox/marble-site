@@ -7,6 +7,7 @@ import { AnimatedSection } from '@/components/AnimatedSection';
 import { TextReveal } from '@/components/TextReveal';
 import { TypewriterText } from '@/components/TypewriterText';
 import { DynamicBackground } from '@/components/DynamicBackground';
+import SiteHeader from '@/components/SiteHeader';
 import SiteFooter from '@/components/SiteFooter';
 import { motion, useScroll, useTransform } from 'framer-motion';
 
@@ -214,71 +215,7 @@ export default function Home() {
       />
 
       {/* Header - Elegant Red Theme */}
-      <motion.header
-        initial={{ y: -100, opacity: 0 }}
-        animate={isRevealed ? { y: 0, opacity: 1 } : { y: -100, opacity: 0 }}
-        transition={{ duration: 0.8, ease: [0.22, 0.61, 0.36, 1] }}
-        className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-sm border-b border-red-100"
-      >
-        <div className="mx-auto flex w-full max-w-7xl items-center justify-between px-6 py-4">
-          {/* Logo Section */}
-          <div className="flex flex-col">
-            <div className="flex items-center gap-3">
-              <div className="h-10 w-10 border border-red-200 rounded-sm flex items-center justify-center p-1 bg-red-50">
-                <div className="h-full w-full bg-gradient-to-br from-red-600 to-orange-500 opacity-80" />
-              </div>
-              <div>
-                <h1 className="text-2xl font-serif text-slate-900 tracking-tight leading-none">
-                  Shree Radhe
-                </h1>
-                <p className="text-[10px] text-red-600 uppercase tracking-[0.2em] mt-1 font-medium">
-                  Marble & Granite
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* Centered Navigation */}
-          <nav className="hidden items-center gap-10 md:flex absolute left-1/2 -translate-x-1/2">
-            <a href="#top" className="text-xs font-semibold tracking-[0.2em] text-slate-600 hover:text-red-600 uppercase transition-colors">
-              Home
-            </a>
-            <Link href="/products" className="text-xs font-semibold tracking-[0.2em] text-slate-600 hover:text-red-600 uppercase transition-colors">
-              Product
-            </Link>
-            <Link href="/blogs" className="text-xs font-semibold tracking-[0.2em] text-slate-600 hover:text-red-600 uppercase transition-colors">
-              Blog
-            </Link>
-            <button
-              onClick={() => setIsQuoteOpen(true)}
-              className="text-xs font-semibold tracking-[0.2em] text-slate-600 hover:text-red-600 uppercase transition-colors"
-            >
-              Contact
-            </button>
-          </nav>
-
-          {/* Right Actions */}
-          <div className="flex items-center gap-4">
-            <button
-              onClick={() => setIsQuoteOpen(true)}
-              className="hidden md:inline-flex px-6 py-2.5 bg-gradient-to-r from-red-600 to-orange-500 text-white text-xs font-semibold tracking-widest uppercase hover:shadow-lg hover:shadow-red-500/20 transition-all duration-300"
-            >
-              Get a Quote
-            </button>
-
-            {/* Mobile Menu Button */}
-            <button
-              type="button"
-              className="md:hidden text-slate-900"
-              aria-label="Open navigation"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
-              </svg>
-            </button>
-          </div>
-        </div>
-      </motion.header>
+      <SiteHeader isRevealed={isRevealed} setIsQuoteOpen={setIsQuoteOpen} />
 
 
       <main id="top" className="mx-auto w-full max-w-7xl px-3 pt-0 sm:px-6 lg:px-4">
@@ -425,7 +362,13 @@ export default function Home() {
                   No marble products available yet.
                 </div>
               ) : (
-                <div className="pt-4 pb-6">
+                <div
+                  className="pt-4 pb-6 relative"
+                  style={{
+                    maskImage: 'linear-gradient(to right, transparent, black 10%, black 90%, transparent)',
+                    WebkitMaskImage: 'linear-gradient(to right, transparent, black 10%, black 90%, transparent)'
+                  }}
+                >
                   {/* Sliding Track - products repeated 3x for infinite effect */}
                   <div
                     className="flex gap-5"
@@ -476,7 +419,7 @@ export default function Home() {
         </AnimatedSection>
 
         {/* Tiles Collection Carousel Section */}
-        <AnimatedSection className="py-16 lg:py-24 bg-gradient-to-b from-transparent via-slate-50/50 to-transparent" staggerChildren={0.1}>
+        <AnimatedSection className="py-16 lg:py-24" staggerChildren={0.1}>
           {/* Section Header with Decorative Brackets */}
           <div className="text-center mb-12">
             <div className="inline-block relative">
@@ -488,39 +431,10 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Content: Left Description + Right Carousel */}
-          <div className="grid gap-8 lg:grid-cols-[280px_1fr] lg:gap-12 items-start">
-            {/* Left Column - Description */}
-            <div className="space-y-4">
-              <h3 className="text-3xl sm:text-4xl font-light text-red-500 leading-tight">
-                Designer<br />Tiles
-              </h3>
-              <p className="text-slate-600 text-sm leading-relaxed">
-                Experience the sheer magnificence of our Premium Tile Collection. Curated for the discerning eye, our range spans from high-gloss Italian Porcelain and rustic Stone textures to exquisite mosaics that turn walls and floors into canvases of art.
-              </p>
-              {/* Navigation Arrows */}
-              <div className="flex items-center gap-4 pt-4">
-                <button
-                  onClick={() => {
-                    setTilesIndex((prev: number) => (prev - 1 + tilesProducts.length * 2) % (tilesProducts.length * 2));
-                  }}
-                  className="w-10 h-10 rounded-full border border-slate-300 flex items-center justify-center text-slate-500 hover:border-red-500 hover:text-red-500 transition-colors"
-                >
-                  ←
-                </button>
-                <button
-                  onClick={() => {
-                    setTilesIndex((prev: number) => (prev + 1) % (tilesProducts.length * 2));
-                  }}
-                  className="w-10 h-10 rounded-full border border-slate-300 flex items-center justify-center text-slate-500 hover:border-red-500 hover:text-red-500 transition-colors"
-                >
-                  →
-                </button>
-              </div>
-            </div>
-
-            {/* Right Column - Carousel */}
-            <div className="relative overflow-hidden">
+          {/* Content: Left Carousel + Right Description */}
+          <div className="grid gap-8 lg:grid-cols-[1fr_280px] lg:gap-12 items-start">
+            {/* Left Column - Carousel */}
+            <div className="relative overflow-hidden order-2 lg:order-1">
               {loading ? (
                 <div className="py-16 text-center">
                   <div className="inline-block h-10 w-10 animate-spin rounded-full border-4 border-red-500 border-t-transparent" />
@@ -531,7 +445,13 @@ export default function Home() {
                   No tiles available yet.
                 </div>
               ) : (
-                <div className="pt-4 pb-6">
+                <div
+                  className="pt-4 pb-6 relative"
+                  style={{
+                    maskImage: 'linear-gradient(to right, transparent, black 10%, black 90%, transparent)',
+                    WebkitMaskImage: 'linear-gradient(to right, transparent, black 10%, black 90%, transparent)'
+                  }}
+                >
                   {/* Sliding Track - products repeated 3x for infinite effect */}
                   <div
                     className="flex gap-5"
@@ -577,6 +497,35 @@ export default function Home() {
                   </div>
                 </div>
               )}
+            </div>
+
+            {/* Right Column - Description (Right-aligned text) */}
+            <div className="space-y-4 text-right order-1 lg:order-2">
+              <h3 className="text-3xl sm:text-4xl font-light text-red-500 leading-tight">
+                Designer<br />Tiles
+              </h3>
+              <p className="text-slate-600 text-sm leading-relaxed">
+                Experience the sheer magnificence of our Premium Tile Collection. Curated for the discerning eye, our range spans from high-gloss Italian Porcelain and rustic Stone textures to exquisite mosaics that turn walls and floors into canvases of art.
+              </p>
+              {/* Navigation Arrows */}
+              <div className="flex items-center gap-4 pt-4 justify-end">
+                <button
+                  onClick={() => {
+                    setTilesIndex((prev: number) => (prev - 1 + tilesProducts.length * 2) % (tilesProducts.length * 2));
+                  }}
+                  className="w-10 h-10 rounded-full border border-slate-300 flex items-center justify-center text-slate-500 hover:border-red-500 hover:text-red-500 transition-colors"
+                >
+                  ←
+                </button>
+                <button
+                  onClick={() => {
+                    setTilesIndex((prev: number) => (prev + 1) % (tilesProducts.length * 2));
+                  }}
+                  className="w-10 h-10 rounded-full border border-slate-300 flex items-center justify-center text-slate-500 hover:border-red-500 hover:text-red-500 transition-colors"
+                >
+                  →
+                </button>
+              </div>
             </div>
           </div>
         </AnimatedSection>
@@ -637,7 +586,13 @@ export default function Home() {
                   No handicraft items available yet.
                 </div>
               ) : (
-                <div className="pt-4 pb-6">
+                <div
+                  className="pt-4 pb-6 relative"
+                  style={{
+                    maskImage: 'linear-gradient(to right, transparent, black 10%, black 90%, transparent)',
+                    WebkitMaskImage: 'linear-gradient(to right, transparent, black 10%, black 90%, transparent)'
+                  }}
+                >
                   {/* Sliding Track - products repeated 3x for infinite effect */}
                   <div
                     className="flex gap-5"

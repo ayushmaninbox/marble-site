@@ -7,7 +7,7 @@ interface SiteFooterProps {
 
 export default function SiteFooter({ setIsQuoteOpen }: SiteFooterProps) {
   return (
-    <footer className="mt-0 relative border-t border-slate-200/50 bg-slate-900 pt-16 pb-8 text-slate-200 overflow-hidden">
+    <footer className="mt-0 relative border-t border-slate-200/50 bg-slate-900 pt-20 pb-12 text-slate-200 overflow-hidden">
       {/* Background Image with Overlay */}
       <div className="absolute inset-0 z-0">
         <img
@@ -15,40 +15,52 @@ export default function SiteFooter({ setIsQuoteOpen }: SiteFooterProps) {
           alt="Footer Background"
           className="w-full h-full object-cover"
         />
-        {/* Red brand gradient overlay: Left (Red) to Right (Dark), lighter opacity */}
-        <div className="absolute inset-0 bg-gradient-to-r from-red-800/70 via-red-900/60 to-slate-900/80 mix-blend-multiply" />
+        {/* Darker overlay for better text contrast */}
+        <div className="absolute inset-0 bg-gradient-to-r from-slate-900/85 via-slate-900/80 to-slate-900/90" />
       </div>
 
-      <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="relative z-10 mx-auto max-w-6xl px-8 sm:px-12 lg:px-16">
+        <div className="grid gap-12 sm:grid-cols-2 lg:grid-cols-4">
           {/* Brand */}
-          <div className="space-y-4">
-            <Link href="/" className="flex items-center gap-2 group">
-              <div className="h-8 w-8 rounded-xl bg-gradient-to-br from-red-600 via-red-500 to-orange-400 shadow-md group-hover:scale-105 transition-transform" />
-              <span className="bg-gradient-to-r from-white via-slate-100 to-slate-200 bg-clip-text text-sm font-bold text-transparent">
-                Shree Radhe Marble
-              </span>
+          <div className="space-y-5">
+            <Link href="/" className="flex items-center gap-3 group">
+              <div className="relative h-12 w-12 flex-shrink-0 group-hover:scale-105 transition-transform">
+                <img
+                  src="/Assets/logo_new.png"
+                  alt="Shree Radhe Marble Logo"
+                  className="h-full w-full object-contain"
+                />
+              </div>
+              <div className="flex flex-col">
+                <span className="text-lg font-bold text-white tracking-wide">
+                  Shree Radhe
+                </span>
+                <span className="text-xs text-slate-400 font-medium uppercase tracking-wider">
+                  Marble & Granite
+                </span>
+              </div>
             </Link>
-            <p className="text-xs text-slate-400 leading-relaxed">
+            <p className="text-sm text-slate-300 leading-relaxed">
               Premium marble, granite, and tiles for residential and commercial projects. Trusted by architects and designers since 2004.
             </p>
           </div>
 
           {/* Quick Links */}
           <div>
-            <h4 className="text-sm font-semibold text-white mb-4">Quick Links</h4>
-            <ul className="space-y-2 text-xs text-slate-400">
+            <h4 className="text-base font-semibold text-white mb-5">Quick Links</h4>
+            <ul className="space-y-3 text-sm text-slate-300">
               <li><Link href="/" className="hover:text-red-400 transition-colors">Home</Link></li>
               <li><Link href="/products" className="hover:text-red-400 transition-colors">Products</Link></li>
               <li><Link href="/blogs" className="hover:text-red-400 transition-colors">Blog</Link></li>
+              <li><Link href="/contact" className="hover:text-red-400 transition-colors">Contact</Link></li>
               <li><button onClick={() => setIsQuoteOpen(true)} className="hover:text-red-400 transition-colors">Get a Quote</button></li>
             </ul>
           </div>
 
           {/* Products */}
           <div>
-            <h4 className="text-sm font-semibold text-white mb-4">Products</h4>
-            <ul className="space-y-2 text-xs text-slate-400">
+            <h4 className="text-base font-semibold text-white mb-5">Products</h4>
+            <ul className="space-y-3 text-sm text-slate-300">
               <li><Link href="/products?category=Italian%20Marble" className="hover:text-red-400 transition-colors">Italian Marble</Link></li>
               <li><Link href="/products?category=Indian%20Granite" className="hover:text-red-400 transition-colors">Indian Granite</Link></li>
               <li><Link href="/products?category=Designer%20Tiles" className="hover:text-red-400 transition-colors">Designer Tiles</Link></li>
@@ -59,10 +71,8 @@ export default function SiteFooter({ setIsQuoteOpen }: SiteFooterProps) {
 
           {/* Contact */}
           <div>
-            <h4 className="text-sm font-semibold text-white mb-4">Contact Us</h4>
-
             {/* Google Maps Embed - Square */}
-            <div className="rounded-lg overflow-hidden shadow-lg border border-slate-700 mb-4 aspect-square max-w-[200px]">
+            <div className="rounded-lg overflow-hidden shadow-lg border border-slate-600 mb-5 aspect-square max-w-[180px]">
               <iframe
                 src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d4095.993942801531!2d91.3212724!3d23.8423724!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3753f3ece8c5082f%3A0x3560794d63797140!2sShree%20Radhe%20Marble%20%26%20Granite!5e1!3m2!1sen!2sin!4v1768924787517!5m2!1sen!2sin"
                 width="100%"
@@ -76,28 +86,45 @@ export default function SiteFooter({ setIsQuoteOpen }: SiteFooterProps) {
               />
             </div>
 
-            <ul className="space-y-3 text-xs text-slate-400">
-              <li className="flex items-center gap-2">
-                <span className="text-red-400">📞</span>
-                <a href="tel:+911234567890" className="hover:text-red-400 transition-colors">+91 12345 67890</a>
+            <ul className="space-y-4 text-sm text-slate-300">
+              <li className="flex items-start gap-3">
+                <span className="text-red-400 text-lg mt-0.5">📍</span>
+                <span>Godown: AA Road,<br />Kashipur Bazar, Agartala-799008</span>
               </li>
-              <li className="flex items-center gap-2">
-                <span className="text-red-400">✉️</span>
-                <a href="mailto:info@shreeradhemarble.com" className="hover:text-red-400 transition-colors">info@shreeradhemarble.com</a>
+              <li className="flex items-center gap-3">
+                <span className="text-red-400 text-lg">📱</span>
+                <a
+                  href="https://wa.me/918794946566"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:text-red-400 transition-colors"
+                >
+                  +91 8794946566 (WhatsApp)
+                </a>
+              </li>
+              <li className="flex items-center gap-3">
+                <span className="text-red-400 text-lg">✉️</span>
+                <a
+                  href="https://mail.google.com/mail/?view=cm&fs=1&to=shreeradhesr@gmail.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:text-red-400 transition-colors"
+                >
+                  shreeradhesr@gmail.com
+                </a>
               </li>
             </ul>
           </div>
         </div>
 
         {/* Bottom Bar */}
-        <div className="mt-12 pt-6 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p className="text-xs text-slate-500">
+        <div className="mt-16 pt-8 border-t border-slate-700 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <p className="text-sm text-slate-400">
             © 2026 Shree Radhe Marble &amp; Granite. All rights reserved.
           </p>
-          <div className="flex items-center gap-4">
-            <a href="#" className="text-slate-500 hover:text-red-400 transition-colors text-xs">Privacy Policy</a>
-            <a href="#" className="text-slate-500 hover:text-red-400 transition-colors text-xs">Terms of Service</a>
-
+          <div className="flex items-center gap-6">
+            <a href="#" className="text-slate-400 hover:text-red-400 transition-colors text-sm">Privacy Policy</a>
+            <a href="#" className="text-slate-400 hover:text-red-400 transition-colors text-sm">Terms of Service</a>
           </div>
         </div>
       </div>
