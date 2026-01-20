@@ -24,12 +24,12 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { email, password, role } = body;
+    const { name, email, password, role } = body;
 
     // Validate required fields
-    if (!email || !password || !role) {
+    if (!name || !email || !password || !role) {
       return NextResponse.json(
-        { error: 'Email, password, and role are required' },
+        { error: 'Name, email, password, and role are required' },
         { status: 400 }
       );
     }
@@ -52,10 +52,10 @@ export async function POST(request: NextRequest) {
     }
 
     // Validate role
-    const validRoles: AdminRole[] = ['super_admin', 'admin'];
+    const validRoles: AdminRole[] = ['super_admin', 'admin', 'product_manager', 'content_writer', 'enquiry_handler'];
     if (!validRoles.includes(role)) {
       return NextResponse.json(
-        { error: 'Invalid role. Must be super_admin or admin' },
+        { error: 'Invalid role' },
         { status: 400 }
       );
     }
@@ -69,7 +69,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const newUser = await createUser(email, password, role);
+    const newUser = await createUser(name, email, password, role);
 
     // Return user without password hash
     const { passwordHash, ...safeUser } = newUser;

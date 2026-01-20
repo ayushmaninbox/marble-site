@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { AdminUser, AdminRole } from '@/lib/types';
 
 // SVG Icons
@@ -40,6 +41,7 @@ export default function UsersPage() {
 
   // Form state
   const [formData, setFormData] = useState({
+    name: '',
     email: '',
     password: '',
     role: 'admin' as AdminRole,
@@ -51,17 +53,30 @@ export default function UsersPage() {
   const [resetPasswordUserId, setResetPasswordUserId] = useState<string | null>(null);
   const [newPassword, setNewPassword] = useState('');
 
+  const router = useRouter();
+
   useEffect(() => {
-    // Get current user from localStorage
+    // Get current user from localStorage and check permissions
     const userInfo = localStorage.getItem('adminUser');
     if (userInfo) {
       try {
         const parsed = JSON.parse(userInfo);
         setCurrentUserId(parsed.id);
-      } catch {}
+        // Route protection: only super_admin can access this page
+        if (parsed.role !== 'super_admin') {
+          router.push('/admin/dashboard');
+          return;
+        }
+      } catch {
+        router.push('/admin/dashboard');
+        return;
+      }
+    } else {
+      router.push('/admin');
+      return;
     }
     fetchUsers();
-  }, []);
+  }, [router]);
 
   const fetchUsers = async () => {
     try {
@@ -79,6 +94,7 @@ export default function UsersPage() {
     e.preventDefault();
     setFormError('');
 
+    if (!formData.name.trim()) return setFormError('Name is required');
     if (!formData.email.trim()) return setFormError('Email is required');
     if (!editingUser && !formData.password) return setFormError('Password is required');
     if (!editingUser && formData.password.length < 6) return setFormError('Password must be at least 6 characters');
@@ -87,11 +103,11 @@ export default function UsersPage() {
 
     try {
       if (editingUser) {
-        // Update user role
+        // Update user role and name
         const response = await fetch(`/api/users/${editingUser.id}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ role: formData.role }),
+          body: JSON.stringify({ name: formData.name, role: formData.role }),
         });
 
         if (!response.ok) {
@@ -170,14 +186,14 @@ export default function UsersPage() {
 
   const openAddForm = () => {
     setEditingUser(null);
-    setFormData({ email: '', password: '', role: 'admin' });
+    setFormData({ name: '', email: '', password: '', role: 'admin' });
     setFormError('');
     setShowForm(true);
   };
 
   const openEditForm = (user: SafeUser) => {
     setEditingUser(user);
-    setFormData({ email: user.email, password: '', role: user.role });
+    setFormData({ name: user.name, email: user.email, password: '', role: user.role });
     setFormError('');
     setShowForm(true);
   };
@@ -185,13 +201,36 @@ export default function UsersPage() {
   const closeForm = () => {
     setShowForm(false);
     setEditingUser(null);
-    setFormData({ email: '', password: '', role: 'admin' });
+    setFormData({ name: '', email: '', password: '', role: 'admin' });
     setFormError('');
   };
 
   const filteredUsers = users.filter(user =>
-    user.email.toLowerCase().includes(search.toLowerCase())
+    user.email.toLowerCase().includes(search.toLowerCase()) ||
+    user.name.toLowerCase().includes(search.toLowerCase())
   );
+
+  const getRoleLabel = (role: AdminRole) => {
+    const labels: Record<AdminRole, string> = {
+      super_admin: 'Super Admin',
+      admin: 'Admin',
+      product_manager: 'Product Manager',
+      content_writer: 'Content Writer',
+      enquiry_handler: 'Enquiry Handler',
+    };
+    return labels[role];
+  };
+
+  const getRoleColor = (role: AdminRole) => {
+    const colors: Record<AdminRole, string> = {
+      super_admin: 'bg-red-50 text-red-700',
+      admin: 'bg-blue-50 text-blue-700',
+      product_manager: 'bg-green-50 text-green-700',
+      content_writer: 'bg-purple-50 text-purple-700',
+      enquiry_handler: 'bg-amber-50 text-amber-700',
+    };
+    return colors[role];
+  };
 
   const inputClasses = "w-full rounded-lg border border-stone-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-red-400 focus:ring-2 focus:ring-red-500/20";
 
@@ -244,7 +283,7 @@ export default function UsersPage() {
         <table className="w-full">
           <thead className="bg-stone-50 border-b border-stone-200">
             <tr>
-              <th className="text-left px-4 py-3 text-xs font-bold uppercase tracking-wider text-slate-500">Email</th>
+              <th className="text-left px-4 py-3 text-xs font-bold uppercase tracking-wider text-slate-500">User</th>
               <th className="text-left px-4 py-3 text-xs font-bold uppercase tracking-wider text-slate-500">Role</th>
               <th className="text-left px-4 py-3 text-xs font-bold uppercase tracking-wider text-slate-500">Created</th>
               <th className="text-left px-4 py-3 text-xs font-bold uppercase tracking-wider text-slate-500">Last Login</th>
@@ -257,22 +296,23 @@ export default function UsersPage() {
                 <td className="px-4 py-4">
                   <div className="flex items-center gap-3">
                     <div className="h-8 w-8 rounded-full bg-gradient-to-br from-red-500 to-orange-400 flex items-center justify-center text-white text-xs font-bold">
-                      {user.email.charAt(0).toUpperCase()}
+                      {user.name?.charAt(0).toUpperCase() || user.email.charAt(0).toUpperCase()}
                     </div>
-                    <span className="text-sm font-medium text-slate-900">{user.email}</span>
-                    {user.id === currentUserId && (
-                      <span className="text-xs bg-stone-100 text-slate-500 px-2 py-0.5 rounded">You</span>
-                    )}
+                    <div>
+                      <div className="text-sm font-medium text-slate-900">
+                        {user.name || 'Unnamed'}
+                        {user.id === currentUserId && (
+                          <span className="ml-2 text-xs bg-stone-100 text-slate-500 px-2 py-0.5 rounded">You</span>
+                        )}
+                      </div>
+                      <div className="text-xs text-slate-500">{user.email}</div>
+                    </div>
                   </div>
                 </td>
                 <td className="px-4 py-4">
-                  <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium ${
-                    user.role === 'super_admin' 
-                      ? 'bg-red-50 text-red-700' 
-                      : 'bg-stone-100 text-stone-600'
-                  }`}>
+                  <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium ${getRoleColor(user.role)}`}>
                     {user.role === 'super_admin' && <ShieldIcon />}
-                    {user.role === 'super_admin' ? 'Super Admin' : 'Admin'}
+                    {getRoleLabel(user.role)}
                   </span>
                 </td>
                 <td className="px-4 py-4 text-sm text-slate-500">
@@ -333,6 +373,17 @@ export default function UsersPage() {
 
             <form onSubmit={handleFormSubmit} className="space-y-4">
               <div>
+                <label className="block text-xs font-semibold text-slate-600 mb-1.5">Name</label>
+                <input
+                  type="text"
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  placeholder="Full name"
+                  className={inputClasses}
+                />
+              </div>
+
+              <div>
                 <label className="block text-xs font-semibold text-slate-600 mb-1.5">Email</label>
                 <input
                   type="email"
@@ -364,12 +415,12 @@ export default function UsersPage() {
                   onChange={(e) => setFormData({ ...formData, role: e.target.value as AdminRole })}
                   className={inputClasses}
                 >
-                  <option value="admin">Admin</option>
                   <option value="super_admin">Super Admin</option>
+                  <option value="admin">Admin</option>
+                  <option value="product_manager">Product Manager</option>
+                  <option value="content_writer">Content Writer</option>
+                  <option value="enquiry_handler">Enquiry Handler</option>
                 </select>
-                <p className="text-xs text-slate-400 mt-1">
-                  Super Admins can manage other users
-                </p>
               </div>
 
               {formError && (

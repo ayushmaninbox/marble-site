@@ -31,10 +31,11 @@ export interface Enquiry {
   status: 'pending' | 'solved';
 }
 
-export type AdminRole = 'super_admin' | 'admin';
+export type AdminRole = 'super_admin' | 'admin' | 'product_manager' | 'content_writer' | 'enquiry_handler';
 
 export interface AdminUser {
   id: string;
+  name: string;
   email: string;
   passwordHash: string;
   role: AdminRole;
@@ -42,3 +43,24 @@ export interface AdminUser {
   lastLogin?: string;
 }
 
+export interface BlogComment {
+  id: string;
+  name: string;
+  email: string;
+  content: string;
+  createdAt: string;
+}
+
+export interface Blog {
+  id: string;
+  title: string;
+  slug: string;
+  excerpt: string;
+  content: string;
+  coverImage: string;
+  author: string;
+  likes: number;
+  comments: BlogComment[];
+  createdAt: string;
+  updatedAt: string;
+}

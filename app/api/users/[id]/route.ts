@@ -20,11 +20,16 @@ export async function PUT(
       );
     }
 
-    const updates: { role?: AdminRole; passwordHash?: string } = {};
+    const updates: { role?: AdminRole; passwordHash?: string; name?: string } = {};
+
+    // Update name if provided
+    if (body.name) {
+      updates.name = body.name;
+    }
 
     // Update role if provided
     if (role) {
-      const validRoles: AdminRole[] = ['super_admin', 'admin'];
+      const validRoles: AdminRole[] = ['super_admin', 'admin', 'product_manager', 'content_writer', 'enquiry_handler'];
       if (!validRoles.includes(role)) {
         return NextResponse.json(
           { error: 'Invalid role' },

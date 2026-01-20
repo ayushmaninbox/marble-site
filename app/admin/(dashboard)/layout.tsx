@@ -152,14 +152,33 @@ export default function AdminLayout({ children }: LayoutProps) {
     }
   };
 
-  const navItems = [
+  // Role-based page access mapping
+  const roleAccess: Record<string, string[]> = {
+    super_admin: ['dashboard', 'products', 'enquiries', 'blogs', 'users'],
+    admin: ['dashboard', 'products', 'enquiries', 'blogs'],
+    product_manager: ['products'],
+    content_writer: ['blogs'],
+    enquiry_handler: ['enquiries'],
+  };
+
+  const allowedPages = roleAccess[userRole] || [];
+
+  const BlogIcon = () => (
+    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
+    </svg>
+  );
+
+  const allNavItems = [
     { 
+      key: 'dashboard',
       name: 'Dashboard', 
       href: '/admin/dashboard', 
       icon: DashboardIcon,
       isActive: pathname === '/admin/dashboard'
     },
     { 
+      key: 'products',
       name: 'Products', 
       href: '/admin/products', 
       icon: BoxIcon, 
@@ -168,6 +187,7 @@ export default function AdminLayout({ children }: LayoutProps) {
       isActive: pathname === '/admin/products'
     },
     { 
+      key: 'enquiries',
       name: 'Enquiries', 
       href: '/admin/enquiries', 
       icon: ChatIcon, 
@@ -175,13 +195,23 @@ export default function AdminLayout({ children }: LayoutProps) {
       badgeColor: 'bg-red-500 text-white',
       isActive: pathname === '/admin/enquiries'
     },
-    ...(userRole === 'super_admin' ? [{ 
+    { 
+      key: 'blogs',
+      name: 'Blogs', 
+      href: '/admin/blogs', 
+      icon: BlogIcon,
+      isActive: pathname === '/admin/blogs'
+    },
+    { 
+      key: 'users',
       name: 'Users', 
       href: '/admin/users', 
       icon: UsersIcon,
       isActive: pathname === '/admin/users'
-    }] : []),
+    },
   ];
+
+  const navItems = allNavItems.filter(item => allowedPages.includes(item.key));
 
   return (
     <div className="min-h-screen bg-stone-50 text-slate-900">

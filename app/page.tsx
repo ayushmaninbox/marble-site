@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { Product, ProductCategory } from '@/lib/types';
+import { Product, ProductCategory, Blog } from '@/lib/types';
 import { AnimatedSection } from '@/components/AnimatedSection';
 import { TextReveal } from '@/components/TextReveal';
 import { TypewriterText } from '@/components/TypewriterText';
@@ -12,6 +12,7 @@ import { motion, useScroll, useTransform } from 'framer-motion';
 
 export default function Home() {
   const [products, setProducts] = useState<Product[]>([]);
+  const [blogs, setBlogs] = useState<Blog[]>([]);
   const [loading, setLoading] = useState(true);
   const [marbleIndex, setMarbleIndex] = useState(0);
   const [tilesIndex, setTilesIndex] = useState(0);
@@ -61,6 +62,16 @@ export default function Home() {
     }
   };
 
+  const fetchBlogs = async () => {
+    try {
+      const response = await fetch('/api/blogs');
+      const data = await response.json();
+      setBlogs(data.slice(0, 3)); // Get only latest 3
+    } catch (error) {
+      console.error('Error fetching blogs:', error);
+    }
+  };
+
   useEffect(() => {
     // Disable browser scroll restoration and force scroll to top
     if ('scrollRestoration' in history) {
@@ -69,6 +80,7 @@ export default function Home() {
     window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
 
     fetchProducts();
+    fetchBlogs();
 
     // Poll for updates every 5 seconds to show real-time changes
     const interval = setInterval(fetchProducts, 5000);
@@ -671,6 +683,86 @@ export default function Home() {
             </div>
           </div>
         </AnimatedSection>
+
+        {/* Blog Section */}
+        {blogs.length > 0 && (
+          <AnimatedSection className="py-16 lg:py-24 bg-gradient-to-b from-transparent via-red-50/30 to-transparent" staggerChildren={0.1}>
+            {/* Section Header with Decorative Brackets */}
+            <div className="text-center mb-12">
+              <div className="inline-block relative">
+                <span className="absolute -top-3 -left-6 w-5 h-5 border-l-2 border-t-2 border-red-500" />
+                <h2 className="text-3xl sm:text-4xl font-light tracking-wide text-slate-900 uppercase">
+                  Latest Insights
+                </h2>
+                <span className="absolute -bottom-3 -right-6 w-5 h-5 border-r-2 border-b-2 border-red-500" />
+              </div>
+              <p className="mt-6 text-slate-600 text-sm max-w-xl mx-auto">
+                Expert tips, trends, and guides to help you create stunning spaces
+              </p>
+            </div>
+
+            {/* Blog Grid */}
+            <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+              {blogs.map((blog) => (
+                <Link key={blog.id} href={`/blogs/${blog.slug}`} className="group">
+                  <article className="bg-white rounded-2xl overflow-hidden border border-stone-200 shadow-sm hover:shadow-lg transition-all duration-300 h-full flex flex-col">
+                    {blog.coverImage ? (
+                      <div className="aspect-[16/9] overflow-hidden">
+                        <img 
+                          src={blog.coverImage} 
+                          alt={blog.title}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        />
+                      </div>
+                    ) : (
+                      <div className="aspect-[16/9] bg-gradient-to-br from-red-100 to-orange-50 flex items-center justify-center">
+                        <div className="text-red-300 text-4xl font-serif">{blog.title.charAt(0)}</div>
+                      </div>
+                    )}
+                    <div className="p-6 flex-1 flex flex-col">
+                      <h3 className="text-lg font-bold text-slate-900 mb-2 group-hover:text-red-600 transition-colors line-clamp-2">
+                        {blog.title}
+                      </h3>
+                      <p className="text-sm text-slate-600 mb-4 flex-1 line-clamp-2">
+                        {blog.excerpt}
+                      </p>
+                      <div className="flex items-center justify-between text-xs text-slate-400">
+                        <span>By {blog.author}</span>
+                        <div className="flex items-center gap-3">
+                          <span className="flex items-center gap-1">
+                            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                            </svg>
+                            {blog.likes}
+                          </span>
+                          <span className="flex items-center gap-1">
+                            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                            </svg>
+                            {blog.comments.length}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </article>
+                </Link>
+              ))}
+            </div>
+
+            {/* View All Link */}
+            <div className="text-center mt-10">
+              <Link
+                href="/blogs"
+                className="inline-flex items-center gap-2 px-8 py-3 border-2 border-red-600 text-red-600 text-sm font-semibold uppercase tracking-wider transition-all duration-300 hover:bg-red-600 hover:text-white"
+              >
+                View All Posts
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                </svg>
+              </Link>
+            </div>
+          </AnimatedSection>
+        )}
 
       </main>
       <SiteFooter setIsQuoteOpen={setIsQuoteOpen} />

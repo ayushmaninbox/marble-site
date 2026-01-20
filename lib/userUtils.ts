@@ -22,6 +22,7 @@ const initializeUsersFile = async () => {
     const passwordHash = await bcrypt.hash('password', 10);
     const defaultAdmin: AdminUser = {
       id: crypto.randomUUID(),
+      name: 'Super Admin',
       email: 'admin@shreeradhemarble.com',
       passwordHash,
       role: 'super_admin',
@@ -30,7 +31,7 @@ const initializeUsersFile = async () => {
     
     const csv = Papa.unparse([defaultAdmin], {
       header: true,
-      columns: ['id', 'email', 'passwordHash', 'role', 'createdAt', 'lastLogin'],
+      columns: ['id', 'name', 'email', 'passwordHash', 'role', 'createdAt', 'lastLogin'],
       quotes: true,
     });
     fs.writeFileSync(USERS_CSV_PATH, csv, 'utf-8');
@@ -39,6 +40,7 @@ const initializeUsersFile = async () => {
 
 interface RawUserRow {
   id: string;
+  name: string;
   email: string;
   passwordHash: string;
   role: AdminRole;
@@ -63,6 +65,7 @@ export const readUsers = (): AdminUser[] => {
 
     return parsed.data.map(row => ({
       id: row.id,
+      name: row.name || '',
       email: row.email,
       passwordHash: row.passwordHash,
       role: row.role,
@@ -81,7 +84,7 @@ export const writeUsers = (users: AdminUser[]): void => {
   try {
     const csv = Papa.unparse(users, {
       header: true,
-      columns: ['id', 'email', 'passwordHash', 'role', 'createdAt', 'lastLogin'],
+      columns: ['id', 'name', 'email', 'passwordHash', 'role', 'createdAt', 'lastLogin'],
       quotes: true,
     });
     fs.writeFileSync(USERS_CSV_PATH, csv, 'utf-8');
@@ -109,7 +112,7 @@ export const hashPassword = async (password: string): Promise<string> => {
   return bcrypt.hash(password, 10);
 };
 
-export const createUser = async (email: string, password: string, role: AdminRole): Promise<AdminUser> => {
+export const createUser = async (name: string, email: string, password: string, role: AdminRole): Promise<AdminUser> => {
   const users = readUsers();
   
   // Check if email already exists
@@ -120,6 +123,7 @@ export const createUser = async (email: string, password: string, role: AdminRol
   const passwordHash = await hashPassword(password);
   const newUser: AdminUser = {
     id: crypto.randomUUID(),
+    name,
     email: email.toLowerCase(),
     passwordHash,
     role,
