@@ -59,11 +59,23 @@ export default function SiteFooter({ setIsQuoteOpen }: SiteFooterProps) {
           {/* Contact */}
           <div>
             <h4 className="text-sm font-semibold text-white mb-4">Contact Us</h4>
+
+            {/* Google Maps Embed - Square */}
+            <div className="rounded-lg overflow-hidden shadow-lg border border-slate-700 mb-4 aspect-square max-w-[200px]">
+              <iframe
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d4095.993942801531!2d91.3212724!3d23.8423724!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3753f3ece8c5082f%3A0x3560794d63797140!2sShree%20Radhe%20Marble%20%26%20Granite!5e1!3m2!1sen!2sin!4v1768924787517!5m2!1sen!2sin"
+                width="100%"
+                height="100%"
+                style={{ border: 0 }}
+                allowFullScreen
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+                title="Shree Radhe Marble & Granite Location"
+                className="w-full h-full"
+              />
+            </div>
+
             <ul className="space-y-3 text-xs text-slate-400">
-              <li className="flex items-start gap-2">
-                <span className="text-red-400 mt-0.5">📍</span>
-                <span>123 Stone Market Road,<br />Kishangarh, Rajasthan 305801<br />India</span>
-              </li>
               <li className="flex items-center gap-2">
                 <span className="text-red-400">📞</span>
                 <a href="tel:+911234567890" className="hover:text-red-400 transition-colors">+91 12345 67890</a>
@@ -73,24 +85,6 @@ export default function SiteFooter({ setIsQuoteOpen }: SiteFooterProps) {
                 <a href="mailto:info@shreeradhemarble.com" className="hover:text-red-400 transition-colors">info@shreeradhemarble.com</a>
               </li>
             </ul>
-          </div>
-        </div>
-
-        {/* Google Maps Embed */}
-        <div className="mt-12">
-          <h4 className="text-sm font-semibold text-white mb-4">Find Us</h4>
-          <div className="rounded-xl overflow-hidden shadow-lg">
-            <iframe
-              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d4095.993942801531!2d91.3212724!3d23.8423724!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3753f3ece8c5082f%3A0x3560794d63797140!2sShree%20Radhe%20Marble%20%26%20Granite!5e1!3m2!1sen!2sin!4v1768924787517!5m2!1sen!2sin"
-              width="100%"
-              height="300"
-              style={{ border: 0 }}
-              allowFullScreen
-              loading="lazy"
-              referrerPolicy="no-referrer-when-downgrade"
-              title="Shree Radhe Marble & Granite Location"
-              className="w-full"
-            />
           </div>
         </div>
 
