@@ -6,6 +6,7 @@ import { motion } from 'framer-motion';
 import { Blog } from '@/lib/types';
 import SiteHeader from '@/components/SiteHeader';
 import SiteFooter from '@/components/SiteFooter';
+import QuoteModal from '@/components/QuoteModal';
 
 const HeartIcon = () => (
   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -23,6 +24,12 @@ export default function BlogsPage() {
   const [blogs, setBlogs] = useState<Blog[]>([]);
   const [loading, setLoading] = useState(true);
   const [isQuoteOpen, setIsQuoteOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const filteredBlogs = blogs.filter(blog => 
+    blog.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    blog.excerpt.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   useEffect(() => {
     fetchBlogs();
@@ -42,41 +49,59 @@ export default function BlogsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-sky-100/40 via-purple-50/20 to-rose-100/40 flex items-center justify-center">
+      <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="inline-block h-10 w-10 animate-spin rounded-full border-4 border-red-500 border-t-transparent"></div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-sky-100/40 via-purple-50/20 to-rose-100/40 text-slate-900">
+    <div className="min-h-screen bg-white text-slate-900 font-sans selection:bg-red-100 selection:text-red-900">
       {/* Header - Shared Component */}
       <SiteHeader setIsQuoteOpen={setIsQuoteOpen} />
 
       {/* Main Content */}
       <main className="pt-24">
         {/* Hero Section with Decorative Brackets */}
-        <section className="py-16 lg:py-24">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <div className="inline-block relative mb-6">
-              <span className="absolute -top-3 -left-6 w-5 h-5 border-l-2 border-t-2 border-red-500" />
-              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-light tracking-wide text-slate-900 uppercase">
-                Insights & Inspiration
-              </h1>
-              <span className="absolute -bottom-3 -right-6 w-5 h-5 border-r-2 border-b-2 border-red-500" />
-            </div>
-            <p className="text-slate-600 text-sm max-w-2xl mx-auto mt-8">
+        {/* Elegant Hero Section */}
+        <div className="text-center py-16 px-4">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+          >
+            <h1 className="text-4xl md:text-5xl font-serif text-slate-900 mb-4 tracking-tight">
+              Insights & Inspiration
+            </h1>
+            <div className="h-1 w-20 bg-red-600 mx-auto mb-6" />
+            <p className="text-slate-500 max-w-2xl mx-auto text-sm md:text-base leading-relaxed font-light tracking-wide">
               Explore expert tips, trends, and guides to help you create stunning spaces with premium marble and tiles.
             </p>
-          </div>
-        </section>
+          </motion.div>
+        </div>
+
+        {/* Search Bar */}
+        <div className="max-w-md mx-auto mb-12 px-4 relative z-10 -mt-8">
+           <div className="relative shadow-lg rounded-full">
+              <input
+                type="text"
+                placeholder="Search articles..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full h-12 pl-12 pr-4 rounded-full border border-stone-200 bg-white text-sm outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-all placeholder:text-slate-400"
+              />
+              <svg className="absolute left-4 top-3.5 w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+           </div>
+        </div>
 
         {/* Blog Grid */}
         <section className="pb-16 lg:pb-24">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            {blogs.length === 0 ? (
+            {filteredBlogs.length === 0 ? (
               <div className="text-center py-16 text-slate-400">
-                No blog posts yet. Check back soon!
+                {searchQuery ? 'No matching articles found.' : 'No blog posts yet. Check back soon!'}
               </div>
             ) : (
               <motion.div
@@ -85,7 +110,7 @@ export default function BlogsPage() {
                 transition={{ duration: 0.5 }}
                 className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
               >
-                {blogs.map((blog, index) => (
+                {filteredBlogs.map((blog, index) => (
                   <motion.div
                     key={blog.id}
                     initial={{ opacity: 0, y: 20 }}
@@ -138,6 +163,9 @@ export default function BlogsPage() {
 
       {/* Footer - Same as Main Site */}
       <SiteFooter setIsQuoteOpen={setIsQuoteOpen} />
+
+      {/* Quote Modal */}
+      <QuoteModal isOpen={isQuoteOpen} onClose={() => setIsQuoteOpen(false)} />
     </div>
   );
 }

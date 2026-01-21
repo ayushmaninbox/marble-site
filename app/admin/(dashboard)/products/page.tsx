@@ -3,8 +3,28 @@
 import { useState, useEffect } from 'react';
 import { Product, Enquiry, ProductCategory, ProductSpecification } from '@/lib/types';
 import ProductTable from '@/components/admin/ProductTable';
+import StatsCard from '@/components/admin/StatsCard';
+import PaginationControls from '@/components/admin/PaginationControls';
 
 // SVG Icons
+const StarIcon = () => (
+  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+  </svg>
+);
+
+const CheckCircleIcon = () => (
+  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+  </svg>
+);
+
+const ClockIcon = () => (
+  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+  </svg>
+);
+
 const BoxIcon = () => (
   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
@@ -66,6 +86,7 @@ export default function ProductsPage() {
     category: 'Marbles' as ProductCategory,
     description: '',
     price: '',
+    inStock: true,
   });
   const [formImages, setFormImages] = useState<string[]>([]);
   const [formSpecifications, setFormSpecifications] = useState<ProductSpecification[]>([]);
@@ -80,6 +101,10 @@ export default function ProductsPage() {
   const [productSort, setProductSort] = useState<'newest' | 'enquired' | 'az' | 'za'>('newest');
   const [productFilterCategory, setProductFilterCategory] = useState<'all' | ProductCategory>('all');
   const [productFilterDate, setProductFilterDate] = useState<'all' | 'week' | 'month'>('all');
+  const [productFilterStock, setProductFilterStock] = useState<'all' | 'in-stock' | 'out-of-stock'>('all');
+
+  // Bulk Selection
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
 
   useEffect(() => {
     fetchProducts();
@@ -228,6 +253,7 @@ export default function ProductsPage() {
         price: parseFloat(formData.price),
         images: allImages,
         specifications: validSpecs,
+        inStock: formData.inStock,
       };
 
       const url = editingProduct ? `/api/products/${editingProduct.id}` : '/api/products';
@@ -255,7 +281,7 @@ export default function ProductsPage() {
 
   const openAddForm = () => {
     setEditingProduct(undefined);
-    setFormData({ name: '', category: 'Marbles', description: '', price: '' });
+    setFormData({ name: '', category: 'Marbles', description: '', price: '', inStock: true });
     setFormImages([]);
     setFormSpecifications([]);
     setPendingFiles([]);
@@ -270,6 +296,7 @@ export default function ProductsPage() {
       category: product.category,
       description: product.description,
       price: product.price.toString(),
+      inStock: product.inStock !== false,
     });
     setFormImages(product.images || (product.image ? [product.image] : []));
     setFormSpecifications(product.specifications || []);
@@ -281,7 +308,7 @@ export default function ProductsPage() {
   const closeForm = () => {
     setShowForm(false);
     setEditingProduct(undefined);
-    setFormData({ name: '', category: 'Marbles', description: '', price: '' });
+    setFormData({ name: '', category: 'Marbles', description: '', price: '', inStock: true });
     setFormImages([]);
     setFormSpecifications([]);
     setPendingFiles([]);
@@ -298,12 +325,63 @@ export default function ProductsPage() {
     }
   };
 
+  const handleToggleFeatured = async (product: Product) => {
+    try {
+      const response = await fetch(`/api/products/${product.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ isFeatured: !product.isFeatured }),
+      });
+      if (response.ok) fetchProducts();
+    } catch (error) {
+       console.error('Error updating product:', error);
+    }
+  };
+
+  const handleBulkDelete = async () => {
+    if (!confirm(`Are you sure you want to delete ${selectedIds.length} products?`)) return;
+    
+    setLoading(true);
+    try {
+      for (const id of selectedIds) {
+        await fetch(`/api/products/${id}`, { method: 'DELETE' });
+      }
+      setSelectedIds([]);
+      await fetchProducts();
+    } catch (error) {
+      console.error('Bulk delete error:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleBulkStatusChange = async (inStock: boolean) => {
+     setLoading(true);
+     try {
+       for (const id of selectedIds) {
+         await fetch(`/api/products/${id}`, { 
+           method: 'PUT',
+           headers: { 'Content-Type': 'application/json' },
+           body: JSON.stringify({ inStock })
+         });
+       }
+       setSelectedIds([]);
+       await fetchProducts();
+     } catch (error) {
+       console.error('Bulk status update error:', error);
+     } finally {
+       setLoading(false);
+     }
+  };
+
   const filteredProducts = products.filter(product => {
     const searchLower = productSearch.toLowerCase();
     const matchesSearch = product.name.toLowerCase().includes(searchLower) ||
       product.category.toLowerCase().includes(searchLower) ||
       product.description.toLowerCase().includes(searchLower);
     const matchesCategory = productFilterCategory === 'all' || product.category === productFilterCategory;
+    const matchesStock = productFilterStock === 'all' || 
+       (productFilterStock === 'in-stock' ? product.inStock : !product.inStock);
     
     let matchesDate = true;
     if (productFilterDate !== 'all') {
@@ -313,7 +391,7 @@ export default function ProductsPage() {
       if (productFilterDate === 'week') matchesDate = date >= new Date(now.getTime() - 7 * 86400000);
       else if (productFilterDate === 'month') matchesDate = date >= new Date(now.getTime() - 30 * 86400000);
     }
-    return matchesSearch && matchesCategory && matchesDate;
+    return matchesSearch && matchesCategory && matchesDate && matchesStock;
   }).sort((a, b) => {
     switch (productSort) {
       case 'az': return a.name.localeCompare(b.name);
@@ -351,12 +429,47 @@ export default function ProductsPage() {
           <h1 className="text-2xl font-bold text-slate-900">Products</h1>
           <p className="text-sm text-slate-500 mt-1">Manage your product catalog</p>
         </div>
-        <button
-          onClick={openAddForm}
-          className="inline-flex items-center gap-1.5 rounded-lg bg-red-600 hover:bg-red-700 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors"
-        >
-          <span>+</span> Add Product
-        </button>
+        <div className="flex gap-2">
+
+          <button
+            onClick={openAddForm}
+            className="inline-flex items-center gap-1.5 rounded-lg bg-red-600 hover:bg-red-700 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors"
+          >
+            <span>+</span> Add Product
+          </button>
+        </div>
+      </div>
+
+      {/* Stats Cards */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <StatsCard 
+           title="Total Products" 
+           value={products.length} 
+           icon={<BoxIcon />} // Using local box icon, or simplified SVG
+           iconBgColor="bg-red-50"
+           iconColor="text-red-600"
+        />
+        <StatsCard 
+           title="In Stock" 
+           value={products.filter(p => p.inStock).length} 
+           icon={<CheckCircleIcon />} 
+           iconBgColor="bg-emerald-50"
+           iconColor="text-emerald-600"
+        />
+        <StatsCard 
+           title="Out of Stock" 
+           value={products.filter(p => !p.inStock).length} 
+           icon={<ClockIcon />} 
+           iconBgColor="bg-slate-100"
+           iconColor="text-slate-500"
+        />
+        <StatsCard 
+           title="Featured" 
+           value={products.filter(p => p.isFeatured).length} 
+           icon={<StarIcon />} 
+           iconBgColor="bg-amber-50"
+           iconColor="text-amber-500"
+        />
       </div>
 
       <div className="bg-white rounded-xl border border-stone-200 p-4 mb-6 shadow-sm space-y-4">
@@ -430,52 +543,75 @@ export default function ProductsPage() {
         </div>
       </div>
 
-      <div className="flex items-center justify-between mb-4 bg-white rounded-lg border border-stone-200 px-4 py-3">
-        <div className="flex items-center gap-2 text-sm text-slate-600">
-          <span>Showing</span>
-          <span className="font-semibold text-slate-900">{totalProducts > 0 ? startIndex + 1 : 0}-{endIndex}</span>
-          <span>of</span>
-          <span className="font-semibold text-slate-900">{totalProducts}</span>
-          <span>products</span>
-        </div>
-        <div className="flex items-center gap-3">
-          <label className="text-sm text-slate-600">Per page:</label>
-          <select
-            value={itemsPerPage}
-            onChange={(e) => { setItemsPerPage(Number(e.target.value)); setCurrentPage(1); }}
-            className="rounded-lg border border-stone-200 px-2 py-1 text-sm outline-none focus:border-red-400"
-          >
-            <option value={5}>5</option>
-            <option value={10}>10</option>
-            <option value={20}>20</option>
-            <option value={50}>50</option>
-          </select>
-          <div className="flex gap-1">
-            <button
-              onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-              disabled={currentPage === 1}
-              className="px-2 py-1 rounded border border-stone-200 text-sm disabled:opacity-50 hover:bg-stone-50"
-            >
-              ←
-            </button>
-            <span className="px-3 py-1 text-sm">{currentPage} / {totalPages || 1}</span>
-            <button
-              onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
-              disabled={currentPage === totalPages || totalPages === 0}
-              className="px-2 py-1 rounded border border-stone-200 text-sm disabled:opacity-50 hover:bg-stone-50"
-            >
-              →
-            </button>
+      <PaginationControls
+        currentPage={currentPage}
+        totalItems={totalProducts}
+        itemsPerPage={itemsPerPage}
+        onPageChange={setCurrentPage}
+        onItemsPerPageChange={setItemsPerPage}
+        itemName="products"
+      />
+
+      {selectedIds.length > 0 && (
+        <div className="bg-red-50 border border-red-100 px-4 py-2 rounded-xl flex items-center justify-between animate-in fade-in slide-in-from-top-1 duration-200 mb-6">
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2">
+              <div className="h-5 w-5 rounded-full bg-red-100 flex items-center justify-center text-red-600">
+                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                </svg>
+              </div>
+              <span className="text-sm font-semibold text-slate-700">{selectedIds.length} selected</span>
+            </div>
+
+            <div className="h-4 w-px bg-slate-300"></div>
+
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => handleBulkStatusChange(true)}
+                className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg text-xs font-semibold transition-colors shadow-sm"
+              >
+                <CheckCircleIcon /> Mark In Stock
+              </button>
+              
+               <button
+                onClick={() => handleBulkStatusChange(false)}
+                className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-500 hover:bg-slate-600 text-white rounded-lg text-xs font-semibold transition-colors shadow-sm"
+              >
+                <ClockIcon /> Mark Out Stock
+              </button>
+
+              <button
+                onClick={handleBulkDelete}
+                className="flex items-center gap-1.5 px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded-lg text-xs font-semibold transition-colors shadow-sm"
+              >
+                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+                Delete Selected
+              </button>
+            </div>
           </div>
+
+          <button
+            className="text-xs font-medium text-slate-500 hover:text-red-500 transition-colors"
+            onClick={() => setSelectedIds([])}
+          >
+            Clear selection
+          </button>
         </div>
-      </div>
+      )}
 
       <div className="bg-white rounded-xl border border-stone-200 overflow-hidden">
         <ProductTable
           products={paginatedProducts}
+          selectedIds={selectedIds}
+          onSelect={(id) => setSelectedIds(prev => prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id])}
+          onSelectAll={(selected) => setSelectedIds(selected ? paginatedProducts.map(p => p.id) : [])}
           onEdit={openEditForm}
           onDelete={handleDeleteProduct}
           onPreview={(product) => { setPreviewProduct(product); setPreviewImageIndex(0); }}
+          onToggleFeatured={handleToggleFeatured}
         />
       </div>
 
@@ -529,6 +665,24 @@ export default function ProductsPage() {
                   placeholder="25000"
                   className={inputClasses}
                 />
+              </div>
+
+              {/* Stock Status Toggle */}
+              <div className="flex items-center justify-between py-3 px-4 bg-stone-50 rounded-lg border border-stone-200">
+                <div>
+                  <label className="block text-sm font-semibold text-slate-700">Stock Status</label>
+                  <p className="text-xs text-slate-500 mt-0.5">Toggle to mark product as in stock or out of stock</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setFormData({ ...formData, inStock: !formData.inStock })}
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${formData.inStock ? 'bg-emerald-500' : 'bg-slate-300'}`}
+                >
+                  <span className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${formData.inStock ? 'translate-x-6' : 'translate-x-1'}`} />
+                </button>
+                <span className={`ml-3 text-sm font-medium ${formData.inStock ? 'text-emerald-600' : 'text-slate-500'}`}>
+                  {formData.inStock ? 'In Stock' : 'Out of Stock'}
+                </span>
               </div>
 
               <div>

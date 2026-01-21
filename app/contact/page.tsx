@@ -11,27 +11,29 @@ export default function ContactPage() {
   const [isQuoteOpen, setIsQuoteOpen] = useState(false);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-sky-100/40 via-purple-50/20 to-rose-100/40 text-slate-900">
+    <div className="min-h-screen bg-white text-slate-900 font-sans selection:bg-red-100 selection:text-red-900">
       {/* Header - Shared Component */}
       <SiteHeader setIsQuoteOpen={setIsQuoteOpen} />
 
       {/* Main Content */}
       <main className="pt-24">
         {/* Hero Section with Decorative Brackets */}
-        <section className="py-16 lg:py-20">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <div className="inline-block relative mb-6">
-              <span className="absolute -top-3 -left-6 w-5 h-5 border-l-2 border-t-2 border-red-500" />
-              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-light tracking-wide text-slate-900 uppercase">
-                Contact Us
-              </h1>
-              <span className="absolute -bottom-3 -right-6 w-5 h-5 border-r-2 border-b-2 border-red-500" />
-            </div>
-            <p className="text-slate-600 text-sm max-w-2xl mx-auto mt-8">
+        {/* Elegant Hero Section */}
+        <div className="text-center py-16 px-4">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+          >
+            <h1 className="text-4xl md:text-5xl font-serif text-slate-900 mb-4 tracking-tight">
+              Contact Us
+            </h1>
+            <div className="h-1 w-20 bg-red-600 mx-auto mb-6" />
+            <p className="text-slate-500 max-w-2xl mx-auto text-sm md:text-base leading-relaxed font-light tracking-wide">
               Get in touch with our team for inquiries, quotes, or to discuss your project requirements.
             </p>
-          </div>
-        </section>
+          </motion.div>
+        </div>
 
         {/* Contact Information Section */}
         <section className="pb-16 lg:pb-24">
@@ -138,7 +140,7 @@ export default function ContactPage() {
                         <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                         </svg>
-                        Send Gmail
+                        Send Email
                       </a>
                     </motion.div>
                   </div>
@@ -239,6 +241,9 @@ export default function ContactPage() {
 
       {/* Footer - Same as Main Site */}
       <SiteFooter setIsQuoteOpen={setIsQuoteOpen} />
+      
+      {/* Quote Modal */}
+      <QuoteModal isOpen={isQuoteOpen} onClose={() => setIsQuoteOpen(false)} />
     </div>
   );
 }

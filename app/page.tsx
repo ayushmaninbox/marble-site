@@ -21,6 +21,91 @@ export default function Home() {
   const [handicraftIndex, setHandicraftIndex] = useState(0);
   const [isQuoteOpen, setIsQuoteOpen] = useState(false);
 
+  // Quote form state
+  const [quoteSubmitting, setQuoteSubmitting] = useState(false);
+  const [quoteSuccess, setQuoteSuccess] = useState(false);
+  const [formErrors, setFormErrors] = useState<{ phone?: string; email?: string; quantity?: string }>({});
+  const [quoteForm, setQuoteForm] = useState({
+    firstName: '',
+    lastName: '',
+    email: '',
+    phone: '',
+    productCategory: 'Marbles' as ProductCategory,
+    productName: '',
+    quantity: '1',
+    message: '',
+  });
+
+  // Quote form validation
+  const validateQuoteForm = () => {
+    const errors: { phone?: string; email?: string; quantity?: string } = {};
+
+    const phoneDigits = quoteForm.phone.replace(/\D/g, '');
+    if (phoneDigits.length !== 10) {
+      errors.phone = 'Phone must be exactly 10 digits';
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(quoteForm.email)) {
+      errors.email = 'Please enter a valid email address';
+    }
+
+    const qty = parseInt(quoteForm.quantity);
+    if (isNaN(qty) || qty < 1 || qty > 9999) {
+      errors.quantity = 'Quantity must be between 1 and 9999';
+    }
+
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
+  // Quote form submit handler
+  const handleQuoteSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!validateQuoteForm()) return;
+
+    setQuoteSubmitting(true);
+
+    try {
+      const response = await fetch('/api/enquiries', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ...quoteForm,
+          quantity: parseInt(quoteForm.quantity),
+        }),
+      });
+
+      if (response.ok) {
+        setQuoteSuccess(true);
+        setQuoteForm({
+          firstName: '',
+          lastName: '',
+          email: '',
+          phone: '',
+          productCategory: 'Marbles' as ProductCategory,
+          productName: '',
+          quantity: '1',
+          message: '',
+        });
+        setFormErrors({});
+        // Auto-close after success
+        setTimeout(() => {
+          setIsQuoteOpen(false);
+          setQuoteSuccess(false);
+        }, 3000);
+      } else {
+        alert('Failed to submit enquiry. Please try again.');
+      }
+    } catch (error) {
+      console.error('Error submitting enquiry:', error);
+      alert('Failed to submit enquiry. Please try again.');
+    } finally {
+      setQuoteSubmitting(false);
+    }
+  };
+
   // Cinematic reveal state - triggers after video plays for 0.5 seconds
   const [isRevealed, setIsRevealed] = useState(false);
 
@@ -73,9 +158,18 @@ export default function Home() {
   }, []);
 
   // Filter products by category
-  const marbleProducts = products.filter(p => p.category === 'Marbles');
-  const tilesProducts = products.filter(p => p.category === 'Tiles');
-  const handicraftProducts = products.filter(p => p.category === 'Handicraft');
+  // Filter products by category and sort by Featured
+  const marbleProducts = products
+    .filter(p => p.category === 'Marbles')
+    .sort((a, b) => (Number(b.isFeatured || 0) - Number(a.isFeatured || 0)));
+  
+  const tilesProducts = products
+    .filter(p => p.category === 'Tiles')
+    .sort((a, b) => (Number(b.isFeatured || 0) - Number(a.isFeatured || 0)));
+  
+  const handicraftProducts = products
+    .filter(p => p.category === 'Handicraft')
+    .sort((a, b) => (Number(b.isFeatured || 0) - Number(a.isFeatured || 0)));
 
   // Auto-advance carousels (infinite loop - cycles through 2x length then resets)
   useEffect(() => {
@@ -639,6 +733,177 @@ export default function Home() {
             </div>
           </AnimatedSection>
         )}
+
+        {/* Testimonials Section */}
+        <AnimatedSection className="py-16 lg:py-24" staggerChildren={0.1}>
+          {/* Section Header with Decorative Brackets */}
+          <div className="text-center mb-12">
+            <div className="inline-block relative">
+              <span className="absolute -top-3 -left-6 w-5 h-5 border-l-2 border-t-2 border-red-500" />
+              <h2 className="text-3xl sm:text-4xl font-light tracking-wide text-slate-900 uppercase">
+                What Our Clients Say
+              </h2>
+              <span className="absolute -bottom-3 -right-6 w-5 h-5 border-r-2 border-b-2 border-red-500" />
+            </div>
+            <p className="mt-6 text-slate-600 text-sm max-w-xl mx-auto">
+              Trusted by architects, designers, and homeowners across the region
+            </p>
+          </div>
+
+          {/* Testimonials Grid */}
+          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+            {[
+              {
+                name: "Rajesh Kumar",
+                role: "Interior Designer, Kolkata",
+                quote: "Shree Radhe Marble has been our go-to supplier for 5 years. Their Italian Carrara selection is exceptional, and the team understands quality like no other.",
+                rating: 5
+              },
+              {
+                name: "Priya Sharma",
+                role: "Homeowner, Agartala",
+                quote: "The Makrana marble they provided for our temple room is absolutely stunning. The craftsmanship and attention to detail exceeded our expectations.",
+                rating: 5
+              },
+              {
+                name: "Ankit Dey",
+                role: "Architect, Guwahati",
+                quote: "Professional service, premium quality, and competitive pricing. I recommend Shree Radhe to all my clients for their stone requirements.",
+                rating: 5
+              },
+              {
+                name: "Meera Chatterjee",
+                role: "Builder, Tripura",
+                quote: "We've completed over 20 projects with their materials. The consistency in quality and timely delivery makes them our preferred partner.",
+                rating: 5
+              },
+              {
+                name: "Sanjay Bhattacharya",
+                role: "Showroom Owner, Silchar",
+                quote: "Their handicraft collection is unique - authentic Makrana artistry that our customers love. Great wholesale terms and support.",
+                rating: 5
+              },
+              {
+                name: "Nisha Gupta",
+                role: "Homeowner, Dharmanagar",
+                quote: "From selection to installation guidance, the experience was seamless. Our flooring looks luxurious and the quality is unmatched.",
+                rating: 5
+              }
+            ].map((testimonial, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: index * 0.1 }}
+                className="bg-white rounded-2xl p-6 border border-stone-200 shadow-sm hover:shadow-lg transition-shadow duration-300"
+              >
+                {/* Rating Stars */}
+                <div className="flex gap-1 mb-4">
+                  {[...Array(testimonial.rating)].map((_, i) => (
+                    <svg key={i} className="w-4 h-4 text-amber-400 fill-current" viewBox="0 0 20 20">
+                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                    </svg>
+                  ))}
+                </div>
+                {/* Quote */}
+                <p className="text-slate-600 text-sm leading-relaxed mb-6 italic">
+                  &ldquo;{testimonial.quote}&rdquo;
+                </p>
+                {/* Author */}
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-red-500 to-orange-500 flex items-center justify-center text-white font-semibold text-sm">
+                    {testimonial.name.split(' ').map(n => n[0]).join('')}
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold text-slate-900">{testimonial.name}</p>
+                    <p className="text-xs text-slate-500">{testimonial.role}</p>
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </AnimatedSection>
+
+        {/* FAQ Section */}
+        <AnimatedSection className="py-16 lg:py-24 bg-gradient-to-b from-transparent via-stone-50/50 to-transparent" staggerChildren={0.1}>
+          {/* Section Header with Decorative Brackets */}
+          <div className="text-center mb-12">
+            <div className="inline-block relative">
+              <span className="absolute -top-3 -left-6 w-5 h-5 border-l-2 border-t-2 border-red-500" />
+              <h2 className="text-3xl sm:text-4xl font-light tracking-wide text-slate-900 uppercase">
+                Frequently Asked Questions
+              </h2>
+              <span className="absolute -bottom-3 -right-6 w-5 h-5 border-r-2 border-b-2 border-red-500" />
+            </div>
+            <p className="mt-6 text-slate-600 text-sm max-w-xl mx-auto">
+              Everything you need to know about our products and services
+            </p>
+          </div>
+
+          {/* FAQ Accordion */}
+          <div className="max-w-3xl mx-auto space-y-4">
+            {[
+              {
+                question: "What types of marble do you offer?",
+                answer: "We offer a wide range including Italian Carrara, Makrana White, Statuario, Emperador, and many more. Our collection includes both imported and Indian marbles to suit every budget and design preference."
+              },
+              {
+                question: "Do you provide installation services?",
+                answer: "While we primarily focus on supplying premium marble and tiles, we can recommend trusted installation partners in your area. We also provide detailed installation guidelines for all our products."
+              },
+              {
+                question: "What is the minimum order quantity?",
+                answer: "For most products, there's no strict minimum. However, for custom orders or bulk purchases, please contact us directly for the best pricing and availability information."
+              },
+              {
+                question: "How do I maintain marble flooring?",
+                answer: "Marble requires regular cleaning with pH-neutral cleaners and periodic sealing. Avoid acidic substances and use coasters under glasses. We provide detailed care instructions with every purchase."
+              },
+              {
+                question: "Do you deliver outside Agartala?",
+                answer: "Yes! We deliver across Tripura and to select locations in Northeast India. For other regions, we can arrange shipping through our logistics partners. Contact us for delivery estimates."
+              },
+              {
+                question: "Can I visit your showroom?",
+                answer: "Absolutely! Our showroom at AA Road, Kashipur Bazar, Agartala is open Monday to Saturday, 9 AM to 7 PM. We encourage visits to see and feel our products before purchasing."
+              }
+            ].map((faq, index) => (
+              <motion.details
+                key={index}
+                initial={{ opacity: 0, y: 10 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: index * 0.05 }}
+                className="group bg-white rounded-xl border border-stone-200 overflow-hidden"
+              >
+                <summary className="flex items-center justify-between cursor-pointer p-5 text-left font-medium text-slate-900 hover:bg-stone-50 transition-colors">
+                  <span className="pr-4">{faq.question}</span>
+                  <svg className="w-5 h-5 text-red-500 flex-shrink-0 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </summary>
+                <div className="px-5 pb-5 text-sm text-slate-600 leading-relaxed border-t border-stone-100 pt-4">
+                  {faq.answer}
+                </div>
+              </motion.details>
+            ))}
+          </div>
+
+          {/* Contact CTA */}
+          <div className="text-center mt-10">
+            <p className="text-slate-600 text-sm mb-4">Still have questions?</p>
+            <Link
+              href="/contact"
+              className="inline-flex items-center gap-2 px-8 py-3 bg-gradient-to-r from-red-600 to-orange-500 text-white text-sm font-semibold rounded-full shadow-lg shadow-red-500/20 hover:shadow-xl hover:shadow-red-500/30 transition-all duration-300"
+            >
+              Contact Us
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+              </svg>
+            </Link>
+          </div>
+        </AnimatedSection>
 
       </main>
       <SiteFooter setIsQuoteOpen={setIsQuoteOpen} />

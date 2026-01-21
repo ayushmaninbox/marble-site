@@ -12,6 +12,8 @@ export interface Product {
   images: string[]; // Array of up to 7 image URLs/paths
   image?: string; // Legacy field for backward compatibility
   specifications?: ProductSpecification[]; // Custom key-value specifications
+  inStock: boolean; // Stock availability status
+  isFeatured?: boolean; // Featured on homepage
   createdAt: string;
 }
 

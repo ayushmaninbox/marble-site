@@ -69,21 +69,7 @@ export default function SiteFooter({ setIsQuoteOpen }: SiteFooterProps) {
 
           {/* Contact */}
           <div>
-            {/* Google Maps Embed - Square */}
-            <div className="rounded-lg overflow-hidden shadow-lg border border-slate-600 mb-5 aspect-square max-w-[180px]">
-              <iframe
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d4095.993942801531!2d91.3212724!3d23.8423724!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3753f3ece8c5082f%3A0x3560794d63797140!2sShree%20Radhe%20Marble%20%26%20Granite!5e1!3m2!1sen!2sin!4v1768924787517!5m2!1sen!2sin"
-                width="100%"
-                height="100%"
-                style={{ border: 0 }}
-                allowFullScreen
-                loading="lazy"
-                referrerPolicy="no-referrer-when-downgrade"
-                title="Shree Radhe Marble & Granite Location"
-                className="w-full h-full"
-              />
-            </div>
-
+            <h4 className="text-base font-semibold text-white mb-5">Contact Us</h4>
             <ul className="space-y-4 text-sm text-slate-300">
               <li className="flex items-start gap-3">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5 text-white flex-shrink-0 mt-0.5">

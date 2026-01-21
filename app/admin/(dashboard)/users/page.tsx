@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { AdminUser, AdminRole } from '@/lib/types';
+import PaginationControls from '@/components/admin/PaginationControls';
 
 // SVG Icons
 const UserIcon = () => (
@@ -37,6 +38,8 @@ export default function UsersPage() {
   const [showForm, setShowForm] = useState(false);
   const [editingUser, setEditingUser] = useState<SafeUser | null>(null);
   const [search, setSearch] = useState('');
+  const [itemsPerPage, setItemsPerPage] = useState(10);
+  const [currentPage, setCurrentPage] = useState(1);
   const [currentUserId, setCurrentUserId] = useState<string>('');
 
   // Form state
@@ -210,6 +213,11 @@ export default function UsersPage() {
     user.name.toLowerCase().includes(search.toLowerCase())
   );
 
+  const totalItems = filteredUsers.length;
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = Math.min(startIndex + itemsPerPage, totalItems);
+  const paginatedUsers = filteredUsers.slice(startIndex, endIndex);
+
   const getRoleLabel = (role: AdminRole) => {
     const labels: Record<AdminRole, string> = {
       super_admin: 'Super Admin',
@@ -278,6 +286,15 @@ export default function UsersPage() {
         </div>
       </div>
 
+      <PaginationControls 
+        currentPage={currentPage}
+        totalItems={totalItems}
+        itemsPerPage={itemsPerPage}
+        onPageChange={setCurrentPage}
+        onItemsPerPageChange={setItemsPerPage}
+        itemName="users"
+      />
+
       {/* Users Table */}
       <div className="bg-white rounded-xl border border-stone-200 overflow-hidden">
         <table className="w-full">
@@ -291,7 +308,7 @@ export default function UsersPage() {
             </tr>
           </thead>
           <tbody className="divide-y divide-stone-100">
-            {filteredUsers.map((user) => (
+            {paginatedUsers.map((user) => (
               <tr key={user.id} className="hover:bg-stone-50/50">
                 <td className="px-4 py-4">
                   <div className="flex items-center gap-3">
@@ -347,7 +364,7 @@ export default function UsersPage() {
                 </td>
               </tr>
             ))}
-            {filteredUsers.length === 0 && (
+            {paginatedUsers.length === 0 && (
               <tr>
                 <td colSpan={5} className="text-center py-8 text-slate-400">
                   No users found

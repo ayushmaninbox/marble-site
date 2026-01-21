@@ -4,6 +4,8 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Enquiry } from '@/lib/types';
 import EnquiriesTable from '@/components/admin/EnquiriesTable';
+import StatsCard from '@/components/admin/StatsCard';
+import PaginationControls from '@/components/admin/PaginationControls';
 
 // SVG Icons
 const SearchIcon = () => (
@@ -37,8 +39,26 @@ const HashIcon = () => (
 );
 
 const LightningIcon = () => (
-  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+  </svg>
+);
+
+const InboxIcon = () => (
+  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
+  </svg>
+);
+
+const CheckCircleIcon = () => (
+  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+  </svg>
+);
+
+const ClockIcon = () => (
+  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
   </svg>
 );
 
@@ -182,20 +202,27 @@ export default function EnquiriesPage() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <motion.div whileHover={{ scale: 1.05 }} className="bg-white rounded-2xl border border-red-100 p-4 flex flex-col items-center justify-center shadow-sm">
-          <div className="text-4xl font-bold text-red-600">{totalEnquiries}</div>
-          <div className="text-xs font-bold text-slate-600 mt-2 uppercase tracking-widest text-center">Total Enquiries</div>
-        </motion.div>
-        
-        <motion.div whileHover={{ scale: 1.05 }} className="bg-white rounded-2xl border border-emerald-100 p-4 flex flex-col items-center justify-center shadow-sm">
-          <div className="text-4xl font-bold text-emerald-500">{solvedEnquiries}</div>
-          <div className="text-xs font-bold text-slate-600 mt-2 uppercase tracking-widest text-center">Solved</div>
-        </motion.div>
-
-        <motion.div whileHover={{ scale: 1.05 }} className="bg-white rounded-2xl border border-amber-100 p-4 flex flex-col items-center justify-center shadow-sm">
-          <div className="text-4xl font-bold text-amber-500">{pendingEnquiries}</div>
-          <div className="text-xs font-bold text-slate-600 mt-2 uppercase tracking-widest text-center">Pending</div>
-        </motion.div>
+        <StatsCard 
+           title="Total Enquiries" 
+           value={totalEnquiries} 
+           icon={<InboxIcon />} 
+           iconBgColor="bg-red-50"
+           iconColor="text-red-600"
+        />
+        <StatsCard 
+           title="Solved" 
+           value={solvedEnquiries} 
+           icon={<CheckCircleIcon />} 
+           iconBgColor="bg-emerald-50"
+           iconColor="text-emerald-600"
+        />
+        <StatsCard 
+           title="Pending" 
+           value={pendingEnquiries} 
+           icon={<ClockIcon />} 
+           iconBgColor="bg-amber-50"
+           iconColor="text-amber-500"
+        />
       </div>
 
       <div className="bg-white rounded-xl border border-stone-200 p-4 mb-6 shadow-sm space-y-4">
@@ -319,27 +346,14 @@ export default function EnquiriesPage() {
         </div>
       </div>
 
-      <div className="flex items-center justify-between mb-4 bg-white rounded-lg border border-stone-200 px-4 py-3">
-        {/* Pagination similar to others */}
-         <div className="flex items-center gap-2 text-sm text-slate-600">
-          <span>Showing</span>
-          <span className="font-semibold text-slate-900">{totalEnquiriesFiltered > 0 ? startIndex + 1 : 0}-{endIndex}</span>
-          <span>of</span>
-          <span className="font-semibold text-slate-900">{totalEnquiriesFiltered}</span>
-          <span>enquiries</span>
-        </div>
-        <div className="flex items-center gap-3">
-          <label className="text-sm text-slate-600">Per page:</label>
-          <select value={itemsPerPage} onChange={(e) => { setItemsPerPage(Number(e.target.value)); setCurrentPage(1); }} className="rounded-lg border border-stone-200 px-2 py-1 text-sm outline-none focus:border-red-400">
-            <option value={5}>5</option><option value={10}>10</option><option value={20}>20</option><option value={50}>50</option>
-          </select>
-          <div className="flex gap-1">
-             <button onClick={() => setCurrentPage(p => Math.max(1, p - 1))} disabled={currentPage === 1} className="px-2 py-1 rounded border border-stone-200 text-sm disabled:opacity-50 hover:bg-stone-50">←</button>
-             <span className="px-3 py-1 text-sm">{currentPage} / {totalPages || 1}</span>
-             <button onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} disabled={currentPage === totalPages || totalPages === 0} className="px-2 py-1 rounded border border-stone-200 text-sm disabled:opacity-50 hover:bg-stone-50">→</button>
-          </div>
-        </div>
-      </div>
+      <PaginationControls 
+        currentPage={currentPage}
+        totalItems={totalEnquiriesFiltered}
+        itemsPerPage={itemsPerPage}
+        onPageChange={setCurrentPage}
+        onItemsPerPageChange={setItemsPerPage}
+        itemName="enquiries"
+      />
 
       <div className="bg-white rounded-xl border border-stone-200 overflow-hidden">
         <EnquiriesTable
@@ -396,7 +410,6 @@ export default function EnquiriesPage() {
                {selectedEnquiry.message && <div className="bg-stone-50 rounded-xl p-4 space-y-2"><h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Message</h3><p className="text-sm text-slate-700">{selectedEnquiry.message}</p></div>}
               
                <div className="flex gap-2 pt-2">
-                <a href={`https://wa.me/91${selectedEnquiry.phone.replace(/\D/g, '')}`} target="_blank" rel="noopener noreferrer" className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-[#25D366] text-white rounded-lg text-sm font-medium hover:bg-[#22c55e] transition-colors">WhatsApp</a>
                 <a href={`mailto:${selectedEnquiry.email}?subject=Response to Your Product Enquiry`} className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-stone-700 text-white rounded-lg text-sm font-medium hover:bg-stone-800 transition-colors">Email</a>
               </div>
             </div>

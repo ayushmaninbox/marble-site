@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Product, Enquiry } from '@/lib/types';
 import Link from 'next/link';
+import StatsCard from '@/components/admin/StatsCard';
 
 // SVG Icons
 const BoxIcon = () => (
@@ -42,6 +43,7 @@ const ArrowRightIcon = () => (
 );
 
 export default function DashboardPage() {
+  const [userName, setUserName] = useState('Admin');
   const [products, setProducts] = useState<Product[]>([]);
   const [enquiries, setEnquiries] = useState<Enquiry[]>([]);
   const [loading, setLoading] = useState(true);
@@ -66,6 +68,17 @@ export default function DashboardPage() {
     };
 
     fetchData();
+
+    // Get user name
+    const storedUser = localStorage.getItem('adminUser');
+    if (storedUser) {
+      try {
+        const user = JSON.parse(storedUser);
+         // Capitalize first letter
+        const name = user.name || 'Admin';
+        setUserName(name.charAt(0).toUpperCase() + name.slice(1));
+      } catch (e) { console.error(e); }
+    }
   }, []);
 
   // Stats calculations
@@ -133,82 +146,55 @@ export default function DashboardPage() {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
         <div>
-          <h1 className="text-2xl font-bold font-serif text-slate-900">Hello, Admin 👋</h1>
+          <h1 className="text-2xl font-bold font-serif text-slate-900">Hello, {userName} 👋</h1>
           <p className="text-sm text-slate-500 mt-1 uppercase tracking-wide">Business Overview</p>
         </div>
         <div className="flex items-center gap-3">
-          <div className="relative">
-            <input
-              type="text"
-              placeholder="Search..."
-              className="w-48 lg:w-64 pl-10 pr-4 py-2.5 rounded-xl border border-stone-200 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-400"
-            />
-            <svg className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-            </svg>
-          </div>
+          {/* User Profile or notification icons could go here */}
         </div>
       </div>
 
       {/* Stats Grid */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6 mb-8">
         {/* Total Products */}
-        <div className="bg-white rounded-2xl p-5 border border-stone-100 shadow-sm hover:shadow-md transition-shadow">
-          <div className="flex items-center justify-between mb-4">
-            <span className="text-xs font-bold uppercase tracking-wider text-slate-500">Total Products</span>
-            <div className="w-10 h-10 bg-red-50 rounded-xl flex items-center justify-center text-red-600">
-              <BoxIcon />
-            </div>
-          </div>
-          <div className="text-3xl font-bold text-slate-900">{totalProducts}</div>
-          <div className="flex items-center gap-1 mt-2 text-xs text-red-600">
-            <TrendUpIcon />
-            <span>Active listings</span>
-          </div>
-        </div>
+        <StatsCard 
+          title="Total Products"
+          value={totalProducts}
+          icon={<BoxIcon />}
+          iconBgColor="bg-red-50"
+          iconColor="text-red-600"
+          trend={{ text: 'Active listings', icon: <TrendUpIcon />, color: 'text-red-600' }}
+        />
 
         {/* Total Enquiries */}
-        <div className="bg-white rounded-2xl p-5 border border-stone-100 shadow-sm hover:shadow-md transition-shadow">
-          <div className="flex items-center justify-between mb-4">
-            <span className="text-xs font-bold uppercase tracking-wider text-slate-500">Total Enquiries</span>
-            <div className="w-10 h-10 bg-stone-100 rounded-xl flex items-center justify-center text-stone-600">
-              <ChatIcon />
-            </div>
-          </div>
-          <div className="text-3xl font-bold text-slate-900">{totalEnquiries}</div>
-          <div className="flex items-center gap-1 mt-2 text-xs text-stone-600">
-            <TrendUpIcon />
-            <span>All time</span>
-          </div>
-        </div>
+        <StatsCard 
+          title="Total Enquiries"
+          value={totalEnquiries}
+          icon={<ChatIcon />}
+          iconBgColor="bg-stone-100"
+          iconColor="text-stone-600"
+          trend={{ text: 'All time', icon: <TrendUpIcon />, color: 'text-stone-600' }}
+        />
 
         {/* Pending */}
-        <div className="bg-white rounded-2xl p-5 border border-stone-100 shadow-sm hover:shadow-md transition-shadow">
-          <div className="flex items-center justify-between mb-4">
-            <span className="text-xs font-bold uppercase tracking-wider text-slate-500">Pending</span>
-            <div className="w-10 h-10 bg-amber-50 rounded-xl flex items-center justify-center text-amber-600">
-              <ClockIcon />
-            </div>
-          </div>
-          <div className="text-3xl font-bold text-slate-900">{pendingEnquiries}</div>
-          <div className="flex items-center gap-1 mt-2 text-xs text-amber-600">
-            <span>Requires attention</span>
-          </div>
-        </div>
+        <StatsCard 
+          title="Pending"
+          value={pendingEnquiries}
+          icon={<ClockIcon />}
+          iconBgColor="bg-amber-50"
+          iconColor="text-amber-600"
+          trend={{ text: 'Requires attention', color: 'text-amber-600' }}
+        />
 
         {/* Resolved */}
-        <div className="bg-white rounded-2xl p-5 border border-stone-100 shadow-sm hover:shadow-md transition-shadow">
-          <div className="flex items-center justify-between mb-4">
-            <span className="text-xs font-bold uppercase tracking-wider text-slate-500">Resolved</span>
-            <div className="w-10 h-10 bg-emerald-50 rounded-xl flex items-center justify-center text-emerald-600">
-              <CheckCircleIcon />
-            </div>
-          </div>
-          <div className="text-3xl font-bold text-slate-900">{solvedEnquiries}</div>
-          <div className="flex items-center gap-1 mt-2 text-xs text-emerald-600">
-            <span>Completed</span>
-          </div>
-        </div>
+        <StatsCard 
+          title="Resolved"
+          value={solvedEnquiries}
+          icon={<CheckCircleIcon />}
+          iconBgColor="bg-emerald-50"
+          iconColor="text-emerald-600"
+          trend={{ text: 'Completed', color: 'text-emerald-600' }}
+        />
       </div>
 
       {/* Charts Row */}

@@ -17,7 +17,7 @@ const ensureDataDirectory = () => {
 const initializeCsvFile = () => {
   ensureDataDirectory();
   if (!fs.existsSync(CSV_FILE_PATH)) {
-    const headers = 'id,name,category,description,price,images,specifications,createdAt\n';
+    const headers = 'id,name,category,description,price,images,specifications,inStock,isFeatured,createdAt\n';
     fs.writeFileSync(CSV_FILE_PATH, headers, 'utf-8');
   }
 };
@@ -62,6 +62,8 @@ interface RawProductRow {
   images?: string;
   image?: string; // Legacy field
   specifications?: string;
+  inStock?: string; // 'true' or 'false' - defaults to 'true' for backwards compatibility
+  isFeatured?: string; // 'true' or 'false'
   createdAt: string;
 }
 
@@ -84,6 +86,8 @@ export const readProducts = (): Product[] => {
       price: parseFloat(row.price) || 0,
       images: parseImages(row.images, row.image),
       specifications: parseSpecifications(row.specifications),
+      inStock: row.inStock !== 'false', // Default to true for backwards compatibility
+      isFeatured: row.isFeatured === 'true',
       createdAt: row.createdAt,
     }));
   } catch (error) {
@@ -105,12 +109,14 @@ export const writeProducts = (products: Product[]): void => {
       price: p.price,
       images: JSON.stringify(p.images || []),
       specifications: JSON.stringify(p.specifications || []),
+      inStock: p.inStock !== false ? 'true' : 'false',
+      isFeatured: p.isFeatured ? 'true' : 'false',
       createdAt: p.createdAt,
     }));
 
     const csv = Papa.unparse(csvData, {
       header: true,
-      columns: ['id', 'name', 'category', 'description', 'price', 'images', 'specifications', 'createdAt'],
+      columns: ['id', 'name', 'category', 'description', 'price', 'images', 'specifications', 'inStock', 'isFeatured', 'createdAt'],
       quotes: true,
     });
     fs.writeFileSync(CSV_FILE_PATH, csv, 'utf-8');
@@ -125,6 +131,7 @@ export const addProduct = (product: Omit<Product, 'id' | 'createdAt'>): Product 
   const newProduct: Product = {
     ...product,
     images: product.images || [],
+    inStock: product.inStock !== false,
     id: crypto.randomUUID(),
     createdAt: new Date().toISOString(),
   };

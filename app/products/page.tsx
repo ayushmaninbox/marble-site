@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Product, ProductCategory } from '@/lib/types';
 import ProductCard from '@/components/ProductCard';
+import FeaturedCarousel from '@/components/FeaturedCarousel';
 import SiteHeader from '@/components/SiteHeader';
 import SiteFooter from '@/components/SiteFooter';
 import QuoteModal from '@/components/QuoteModal';
@@ -19,6 +20,7 @@ export default function ProductsPage() {
   const [isQuoteOpen, setIsQuoteOpen] = useState(false);
 
   // Sorting and Pagination State
+  const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState<'default' | 'price-asc' | 'price-desc' | 'name-asc' | 'name-desc'>('default');
   const [itemsPerPage, setItemsPerPage] = useState(9);
   const [currentPage, setCurrentPage] = useState(1);
@@ -50,26 +52,39 @@ export default function ProductsPage() {
   const filteredAndSortedProducts = useMemo(() => {
     let result = selected === 'All' ? [...products] : products.filter((p) => p.category === selected);
 
-    // Apply sorting
-    switch (sortBy) {
-      case 'price-asc':
-        result.sort((a, b) => a.price - b.price);
-        break;
-      case 'price-desc':
-        result.sort((a, b) => b.price - a.price);
-        break;
-      case 'name-asc':
-        result.sort((a, b) => a.name.localeCompare(b.name));
-        break;
-      case 'name-desc':
-        result.sort((a, b) => b.name.localeCompare(a.name));
-        break;
-      default:
-        break;
+    // Apply Search Filter
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      result = result.filter(p => 
+        p.name.toLowerCase().includes(query) || 
+        p.description.toLowerCase().includes(query)
+      );
     }
 
+    // Apply sorting
+    result.sort((a, b) => {
+      // Primary sort: Availability (In Stock first)
+      if (a.inStock !== b.inStock) {
+        return a.inStock ? -1 : 1;
+      }
+
+      // Secondary sort: Selected criteria
+      switch (sortBy) {
+        case 'price-asc':
+          return a.price - b.price;
+        case 'price-desc':
+          return b.price - a.price;
+        case 'name-asc':
+          return a.name.localeCompare(b.name);
+        case 'name-desc':
+          return b.name.localeCompare(a.name);
+        default:
+          return 0;
+      }
+    });
+
     return result;
-  }, [products, selected, sortBy]);
+  }, [products, selected, sortBy, searchQuery]);
 
   // Paginated products
   const totalItems = filteredAndSortedProducts.length;
@@ -82,7 +97,7 @@ export default function ProductsPage() {
   // Reset page when filter changes
   useEffect(() => {
     setCurrentPage(1);
-  }, [selected, sortBy, itemsPerPage]);
+  }, [selected, sortBy, itemsPerPage, searchQuery]);
 
 
 
@@ -110,6 +125,27 @@ export default function ProductsPage() {
             </p>
           </motion.div>
         </div>
+
+
+
+        {/* Search Bar - Blog Style (Above Featured) */}
+        <div className="max-w-md mx-auto mb-12 px-4 relative z-10 -mt-8">
+           <div className="relative shadow-lg rounded-full">
+              <input
+                type="text"
+                placeholder="Search products..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full h-12 pl-12 pr-4 rounded-full border border-stone-200 bg-white text-sm outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-all placeholder:text-slate-400"
+              />
+              <svg className="absolute left-4 top-3.5 w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+           </div>
+        </div>
+
+        {/* Featured Carousel - Always Visible */}
+        {!loading && <FeaturedCarousel products={products} />}
 
         {/* Filter Navigation */}
         <div className="sticky top-20 z-40 bg-white/95 backdrop-blur-sm border-y border-stone-100 py-4 mb-6">
@@ -177,6 +213,8 @@ export default function ProductsPage() {
             </div>
           </div>
         </div>
+
+
 
         {/* Products Grid */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

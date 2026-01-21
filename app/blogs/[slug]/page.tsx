@@ -52,6 +52,7 @@ export default function BlogPostPage() {
         setBlog(foundBlog);
         setLikeCount(foundBlog.likes);
         setComments(foundBlog.comments);
+        document.title = `${foundBlog.title} | Shree Radhe Marble & Granite`;
       }
     } catch (error) {
       console.error('Error fetching blog:', error);
