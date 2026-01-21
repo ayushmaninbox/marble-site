@@ -233,6 +233,20 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
                 ))}
               </div>
             )}
+            {/* Specifications Section - Moved here */}
+            {product.specifications && product.specifications.length > 0 && (
+              <div className="mt-8 bg-stone-50/50 p-6 rounded-lg border border-stone-100">
+                <h3 className="text-sm font-bold text-slate-900 mb-6 uppercase tracking-wider border-b border-stone-200 pb-3">Technical Specifications</h3>
+                <div className="space-y-4">
+                  {product.specifications.map((spec, index) => (
+                    <div key={index} className="flex justify-between items-start text-sm">
+                      <span className="text-slate-500 font-medium">{spec.key}</span>
+                      <span className="text-slate-900 font-semibold text-right">{spec.value}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </motion.div>
 
           {/* Product Info & Enquiry Form */}
@@ -396,7 +410,7 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
           </motion.div>
         </div>
 
-        {/* Full Width Description & Specifications Section */}
+        {/* Full Width Description Section */}
         <motion.section 
           id="details"
           initial={{ opacity: 0, y: 30 }}
@@ -404,32 +418,12 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
           transition={{ duration: 0.5, delay: 0.2 }}
           className="mt-20 border-t border-stone-100 pt-16"
         >
-          <div className="grid lg:grid-cols-3 gap-16">
-            {/* Description Column (merged paragraphs fix) */}
-            <div className="lg:col-span-2 space-y-8">
-              <h2 className="text-2xl font-serif text-slate-900">Description</h2>
-              <div className="prose prose-stone prose-sm sm:prose-base max-w-none text-slate-600 font-light leading-relaxed">
-                 {product.description.split('\n').map((paragraph, index) => (
-                    paragraph.trim() && <p key={index}>{paragraph}</p>
-                 ))}
-              </div>
-            </div>
-
-            {/* Specifications Column */}
-            <div>
-               {product.specifications && product.specifications.length > 0 && (
-                <div className="bg-stone-50/50 p-6 rounded-lg border border-stone-100">
-                  <h3 className="text-sm font-bold text-slate-900 mb-6 uppercase tracking-wider border-b border-stone-200 pb-3">Technical Specifications</h3>
-                  <div className="space-y-4">
-                    {product.specifications.map((spec, index) => (
-                      <div key={index} className="flex justify-between items-start text-sm">
-                        <span className="text-slate-500 font-medium">{spec.key}</span>
-                        <span className="text-slate-900 font-semibold text-right">{spec.value}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
+          <div className="w-full">
+            <h2 className="text-2xl font-serif text-slate-900 mb-8">Description</h2>
+            <div className="prose prose-stone prose-sm sm:prose-base max-w-none text-slate-600 font-light leading-relaxed">
+               {product.description.split('\n').map((paragraph, index) => (
+                  paragraph.trim() && <p key={index}>{paragraph}</p>
+               ))}
             </div>
           </div>
         </motion.section>
