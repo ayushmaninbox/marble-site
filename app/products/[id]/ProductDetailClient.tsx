@@ -236,7 +236,7 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
             {/* Specifications Section - Moved here */}
             {product.specifications && product.specifications.length > 0 && (
               <div className="mt-8 bg-stone-50/50 p-6 rounded-lg border border-stone-100">
-                <h3 className="text-sm font-bold text-slate-900 mb-6 uppercase tracking-wider border-b border-stone-200 pb-3">Technical Specifications</h3>
+                <h3 className="text-sm font-bold text-slate-900 mb-6 uppercase tracking-wider border-b border-stone-200 pb-3">Product Specifications</h3>
                 <div className="space-y-4">
                   {product.specifications.map((spec, index) => (
                     <div key={index} className="flex justify-between items-start text-sm">
