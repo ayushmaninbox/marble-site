@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
@@ -18,6 +18,8 @@ interface ProductDetailClientProps {
 export default function ProductDetailClient({ product, relatedProducts }: ProductDetailClientProps) {
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
+  const [isHovering, setIsHovering] = useState(false);
+  const [mousePosition, setMousePosition] = useState({ x: 50, y: 50 });
   
   // Header Modal State
   const [isQuoteOpen, setIsQuoteOpen] = useState(false);
@@ -110,6 +112,22 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
     setSelectedImageIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1));
   };
 
+  // Auto-play gallery
+  useEffect(() => {
+    if (images.length <= 1 || isHovering) return;
+    const interval = setInterval(() => {
+      setSelectedImageIndex(prev => (prev === images.length - 1 ? 0 : prev + 1));
+    }, 4000);
+    return () => clearInterval(interval);
+  }, [images.length, isHovering]);
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const { left, top, width, height } = e.currentTarget.getBoundingClientRect();
+    const x = ((e.clientX - left) / width) * 100;
+    const y = ((e.clientY - top) / height) * 100;
+    setMousePosition({ x, y });
+  };
+
   return (
     <div className="min-h-screen bg-white text-slate-900 selection:bg-red-100 selection:text-red-900">
       
@@ -140,13 +158,25 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
             className="space-y-4"
           >
             {/* Main Image */}
-            <div className="relative aspect-[4/3] rounded-sm overflow-hidden bg-stone-100 shadow-sm border border-stone-200 group">
+            <div 
+              className="relative aspect-[4/3] rounded-sm overflow-hidden bg-stone-100 shadow-sm border border-stone-200 group cursor-crosshair"
+              onMouseEnter={() => setIsHovering(true)}
+              onMouseLeave={() => {
+                setIsHovering(false);
+                setMousePosition({ x: 50, y: 50 });
+              }}
+              onMouseMove={handleMouseMove}
+            >
               {images[selectedImageIndex] ? (
                 <Image
                   src={images[selectedImageIndex]}
                   alt={product.name}
                   fill
-                  className="object-cover"
+                  className="object-cover transition-transform duration-200 ease-out"
+                  style={{
+                    transformOrigin: `${mousePosition.x}% ${mousePosition.y}%`,
+                    transform: isHovering ? 'scale(2)' : 'scale(1)',
+                  }}
                   sizes="(max-width: 1024px) 100vw, 50vw"
                   priority
                 />
@@ -222,18 +252,9 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
                   {product.name}
                 </h1>
                 
-                <div className="relative">
-                  <p className={`text-slate-600 leading-relaxed font-light text-sm sm:text-base ${!isDescriptionExpanded && 'line-clamp-3'}`}>
-                    {product.description}
-                  </p>
-                  {product.description.length > 250 && (
-                    <button 
-                      onClick={() => setIsDescriptionExpanded(!isDescriptionExpanded)}
-                      className="mt-2 text-xs font-bold uppercase tracking-wider text-red-600 hover:text-red-700 underline"
-                    >
-                      {isDescriptionExpanded ? 'Read Less' : 'Read More'}
-                    </button>
-                  )}
+                {/* Short description for "above fold" context - Optional or just keep Category/Title/Price */}
+                <div className="text-sm font-light text-slate-500 mb-6">
+                   {product.description.split('\n')[0].substring(0, 150)}... <a href="#details" className="text-red-600 hover:underline">Read more</a>
                 </div>
               </div>
 
@@ -259,24 +280,9 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
                    <div className="w-1.5 h-1.5 bg-slate-300 rounded-full" /> Custom Sizes
                 </div>
               </div>
-
-              {/* Product Specifications */}
-              {product.specifications && product.specifications.length > 0 && (
-                <div className="pt-6 border-t border-stone-100 mt-6">
-                  <h3 className="text-sm font-semibold text-slate-900 mb-4 uppercase tracking-wider">Specifications</h3>
-                  <div className="divide-y divide-stone-100">
-                    {product.specifications.map((spec, index) => (
-                      <div key={index} className="flex py-3">
-                        <span className="text-sm text-slate-500 w-2/5">{spec.key}</span>
-                        <span className="text-sm text-slate-900 font-medium w-3/5">{spec.value}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
             </div>
 
-            {/* Enquiry Form Card */}
+            {/* Enquiry Form Card (Stays in sidebar) */}
             <div className="bg-stone-50 rounded-xl p-8 border border-stone-100">
               {quoteSuccess ? (
                 <div className="text-center py-6">
@@ -352,18 +358,18 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
                     </div>
 
                     <div className="space-y-1">
-                      <label className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Quantity (sq. ft. / pieces)</label>
-                      <input
-                        type="number"
-                        min="1"
-                        max="9999"
-                        required
-                        value={quoteForm.quantity}
-                        onChange={(e) => setQuoteForm({ ...quoteForm, quantity: e.target.value })}
-                        className={`w-full h-10 rounded-sm border bg-white px-3 text-sm outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-all ${formErrors.quantity ? 'border-red-400' : 'border-stone-200'}`}
-                      />
-                      {formErrors.quantity && <span className="text-[10px] text-red-500">{formErrors.quantity}</span>}
-                    </div>
+                       <label className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Quantity (sq. ft. / pieces)</label>
+                       <input
+                         type="number"
+                         min="1"
+                         max="9999"
+                         required
+                         value={quoteForm.quantity}
+                         onChange={(e) => setQuoteForm({ ...quoteForm, quantity: e.target.value })}
+                         className={`w-full h-10 rounded-sm border bg-white px-3 text-sm outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-all ${formErrors.quantity ? 'border-red-400' : 'border-stone-200'}`}
+                       />
+                       {formErrors.quantity && <span className="text-[10px] text-red-500">{formErrors.quantity}</span>}
+                     </div>
 
                     <div className="space-y-1">
                       <label className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Message (Optional)</label>
@@ -389,6 +395,45 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
             </div>
           </motion.div>
         </div>
+
+        {/* Full Width Description & Specifications Section */}
+        <motion.section 
+          id="details"
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+          className="mt-20 border-t border-stone-100 pt-16"
+        >
+          <div className="grid lg:grid-cols-3 gap-16">
+            {/* Description Column (merged paragraphs fix) */}
+            <div className="lg:col-span-2 space-y-8">
+              <h2 className="text-2xl font-serif text-slate-900">Description</h2>
+              <div className="prose prose-stone prose-sm sm:prose-base max-w-none text-slate-600 font-light leading-relaxed">
+                 {product.description.split('\n').map((paragraph, index) => (
+                    paragraph.trim() && <p key={index}>{paragraph}</p>
+                 ))}
+              </div>
+            </div>
+
+            {/* Specifications Column */}
+            <div>
+               {product.specifications && product.specifications.length > 0 && (
+                <div className="bg-stone-50/50 p-6 rounded-lg border border-stone-100">
+                  <h3 className="text-sm font-bold text-slate-900 mb-6 uppercase tracking-wider border-b border-stone-200 pb-3">Technical Specifications</h3>
+                  <div className="space-y-4">
+                    {product.specifications.map((spec, index) => (
+                      <div key={index} className="flex justify-between items-start text-sm">
+                        <span className="text-slate-500 font-medium">{spec.key}</span>
+                        <span className="text-slate-900 font-semibold text-right">{spec.value}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </motion.section>
+
 
         {/* You May Also Like Section */}
         {relatedProducts.length > 0 && (
