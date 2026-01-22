@@ -155,21 +155,10 @@ export default function BlogPostPage() {
         </h1>
 
         {/* Content */}
-        <div className="prose prose-slate prose-lg max-w-none mb-12">
-          {blog.content.split('\n').map((paragraph, i) => {
-            if (paragraph.startsWith('## ')) {
-              return <h2 key={i} className="text-xl font-bold text-slate-900 mt-8 mb-4">{paragraph.replace('## ', '')}</h2>;
-            }
-            if (paragraph.startsWith('### ')) {
-              return <h3 key={i} className="text-lg font-bold text-slate-900 mt-6 mb-3">{paragraph.replace('### ', '')}</h3>;
-            }
-            if (paragraph.startsWith('- ') || paragraph.startsWith('* ')) {
-              return <li key={i} className="text-slate-700 ml-4">{paragraph.replace(/^[-*] /, '')}</li>;
-            }
-            if (paragraph.trim() === '') return null;
-            return <p key={i} className="text-slate-700 mb-4">{paragraph}</p>;
-          })}
-        </div>
+        <div 
+          className="prose prose-slate prose-lg max-w-none mb-12 prose-headings:font-serif prose-headings:text-slate-900 prose-p:text-slate-700 prose-a:text-red-600 prose-img:rounded-xl"
+          dangerouslySetInnerHTML={{ __html: blog.content }}
+        />
 
         {/* Like Button */}
         <div className="flex items-center gap-4 py-6 border-t border-b border-stone-200 mb-12">

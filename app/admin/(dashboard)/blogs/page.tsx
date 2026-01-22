@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link'; // Import Link
 import { Blog, AdminRole } from '@/lib/types';
 import StatsCard from '@/components/admin/StatsCard';
 import PaginationControls from '@/components/admin/PaginationControls';
@@ -16,12 +17,6 @@ const BlogIcon = () => (
 const SearchIcon = () => (
   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-  </svg>
-);
-
-const CloseIcon = () => (
-  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
   </svg>
 );
 
@@ -40,23 +35,10 @@ const CommentIcon = () => (
 export default function BlogsPage() {
   const [blogs, setBlogs] = useState<Blog[]>([]);
   const [loading, setLoading] = useState(true);
-  const [showForm, setShowForm] = useState(false);
-  const [editingBlog, setEditingBlog] = useState<Blog | null>(null);
   const [search, setSearch] = useState('');
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [currentPage, setCurrentPage] = useState(1);
-
-  // Form state
-  const [formData, setFormData] = useState({
-    title: '',
-    excerpt: '',
-    content: '',
-    coverImage: '',
-    author: '',
-  });
-  const [formError, setFormError] = useState('');
-  const [formSubmitting, setFormSubmitting] = useState(false);
 
   const router = useRouter();
 
@@ -91,51 +73,6 @@ export default function BlogsPage() {
       console.error('Error fetching blogs:', error);
     } finally {
       setLoading(false);
-    }
-  };
-
-  const handleFormSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setFormError('');
-
-    if (!formData.title.trim()) return setFormError('Title is required');
-    if (!formData.excerpt.trim()) return setFormError('Excerpt is required');
-    if (!formData.content.trim()) return setFormError('Content is required');
-    if (!formData.author.trim()) return setFormError('Author is required');
-
-    setFormSubmitting(true);
-
-    try {
-      if (editingBlog) {
-        const response = await fetch(`/api/blogs/${editingBlog.id}`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(formData),
-        });
-
-        if (!response.ok) {
-          const error = await response.json();
-          throw new Error(error.error);
-        }
-      } else {
-        const response = await fetch('/api/blogs', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(formData),
-        });
-
-        if (!response.ok) {
-          const error = await response.json();
-          throw new Error(error.error);
-        }
-      }
-
-      await fetchBlogs();
-      closeForm();
-    } catch (error) {
-      setFormError(error instanceof Error ? error.message : 'Failed to save blog');
-    } finally {
-      setFormSubmitting(false);
     }
   };
 
@@ -176,33 +113,6 @@ export default function BlogsPage() {
     setSelectedIds(selectedIds.length === paginatedBlogs.length ? [] : paginatedBlogs.map(b => b.id));
   };
 
-  const openAddForm = () => {
-    setEditingBlog(null);
-    setFormData({ title: '', excerpt: '', content: '', coverImage: '', author: '' });
-    setFormError('');
-    setShowForm(true);
-  };
-
-  const openEditForm = (blog: Blog) => {
-    setEditingBlog(blog);
-    setFormData({
-      title: blog.title,
-      excerpt: blog.excerpt,
-      content: blog.content,
-      coverImage: blog.coverImage,
-      author: blog.author,
-    });
-    setFormError('');
-    setShowForm(true);
-  };
-
-  const closeForm = () => {
-    setShowForm(false);
-    setEditingBlog(null);
-    setFormData({ title: '', excerpt: '', content: '', coverImage: '', author: '' });
-    setFormError('');
-  };
-
   const filteredBlogs = blogs.filter(blog =>
     blog.title.toLowerCase().includes(search.toLowerCase()) ||
     blog.author.toLowerCase().includes(search.toLowerCase())
@@ -212,8 +122,6 @@ export default function BlogsPage() {
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = Math.min(startIndex + itemsPerPage, totalItems);
   const paginatedBlogs = filteredBlogs.slice(startIndex, endIndex);
-
-  const inputClasses = "w-full rounded-lg border border-stone-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-red-400 focus:ring-2 focus:ring-red-500/20";
 
   if (loading) {
     return (
@@ -230,12 +138,12 @@ export default function BlogsPage() {
           <h1 className="text-2xl font-bold text-slate-900">Blogs</h1>
           <p className="text-sm text-slate-500 mt-1">Manage blog posts and articles</p>
         </div>
-        <button
-          onClick={openAddForm}
+        <Link
+          href="/admin/blogs/editor"
           className="inline-flex items-center gap-1.5 rounded-lg bg-red-600 hover:bg-red-700 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors"
         >
           <span>+</span> New Post
-        </button>
+        </Link>
       </div>
 
       {/* Stats Cards */}
@@ -397,12 +305,12 @@ export default function BlogsPage() {
                 </td>
                 <td className="px-4 py-4">
                   <div className="flex justify-end gap-2">
-                    <button
-                      onClick={() => openEditForm(blog)}
+                    <Link
+                      href={`/admin/blogs/editor?id=${blog.id}`}
                       className="text-xs font-semibold text-slate-600 hover:text-red-600 px-2 py-1 rounded hover:bg-red-50 transition"
                     >
                       Edit
-                    </button>
+                    </Link>
                     <button
                       onClick={() => handleDeleteBlog(blog.id)}
                       className="text-xs font-semibold text-red-600 hover:text-red-700 px-2 py-1 rounded hover:bg-red-50 transition"
@@ -423,103 +331,6 @@ export default function BlogsPage() {
           </tbody>
         </table>
       </div>
-
-      {/* Add/Edit Blog Modal */}
-      {showForm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm overflow-y-auto py-8">
-          <div className="mx-4 w-full max-w-2xl rounded-2xl bg-white p-6 shadow-2xl">
-            <div className="flex items-center justify-between mb-5">
-              <h2 className="text-lg font-bold text-slate-900">
-                {editingBlog ? 'Edit Blog Post' : 'New Blog Post'}
-              </h2>
-              <button onClick={closeForm} className="h-8 w-8 flex items-center justify-center rounded-full hover:bg-stone-100 text-slate-500">
-                <CloseIcon />
-              </button>
-            </div>
-
-            <form onSubmit={handleFormSubmit} className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-semibold text-slate-600 mb-1.5">Title</label>
-                  <input
-                    type="text"
-                    value={formData.title}
-                    onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                    placeholder="Blog post title"
-                    className={inputClasses}
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-semibold text-slate-600 mb-1.5">Author</label>
-                  <input
-                    type="text"
-                    value={formData.author}
-                    onChange={(e) => setFormData({ ...formData, author: e.target.value })}
-                    placeholder="Author name"
-                    className={inputClasses}
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-slate-600 mb-1.5">Cover Image URL</label>
-                <input
-                  type="text"
-                  value={formData.coverImage}
-                  onChange={(e) => setFormData({ ...formData, coverImage: e.target.value })}
-                  placeholder="https://example.com/image.jpg"
-                  className={inputClasses}
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-slate-600 mb-1.5">Excerpt</label>
-                <textarea
-                  value={formData.excerpt}
-                  onChange={(e) => setFormData({ ...formData, excerpt: e.target.value })}
-                  placeholder="Brief description for preview..."
-                  rows={2}
-                  className={inputClasses + " resize-none"}
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-slate-600 mb-1.5">Content (Markdown supported)</label>
-                <textarea
-                  value={formData.content}
-                  onChange={(e) => setFormData({ ...formData, content: e.target.value })}
-                  placeholder="Write your blog content here..."
-                  rows={8}
-                  className={inputClasses + " resize-none font-mono text-xs"}
-                />
-              </div>
-
-              {formError && (
-                <div className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-600">
-                  {formError}
-                </div>
-              )}
-
-              <div className="flex gap-3 pt-2">
-                <button
-                  type="submit"
-                  disabled={formSubmitting}
-                  className="flex-1 inline-flex items-center justify-center rounded-lg bg-red-600 hover:bg-red-700 px-4 py-2.5 text-sm font-semibold text-white transition-colors disabled:opacity-50"
-                >
-                  {formSubmitting ? 'Saving...' : (editingBlog ? 'Save Changes' : 'Publish Post')}
-                </button>
-                <button
-                  type="button"
-                  onClick={closeForm}
-                  className="flex-1 inline-flex items-center justify-center rounded-lg border border-stone-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-600 hover:bg-stone-50 transition-colors"
-                >
-                  Cancel
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
     </main>
   );
 }
