@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { readProducts, addProduct } from '@/lib/csvUtils';
+import { readProducts, addProduct, reorderProducts } from '@/lib/csvUtils';
 
 export async function GET(request: NextRequest) {
   try {
@@ -25,7 +25,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { name, category, description, price, images, specifications } = body;
+    const { name, category, description, price, images, specifications, inStock } = body;
     
     if (!name || !category || !description || price === undefined) {
       return NextResponse.json(
@@ -59,6 +59,7 @@ export async function POST(request: NextRequest) {
       price: parseFloat(price),
       images: imageArray,
       specifications: specsArray,
+      inStock: inStock !== false,
     });
     
     return NextResponse.json(newProduct, { status: 201 });
@@ -70,3 +71,35 @@ export async function POST(request: NextRequest) {
     );
   }
 }
+
+export async function PATCH(request: NextRequest) {
+  try {
+    const body = await request.json();
+    const { productId, newIndex } = body;
+
+    if (!productId || newIndex === undefined) {
+      return NextResponse.json(
+        { error: 'Missing productId or newIndex' },
+        { status: 400 }
+      );
+    }
+
+    const success = reorderProducts(productId, newIndex);
+
+    if (!success) {
+      return NextResponse.json(
+        { error: 'Failed to reorder products' },
+        { status: 400 }
+      );
+    }
+
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error('Error reordering products:', error);
+    return NextResponse.json(
+      { error: 'Failed to reorder products' },
+      { status: 500 }
+    );
+  }
+}
+

@@ -14,6 +14,7 @@ export interface Product {
   specifications?: ProductSpecification[]; // Custom key-value specifications
   inStock: boolean; // Stock availability status
   isFeatured?: boolean; // Featured on homepage
+  displayOrder?: number; // Display order for frontend (lower = higher priority)
   createdAt: string;
 }
 

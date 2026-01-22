@@ -95,6 +95,8 @@ export default function ProductsPage() {
   const [isDragging, setIsDragging] = useState(false);
   const [formError, setFormError] = useState('');
   const [formSubmitting, setFormSubmitting] = useState(false);
+  const [draggedImageIndex, setDraggedImageIndex] = useState<number | null>(null);
+  const [dragOverImageIndex, setDragOverImageIndex] = useState<number | null>(null);
 
   // Filter State
   const [productSearch, setProductSearch] = useState('');
@@ -206,6 +208,78 @@ export default function ProductsPage() {
       const pendingIndex = index - formImages.length;
       setPendingFiles(prev => prev.filter((_, i) => i !== pendingIndex));
     }
+  };
+
+  const handleImageDragStart = (e: React.DragEvent, index: number) => {
+    setDraggedImageIndex(index);
+    e.dataTransfer.effectAllowed = 'move';
+  };
+
+  const handleImageDragOver = (e: React.DragEvent, index: number) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    setDragOverImageIndex(index);
+  };
+
+  const handleImageDragLeave = () => {
+    setDragOverImageIndex(null);
+  };
+
+  const handleImageDrop = (e: React.DragEvent, dropIndex: number) => {
+    e.preventDefault();
+    if (draggedImageIndex === null || draggedImageIndex === dropIndex) {
+      setDraggedImageIndex(null);
+      setDragOverImageIndex(null);
+      return;
+    }
+
+    // Reorder images
+    const totalExisting = formImages.length;
+    const totalPending = pendingFiles.length;
+
+    if (draggedImageIndex < totalExisting && dropIndex < totalExisting) {
+      // Both are existing images
+      const newImages = [...formImages];
+      const [movedImage] = newImages.splice(draggedImageIndex, 1);
+      newImages.splice(dropIndex, 0, movedImage);
+      setFormImages(newImages);
+    } else if (draggedImageIndex >= totalExisting && dropIndex >= totalExisting) {
+      // Both are pending files
+      const dragPendingIndex = draggedImageIndex - totalExisting;
+      const dropPendingIndex = dropIndex - totalExisting;
+      const newPending = [...pendingFiles];
+      const [movedFile] = newPending.splice(dragPendingIndex, 1);
+      newPending.splice(dropPendingIndex, 0, movedFile);
+      setPendingFiles(newPending);
+    } else {
+      // Mixed - convert to combined array, reorder, then split
+      const allImages = [...formImages];
+      const allFiles = [...pendingFiles];
+      
+      if (draggedImageIndex < totalExisting) {
+        // Moving existing to pending area
+        const [movedImage] = allImages.splice(draggedImageIndex, 1);
+        const dropPendingIndex = dropIndex - allImages.length;
+        allFiles.splice(dropPendingIndex, 0, movedImage as any);
+        setFormImages(allImages);
+        setPendingFiles(allFiles);
+      } else {
+        // Moving pending to existing area
+        const dragPendingIndex = draggedImageIndex - totalExisting;
+        const [movedFile] = allFiles.splice(dragPendingIndex, 1);
+        allImages.splice(dropIndex, 0, movedFile as any);
+        setFormImages(allImages);
+        setPendingFiles(allFiles);
+      }
+    }
+
+    setDraggedImageIndex(null);
+    setDragOverImageIndex(null);
+  };
+
+  const handleImageDragEnd = () => {
+    setDraggedImageIndex(null);
+    setDragOverImageIndex(null);
   };
 
   const handleFormSubmit = async (e: React.FormEvent) => {
@@ -335,6 +409,21 @@ export default function ProductsPage() {
       if (response.ok) fetchProducts();
     } catch (error) {
        console.error('Error updating product:', error);
+    }
+  };
+
+  const handleProductReorder = async (productId: string, newIndex: number) => {
+    try {
+      const response = await fetch('/api/products', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ productId, newIndex }),
+      });
+      if (response.ok) {
+        await fetchProducts();
+      }
+    } catch (error) {
+      console.error('Error reordering products:', error);
     }
   };
 
@@ -612,6 +701,7 @@ export default function ProductsPage() {
           onDelete={handleDeleteProduct}
           onPreview={(product) => { setPreviewProduct(product); setPreviewImageIndex(0); }}
           onToggleFeatured={handleToggleFeatured}
+          onReorder={handleProductReorder}
         />
       </div>
 
@@ -693,8 +783,26 @@ export default function ProductsPage() {
                 </div>
                 <div className="grid grid-cols-4 gap-3 mb-3">
                   {allFormImages.map((img, index) => (
-                    <div key={index} className="relative aspect-square rounded-lg overflow-hidden bg-stone-100 group">
+                    <div 
+                      key={index} 
+                      draggable
+                      onDragStart={(e) => handleImageDragStart(e, index)}
+                      onDragOver={(e) => handleImageDragOver(e, index)}
+                      onDragLeave={handleImageDragLeave}
+                      onDrop={(e) => handleImageDrop(e, index)}
+                      onDragEnd={handleImageDragEnd}
+                      className={`relative aspect-square rounded-lg overflow-hidden bg-stone-100 group cursor-move ${
+                        draggedImageIndex === index ? 'opacity-50' : ''
+                      } ${
+                        dragOverImageIndex === index ? 'ring-2 ring-red-500' : ''
+                      }`}
+                    >
                       <img src={img.url} alt={`Image ${index + 1}`} className="w-full h-full object-cover" />
+                      <div className="absolute top-1 left-1 text-white bg-slate-900/50 rounded p-1 opacity-0 group-hover:opacity-100 transition">
+                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8h16M4 16h16" />
+                        </svg>
+                      </div>
                       <button
                         type="button"
                         onClick={() => removeImage(index, img.type === 'existing')}

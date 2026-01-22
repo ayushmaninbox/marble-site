@@ -1,5 +1,6 @@
 'use client';
 
+import React from 'react';
 import { Product } from '@/lib/types';
 
 interface ProductTableProps {
@@ -11,6 +12,7 @@ interface ProductTableProps {
   onDelete: (id: string) => void;
   onPreview?: (product: Product) => void;
   onToggleFeatured?: (product: Product) => void;
+  onReorder?: (productId: string, newIndex: number) => void;
 }
 
 export default function ProductTable({ 
@@ -21,9 +23,50 @@ export default function ProductTable({
   onEdit, 
   onDelete, 
   onPreview,
-  onToggleFeatured 
+  onToggleFeatured,
+  onReorder
 }: ProductTableProps) {
   const allSelected = products.length > 0 && products.every(p => selectedIds.includes(p.id));
+  const [draggedIndex, setDraggedIndex] = React.useState<number | null>(null);
+  const [dragOverIndex, setDragOverIndex] = React.useState<number | null>(null);
+
+  const handleDragStart = (e: React.DragEvent, index: number) => {
+    setDraggedIndex(index);
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/html', e.currentTarget.innerHTML);
+  };
+
+  const handleDragOver = (e: React.DragEvent, index: number) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    setDragOverIndex(index);
+  };
+
+  const handleDragLeave = () => {
+    setDragOverIndex(null);
+  };
+
+  const handleDrop = (e: React.DragEvent, dropIndex: number) => {
+    e.preventDefault();
+    if (draggedIndex === null || draggedIndex === dropIndex) {
+      setDraggedIndex(null);
+      setDragOverIndex(null);
+      return;
+    }
+
+    const draggedProduct = products[draggedIndex];
+    if (onReorder && draggedProduct) {
+      onReorder(draggedProduct.id, dropIndex);
+    }
+
+    setDraggedIndex(null);
+    setDragOverIndex(null);
+  };
+
+  const handleDragEnd = () => {
+    setDraggedIndex(null);
+    setDragOverIndex(null);
+  };
 
   return (
     <div className="overflow-x-auto">
@@ -57,8 +100,25 @@ export default function ProductTable({
               </td>
             </tr>
           ) : (
-            products.map((product) => (
-              <tr key={product.id} className={`hover:bg-red-50/30 transition-colors ${selectedIds.includes(product.id) ? 'bg-red-50/20' : ''}`}>
+            products.map((product, index) => (
+              <tr 
+                key={product.id} 
+                draggable={!!onReorder}
+                onDragStart={(e) => handleDragStart(e, index)}
+                onDragOver={(e) => handleDragOver(e, index)}
+                onDragLeave={handleDragLeave}
+                onDrop={(e) => handleDrop(e, index)}
+                onDragEnd={handleDragEnd}
+                className={`hover:bg-red-50/30 transition-colors ${
+                  selectedIds.includes(product.id) ? 'bg-red-50/20' : ''
+                } ${
+                  draggedIndex === index ? 'opacity-50' : ''
+                } ${
+                  dragOverIndex === index ? 'border-t-2 border-red-500' : ''
+                } ${
+                  onReorder ? 'cursor-move' : ''
+                }`}
+              >
                 {(onSelect && onSelectAll) && (
                   <td className="px-4 py-3">
                     <input 
@@ -71,6 +131,13 @@ export default function ProductTable({
                 )}
                 <td className="px-4 py-3">
                   <div className="flex items-center gap-3">
+                    {onReorder && (
+                      <div className="text-slate-400 hover:text-slate-600 cursor-grab active:cursor-grabbing">
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8h16M4 16h16" />
+                        </svg>
+                      </div>
+                    )}
                     <div className="h-10 w-10 rounded-lg overflow-hidden bg-stone-100 flex-shrink-0 relative">
                       <img
                         src={product.images?.[0] || product.image || ''}

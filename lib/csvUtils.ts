@@ -17,7 +17,7 @@ const ensureDataDirectory = () => {
 const initializeCsvFile = () => {
   ensureDataDirectory();
   if (!fs.existsSync(CSV_FILE_PATH)) {
-    const headers = 'id,name,category,description,price,images,specifications,inStock,isFeatured,createdAt\n';
+    const headers = 'id,name,category,description,price,images,specifications,inStock,isFeatured,displayOrder,createdAt\n';
     fs.writeFileSync(CSV_FILE_PATH, headers, 'utf-8');
   }
 };
@@ -64,6 +64,7 @@ interface RawProductRow {
   specifications?: string;
   inStock?: string; // 'true' or 'false' - defaults to 'true' for backwards compatibility
   isFeatured?: string; // 'true' or 'false'
+  displayOrder?: string; // Display order for frontend
   createdAt: string;
 }
 
@@ -88,6 +89,7 @@ export const readProducts = (): Product[] => {
       specifications: parseSpecifications(row.specifications),
       inStock: row.inStock !== 'false', // Default to true for backwards compatibility
       isFeatured: row.isFeatured === 'true',
+      displayOrder: row.displayOrder ? parseInt(row.displayOrder) : undefined,
       createdAt: row.createdAt,
     }));
   } catch (error) {
@@ -111,12 +113,13 @@ export const writeProducts = (products: Product[]): void => {
       specifications: JSON.stringify(p.specifications || []),
       inStock: p.inStock !== false ? 'true' : 'false',
       isFeatured: p.isFeatured ? 'true' : 'false',
+      displayOrder: p.displayOrder !== undefined ? p.displayOrder.toString() : '',
       createdAt: p.createdAt,
     }));
 
     const csv = Papa.unparse(csvData, {
       header: true,
-      columns: ['id', 'name', 'category', 'description', 'price', 'images', 'specifications', 'inStock', 'isFeatured', 'createdAt'],
+      columns: ['id', 'name', 'category', 'description', 'price', 'images', 'specifications', 'inStock', 'isFeatured', 'displayOrder', 'createdAt'],
       quotes: true,
     });
     fs.writeFileSync(CSV_FILE_PATH, csv, 'utf-8');
@@ -160,3 +163,27 @@ export const deleteProduct = (id: string): boolean => {
   writeProducts(filteredProducts);
   return true;
 };
+
+export const reorderProducts = (productId: string, newIndex: number): boolean => {
+  const products = readProducts();
+  const currentIndex = products.findIndex(p => p.id === productId);
+
+  if (currentIndex === -1 || newIndex < 0 || newIndex >= products.length) {
+    return false;
+  }
+
+  // Remove product from current position
+  const [movedProduct] = products.splice(currentIndex, 1);
+  
+  // Insert at new position
+  products.splice(newIndex, 0, movedProduct);
+
+  // Update displayOrder for all products
+  products.forEach((product, index) => {
+    product.displayOrder = index;
+  });
+
+  writeProducts(products);
+  return true;
+};
+
