@@ -97,10 +97,12 @@ export default function ProductsPage() {
   const [formSubmitting, setFormSubmitting] = useState(false);
   const [draggedImageIndex, setDraggedImageIndex] = useState<number | null>(null);
   const [dragOverImageIndex, setDragOverImageIndex] = useState<number | null>(null);
+  const [draggedSpecIndex, setDraggedSpecIndex] = useState<number | null>(null);
+  const [dragOverSpecIndex, setDragOverSpecIndex] = useState<number | null>(null);
 
   // Filter State
   const [productSearch, setProductSearch] = useState('');
-  const [productSort, setProductSort] = useState<'newest' | 'enquired' | 'az' | 'za'>('newest');
+  const [productSort, setProductSort] = useState<'order' | 'newest' | 'enquired' | 'az' | 'za'>('order');
   const [productFilterCategory, setProductFilterCategory] = useState<'all' | ProductCategory>('all');
   const [productFilterDate, setProductFilterDate] = useState<'all' | 'week' | 'month'>('all');
   const [productFilterStock, setProductFilterStock] = useState<'all' | 'in-stock' | 'out-of-stock'>('all');
@@ -282,6 +284,39 @@ export default function ProductsPage() {
     setDragOverImageIndex(null);
   };
 
+  const handleSpecDragStart = (e: React.DragEvent, index: number) => {
+    setDraggedSpecIndex(index);
+    e.dataTransfer.effectAllowed = 'move';
+  };
+
+  const handleSpecDragOver = (e: React.DragEvent, index: number) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    setDragOverSpecIndex(index);
+  };
+
+  const handleSpecDrop = (e: React.DragEvent, dropIndex: number) => {
+    e.preventDefault();
+    if (draggedSpecIndex === null || draggedSpecIndex === dropIndex) {
+      setDraggedSpecIndex(null);
+      setDragOverSpecIndex(null);
+      return;
+    }
+
+    const newSpecs = [...formSpecifications];
+    const [movedSpec] = newSpecs.splice(draggedSpecIndex, 1);
+    newSpecs.splice(dropIndex, 0, movedSpec);
+    setFormSpecifications(newSpecs);
+    
+    setDraggedSpecIndex(null);
+    setDragOverSpecIndex(null);
+  };
+
+  const handleSpecDragEnd = () => {
+    setDraggedSpecIndex(null);
+    setDragOverSpecIndex(null);
+  };
+
   const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setFormError('');
@@ -412,7 +447,15 @@ export default function ProductsPage() {
     }
   };
 
-  const handleProductReorder = async (productId: string, newIndex: number) => {
+  const handleProductReorder = async (productId: string, relativeIndex: number) => {
+    // Only allow reordering if sorted by order and not filtered
+    if (productSort !== 'order' || productSearch || productFilterCategory !== 'all' || productFilterDate !== 'all' || productFilterStock !== 'all') {
+      alert('Please clear filters and select "Custom Order" sort to reorder products.');
+      return;
+    }
+
+    const newIndex = startIndex + relativeIndex;
+
     try {
       const response = await fetch('/api/products', {
         method: 'PATCH',
@@ -486,7 +529,8 @@ export default function ProductsPage() {
       case 'az': return a.name.localeCompare(b.name);
       case 'za': return b.name.localeCompare(a.name);
       case 'enquired': return (enquiries.filter(e => e.productName === b.name).length) - (enquiries.filter(e => e.productName === a.name).length);
-      case 'newest': default: return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+      case 'newest': return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+      case 'order': default: return (a.displayOrder ?? 0) - (b.displayOrder ?? 0);
     }
   });
 
@@ -591,6 +635,7 @@ export default function ProductsPage() {
                 onChange={(e) => setProductSort(e.target.value as any)}
                 className="px-3 py-1.5 rounded-lg border border-stone-200 text-sm font-medium text-slate-700 bg-stone-50 focus:outline-none focus:border-red-400"
               >
+                <option value="order">Custom Order</option>
                 <option value="newest">Recently Added</option>
                 <option value="enquired">Most Enquired</option>
                 <option value="az">A–Z</option>
@@ -855,7 +900,23 @@ export default function ProductsPage() {
                 {formSpecifications.length > 0 ? (
                   <div className="space-y-2">
                     {formSpecifications.map((spec, index) => (
-                      <div key={index} className="flex gap-2 items-center">
+                      <div 
+                        key={index} 
+                        draggable
+                        onDragStart={(e) => handleSpecDragStart(e, index)}
+                        onDragOver={(e) => handleSpecDragOver(e, index)}
+                        onDrop={(e) => handleSpecDrop(e, index)}
+                        onDragEnd={handleSpecDragEnd}
+                        className={`flex gap-2 items-center p-2 rounded-lg border transition-colors ${
+                          draggedSpecIndex === index ? 'opacity-50 border-dashed border-slate-300' : 
+                          dragOverSpecIndex === index ? 'border-red-500 bg-red-50' : 'border-transparent hover:bg-slate-50'
+                        }`}
+                      >
+                        <div className="cursor-move text-slate-400 hover:text-slate-600">
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8h16M4 16h16" />
+                          </svg>
+                        </div>
                         <input
                           type="text"
                           placeholder="e.g., Thickness"
