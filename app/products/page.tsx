@@ -148,7 +148,7 @@ export default function ProductsPage() {
         {!loading && <FeaturedCarousel products={products} />}
 
         {/* Filter Navigation */}
-        <div className="sticky top-20 z-40 bg-white/95 backdrop-blur-sm border-y border-stone-100 py-4 mb-6">
+        <div className="sticky top-[64px] md:top-[72px] z-40 bg-white border-y border-stone-100 py-4 mb-6 shadow-sm">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             {/* Category Filters */}
             <div className="flex flex-wrap items-center justify-center gap-2 md:gap-8 mb-4">

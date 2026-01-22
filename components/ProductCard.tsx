@@ -16,7 +16,7 @@ export default function ProductCard({ product }: ProductCardProps) {
   return (
     <Link href={`/products/${product.id}`}>
       <article className={`group flex flex-col overflow-hidden rounded-md border bg-white shadow-sm transition hover:-translate-y-1 cursor-pointer ${isOutOfStock ? 'border-stone-300 opacity-75' : 'border-stone-200 hover:border-red-200 hover:shadow-lg hover:shadow-red-500/10'}`}>
-        <div className={`relative overflow-hidden h-64 bg-stone-100 ${isOutOfStock ? 'grayscale' : ''}`}>
+        <div className={`relative overflow-hidden h-52 sm:h-64 bg-stone-100 ${isOutOfStock ? 'grayscale' : ''}`}>
           <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent z-10" />
           {displayImage && (displayImage.startsWith('http') || displayImage.startsWith('/')) ? (
             <Image

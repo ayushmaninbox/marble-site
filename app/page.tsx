@@ -321,28 +321,28 @@ export default function Home() {
         {/* Marble Collections Carousel Section */}
         <AnimatedSection id="products" className="py-16 lg:py-24" staggerChildren={0.1}>
           {/* Section Header with Decorative Brackets */}
-          <div className="text-center mb-12">
+          <div className="text-center mb-16 px-6">
             <div className="inline-block relative">
-              <span className="absolute -top-3 -left-6 w-5 h-5 border-l-2 border-t-2 border-red-500" />
-              <h2 className="text-3xl sm:text-4xl font-light tracking-wide text-slate-900 uppercase">
+              <span className="absolute -top-3 -left-4 sm:-left-6 w-5 h-5 border-l-2 border-t-2 border-red-500" />
+              <h2 className="text-2xl sm:text-4xl font-light tracking-wide text-slate-900 uppercase px-2">
                 Marble Collections
               </h2>
-              <span className="absolute -bottom-3 -right-6 w-5 h-5 border-r-2 border-b-2 border-red-500" />
+              <span className="absolute -bottom-3 -right-4 sm:-right-6 w-5 h-5 border-r-2 border-b-2 border-red-500" />
             </div>
           </div>
 
           {/* Content: Left Description + Right Carousel */}
           <div className="grid gap-8 lg:grid-cols-[280px_1fr] lg:gap-12 items-start">
             {/* Left Column - Description */}
-            <div className="space-y-4">
-              <h3 className="text-3xl sm:text-4xl font-light text-red-500 leading-tight">
-                Premium<br />Marbles
+            <div className="space-y-6 text-center lg:text-left px-4">
+              <h3 className="text-4xl sm:text-4xl font-light text-red-500 leading-tight">
+                Premium<br className="hidden sm:block" /> Marbles
               </h3>
-              <p className="text-slate-600 text-sm leading-relaxed">
+              <p className="text-slate-600 text-sm leading-relaxed max-w-md mx-auto lg:max-w-none lg:mx-0">
                 Indulge in the glory of class-apart Imported Marble from Shree Radhe. Our popular offerings range from Statuario Marble, Travertine Marble to Flawless White & Cat's Eye Marble.
               </p>
               {/* Navigation Arrows */}
-              <div className="flex items-center gap-4 pt-4">
+              <div className="flex items-center gap-4 pt-4 justify-center lg:justify-start">
                 <button
                   onClick={() => {
                     setMarbleIndex((prev: number) => (prev - 1 + marbleProducts.length * 2) % (marbleProducts.length * 2));
@@ -433,13 +433,13 @@ export default function Home() {
         {/* Tiles Collection Carousel Section */}
         <AnimatedSection className="py-16 lg:py-24" staggerChildren={0.1}>
           {/* Section Header with Decorative Brackets */}
-          <div className="text-center mb-12">
+          <div className="text-center mb-16 px-6">
             <div className="inline-block relative">
-              <span className="absolute -top-3 -left-6 w-5 h-5 border-l-2 border-t-2 border-red-500" />
-              <h2 className="text-3xl sm:text-4xl font-light tracking-wide text-slate-900 uppercase">
+              <span className="absolute -top-3 -left-4 sm:-left-6 w-5 h-5 border-l-2 border-t-2 border-red-500" />
+              <h2 className="text-2xl sm:text-4xl font-light tracking-wide text-slate-900 uppercase px-2">
                 Tiles Collection
               </h2>
-              <span className="absolute -bottom-3 -right-6 w-5 h-5 border-r-2 border-b-2 border-red-500" />
+              <span className="absolute -bottom-3 -right-4 sm:-right-6 w-5 h-5 border-r-2 border-b-2 border-red-500" />
             </div>
           </div>
 
@@ -512,15 +512,15 @@ export default function Home() {
             </div>
 
             {/* Right Column - Description (Right-aligned text) */}
-            <div className="space-y-4 text-right order-1 lg:order-2">
-              <h3 className="text-3xl sm:text-4xl font-light text-red-500 leading-tight">
-                Designer<br />Tiles
+            <div className="space-y-6 text-center lg:text-right order-1 lg:order-2 px-4">
+              <h3 className="text-4xl sm:text-4xl font-light text-red-500 leading-tight">
+                Designer<br className="hidden sm:block" /> Tiles
               </h3>
-              <p className="text-slate-600 text-sm leading-relaxed">
+              <p className="text-slate-600 text-sm leading-relaxed max-w-md mx-auto lg:max-w-none lg:mx-0">
                 Experience the sheer magnificence of our Premium Tile Collection. Curated for the discerning eye, our range spans from high-gloss Italian Porcelain and rustic Stone textures to exquisite mosaics that turn walls and floors into canvases of art.
               </p>
               {/* Navigation Arrows */}
-              <div className="flex items-center gap-4 pt-4 justify-end">
+              <div className="flex items-center gap-4 pt-4 justify-center lg:justify-end">
                 <button
                   onClick={() => {
                     setTilesIndex((prev: number) => (prev - 1 + tilesProducts.length * 2) % (tilesProducts.length * 2));
@@ -545,28 +545,28 @@ export default function Home() {
         {/* Handicraft Collection Carousel Section */}
         <AnimatedSection className="py-16 lg:py-24" staggerChildren={0.1}>
           {/* Section Header with Decorative Brackets */}
-          <div className="text-center mb-12">
+          <div className="text-center mb-16 px-6">
             <div className="inline-block relative">
-              <span className="absolute -top-3 -left-6 w-5 h-5 border-l-2 border-t-2 border-red-500" />
-              <h2 className="text-3xl sm:text-4xl font-light tracking-wide text-slate-900 uppercase">
+              <span className="absolute -top-3 -left-4 sm:-left-6 w-5 h-5 border-l-2 border-t-2 border-red-500" />
+              <h2 className="text-2xl sm:text-4xl font-light tracking-wide text-slate-900 uppercase px-2">
                 Handicraft Collection
               </h2>
-              <span className="absolute -bottom-3 -right-6 w-5 h-5 border-r-2 border-b-2 border-red-500" />
+              <span className="absolute -bottom-3 -right-4 sm:-right-6 w-5 h-5 border-r-2 border-b-2 border-red-500" />
             </div>
           </div>
 
           {/* Content: Left Description + Right Carousel */}
           <div className="grid gap-8 lg:grid-cols-[280px_1fr] lg:gap-12 items-start">
             {/* Left Column - Description */}
-            <div className="space-y-4">
-              <h3 className="text-3xl sm:text-4xl font-light text-red-500 leading-tight">
-                Artisan<br />Handicrafts
+            <div className="space-y-6 text-center lg:text-left px-4">
+              <h3 className="text-4xl sm:text-4xl font-light text-red-500 leading-tight">
+                Artisan<br className="hidden sm:block" /> Handicrafts
               </h3>
-              <p className="text-slate-600 text-sm leading-relaxed">
+              <p className="text-slate-600 text-sm leading-relaxed max-w-md mx-auto lg:max-w-none lg:mx-0">
                 Celebrate the soul of stone with our Handcrafted Masterpieces. From intricately carved Temples to contemporary Decor and Jaali work, every artifact is a testament to centuries-old artistry tailored for modern living.
               </p>
               {/* Navigation Arrows */}
-              <div className="flex items-center gap-4 pt-4">
+              <div className="flex items-center gap-4 pt-4 justify-center lg:justify-start">
                 <button
                   onClick={() => {
                     setHandicraftIndex((prev: number) => (prev - 1 + handicraftProducts.length * 2) % (handicraftProducts.length * 2));

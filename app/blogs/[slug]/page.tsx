@@ -216,7 +216,7 @@ function CommentSection({ blogId }: { blogId: string }) {
 
         <form onSubmit={handleSubmit} className="bg-white rounded-xl p-6 border border-stone-200 mb-8">
             <h3 className="text-sm font-bold text-slate-900 mb-4">Leave a comment</h3>
-            <div className="grid grid-cols-2 gap-4 mb-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
               <input
                 type="text"
                 placeholder="Your name"
