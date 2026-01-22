@@ -104,7 +104,21 @@ export default function AdminLayout({ children }: LayoutProps) {
     };
 
     fetchCounts();
-  }, [router]);
+
+    // Role-based protection: Redirect if on dashboard but not allowed
+    if (userInfo) {
+       try {
+         const parsed = JSON.parse(userInfo);
+         const role = parsed.role;
+         if (pathname === '/admin/dashboard' && !['super_admin', 'admin'].includes(role)) {
+            // Redirect to their allowed page
+            if (role === 'content_writer') router.push('/admin/blogs');
+            else if (role === 'product_manager') router.push('/admin/products');
+            else if (role === 'enquiry_handler') router.push('/admin/enquiries');
+         }
+       } catch {}
+    }
+  }, [router, pathname]);
 
   const handleLogout = () => {
     localStorage.removeItem('isAdminAuthenticated');

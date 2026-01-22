@@ -39,6 +39,7 @@ export default function BlogsPage() {
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [currentPage, setCurrentPage] = useState(1);
+  const [viewCommentsBlogId, setViewCommentsBlogId] = useState<string | null>(null);
 
   const router = useRouter();
 
@@ -296,9 +297,9 @@ export default function BlogsPage() {
                   </span>
                 </td>
                 <td className="px-4 py-4 text-center">
-                  <span className="inline-flex items-center gap-1 text-sm text-blue-600">
+                  <button onClick={() => setViewCommentsBlogId(blog.id)} className="inline-flex items-center gap-1 text-sm text-blue-600 hover:text-blue-800 transition-colors">
                     <CommentIcon /> {blog.comments.length}
-                  </span>
+                  </button>
                 </td>
                 <td className="px-4 py-4 text-sm text-slate-500">
                   {new Date(blog.createdAt).toLocaleDateString()}
@@ -331,6 +332,103 @@ export default function BlogsPage() {
           </tbody>
         </table>
       </div>
+
+      {/* Comments Modal */}
+      {viewCommentsBlogId && (
+        <CommentsModal 
+            blogId={viewCommentsBlogId} 
+            onClose={() => setViewCommentsBlogId(null)} 
+        />
+      )}
     </main>
   );
+}
+
+function CommentsModal({ blogId, onClose }: { blogId: string, onClose: () => void }) {
+    const [comments, setComments] = useState<any[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        fetch(`/api/comments?blogId=${blogId}`)
+            .then(res => res.json())
+            .then(data => {
+                setComments(data);
+                setLoading(false);
+            });
+    }, [blogId]);
+
+    const handleDelete = async (id: string) => {
+        if(!confirm('Delete this comment?')) return;
+        await fetch(`/api/comments?id=${id}`, { method: 'DELETE' });
+        setComments(prev => prev.filter(c => c.id !== id));
+    };
+
+    return (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200">
+            <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[85vh] flex flex-col overflow-hidden border border-stone-100">
+                <div className="p-5 border-b border-stone-100 flex justify-between items-center bg-white sticky top-0 z-10">
+                    <div>
+                        <h3 className="font-serif font-bold text-xl text-slate-900 bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">Discussion</h3>
+                        <p className="text-xs text-slate-500 font-medium">Managing {comments.length} comments</p>
+                    </div>
+                    <button 
+                        onClick={onClose} 
+                        className="p-2 hover:bg-stone-50 rounded-full text-stone-400 hover:text-stone-600 transition-all border border-transparent hover:border-stone-200"
+                    >
+                        <span className="sr-only">Close</span>
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+                    </button>
+                </div>
+                
+                <div className="p-0 overflow-y-auto flex-1 bg-stone-50/50">
+                    {loading ? (
+                        <div className="flex flex-col items-center justify-center h-64 gap-3">
+                             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-600"></div>
+                             <p className="text-sm text-stone-500 animate-pulse">Loading discussion...</p>
+                        </div>
+                    ) : comments.length === 0 ? (
+                        <div className="flex flex-col items-center justify-center h-64 text-center p-8">
+                            <div className="h-16 w-16 bg-stone-100 rounded-full flex items-center justify-center mb-4 text-stone-300">
+                                <CommentIcon />
+                            </div>
+                            <p className="text-stone-500 font-medium">No comments yet</p>
+                            <p className="text-xs text-stone-400 mt-1">Be the first to start the conversation on this post.</p>
+                        </div>
+                    ) : (
+                        <div className="divide-y divide-stone-100">
+                            {comments.map(comment => (
+                                <div key={comment.id} className="bg-white p-6 hover:bg-stone-50/50 transition-colors group">
+                                    <div className="flex gap-4">
+                                        <div className="h-10 w-10 shrink-0 rounded-full bg-gradient-to-br from-red-500 to-orange-400 flex items-center justify-center text-white font-bold shadow-md shadow-orange-500/20 text-sm">
+                                            {comment.name.charAt(0).toUpperCase()}
+                                        </div>
+                                        <div className="flex-1 min-w-0">
+                                            <div className="flex justify-between items-start mb-1">
+                                                <div>
+                                                    <h4 className="font-bold text-sm text-slate-900">{comment.name}</h4>
+                                                    <div className="text-xs text-stone-500 flex items-center gap-2">
+                                                        <span>{comment.email}</span>
+                                                        <span className="w-1 h-1 rounded-full bg-stone-300"></span>
+                                                        <span>{new Date(comment.createdAt).toLocaleDateString(undefined, { dateStyle: 'medium' })}</span>
+                                                    </div>
+                                                </div>
+                                                <button 
+                                                    onClick={() => handleDelete(comment.id)} 
+                                                    className="opacity-0 group-hover:opacity-100 p-2 text-stone-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"
+                                                    title="Delete Comment"
+                                                >
+                                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                                                </button>
+                                            </div>
+                                            <p className="text-sm text-slate-600 leading-relaxed mt-2">{comment.content}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
+            </div>
+        </div>
+    );
 }

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { findBlogById, updateBlog, deleteBlog, generateSlug } from '@/lib/blogUtils';
+import { extractImageUrls, deleteImageFiles } from '@/lib/imageCleanup';
 
 // GET: Get single blog by ID
 export async function GET(
@@ -44,6 +45,15 @@ export async function PUT(
       );
     }
 
+    // Logic for Image Cleanup
+    let oldImages: string[] = [];
+    if (blog.content) {
+        oldImages = extractImageUrls(blog.content);
+    }
+    if (blog.coverImage && blog.coverImage.startsWith('/uploads/')) {
+        oldImages.push(blog.coverImage);
+    }
+
     const updates: Record<string, unknown> = {};
 
     if (body.title) {
@@ -62,6 +72,21 @@ export async function PUT(
         { error: 'Failed to update blog' },
         { status: 500 }
       );
+    }
+
+    // Determine removed images
+    let newImages: string[] = [];
+    if (updatedBlog.content) {
+        newImages = extractImageUrls(updatedBlog.content);
+    }
+    if (updatedBlog.coverImage && updatedBlog.coverImage.startsWith('/uploads/')) {
+        newImages.push(updatedBlog.coverImage);
+    }
+
+    const removedImages = oldImages.filter(img => !newImages.includes(img));
+    if (removedImages.length > 0) {
+        console.log('Cleaning up images:', removedImages);
+        deleteImageFiles(removedImages);
     }
 
     return NextResponse.json(updatedBlog);
@@ -90,6 +115,15 @@ export async function DELETE(
       );
     }
 
+    // Logic for Image Cleanup (Delete ALL associated images)
+    let imagesToDelete: string[] = [];
+    if (blog.content) {
+        imagesToDelete = extractImageUrls(blog.content);
+    }
+    if (blog.coverImage && blog.coverImage.startsWith('/uploads/')) {
+        imagesToDelete.push(blog.coverImage);
+    }
+
     const success = deleteBlog(id);
 
     if (!success) {
@@ -97,6 +131,11 @@ export async function DELETE(
         { error: 'Failed to delete blog' },
         { status: 500 }
       );
+    }
+
+    if (imagesToDelete.length > 0) {
+         console.log('Deleting blog images:', imagesToDelete);
+         deleteImageFiles(imagesToDelete);
     }
 
     return NextResponse.json({ message: 'Blog deleted successfully' });

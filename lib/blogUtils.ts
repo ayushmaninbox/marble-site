@@ -44,6 +44,10 @@ const parseComments = (commentsStr: string): BlogComment[] => {
   }
 };
 
+import { readAllComments } from './commentUtils';
+
+// ... existing imports
+
 export const readBlogs = (): Blog[] => {
   ensureDataDirectory();
   
@@ -59,19 +63,33 @@ export const readBlogs = (): Blog[] => {
       dynamicTyping: false,
     });
 
-    return parsed.data.map(row => ({
-      id: row.id,
-      title: row.title,
-      slug: row.slug,
-      excerpt: row.excerpt,
-      content: row.content,
-      coverImage: row.coverImage,
-      author: row.author,
-      likes: parseInt(row.likes) || 0,
-      comments: parseComments(row.comments),
-      createdAt: row.createdAt,
-      updatedAt: row.updatedAt,
-    }));
+    const allComments = readAllComments();
+
+    return parsed.data.map(row => {
+      // Filter comments for this blog from the JSON source of truth
+      // We ignore the CSV 'comments' column now.
+      const blogComments = allComments.filter(c => c.blogId === row.id).map(c => ({
+          id: c.id,
+          name: c.name,
+          email: c.email,
+          content: c.content,
+          createdAt: c.createdAt
+      }));
+
+      return {
+        id: row.id,
+        title: row.title,
+        slug: row.slug,
+        excerpt: row.excerpt,
+        content: row.content,
+        coverImage: row.coverImage,
+        author: row.author,
+        likes: parseInt(row.likes) || 0,
+        comments: blogComments, // Use live data
+        createdAt: row.createdAt,
+        updatedAt: row.updatedAt,
+      };
+    });
   } catch (error) {
     console.error('Error reading blogs CSV:', error);
     return [];
@@ -172,20 +190,20 @@ export const likeBlog = (id: string): Blog | null => {
   return blogs[index];
 };
 
+import { addComment as addCommentUtil } from './commentUtils';
+
 export const addComment = (blogId: string, comment: Omit<BlogComment, 'id' | 'createdAt'>): Blog | null => {
-  const blogs = readBlogs();
-  const index = blogs.findIndex(b => b.id === blogId);
-
-  if (index === -1) return null;
-
-  const newComment: BlogComment = {
-    id: crypto.randomUUID(),
-    ...comment,
-    createdAt: new Date().toISOString(),
-  };
-
-  blogs[index].comments.push(newComment);
-  blogs[index].updatedAt = new Date().toISOString();
-  writeBlogs(blogs);
-  return blogs[index];
+   // This function is largely superseded by direct calls to commentUtils in the API
+   // But we maintain it for backward compatibility if called internally
+   addCommentUtil({
+       blogId,
+       name: comment.name,
+       email: comment.email,
+       content: comment.content,
+       parentId: null // Old style didn't have parents
+   });
+   
+   // We need to return the updated blog. 
+   const blogs = readBlogs(); // This now reads the fresh comments
+   return blogs.find(b => b.id === blogId) || null;
 };

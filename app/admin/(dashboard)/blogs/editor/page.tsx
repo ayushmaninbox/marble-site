@@ -222,14 +222,45 @@ function EditorContent() {
             </div>
 
              <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1.5">Cover Image URL</label>
+              <label className="block text-sm font-medium text-slate-700 mb-1.5">Cover Image</label>
               <div className="flex gap-2">
                  <input
                   type="text"
                   value={formData.coverImage}
                   onChange={(e) => setFormData({ ...formData, coverImage: e.target.value })}
                   className="w-full rounded-lg border border-stone-200 px-3 py-2 text-sm focus:border-red-500 focus:ring-red-500/20"
-                  placeholder="https://..."
+                  placeholder="Image URL or upload..."
+                />
+              </div>
+              <div className="mt-2 text-xs text-stone-500">
+                Or upload an image:
+                <input 
+                  type="file" 
+                  accept="image/*"
+                  className="mt-1 block w-full text-xs text-stone-500
+                    file:mr-4 file:py-2 file:px-4
+                    file:rounded-full file:border-0
+                    file:text-xs file:font-semibold
+                    file:bg-red-50 file:text-red-700
+                    hover:file:bg-red-100"
+                  onChange={async (e) => {
+                    const file = e.target.files?.[0];
+                    if (!file) return;
+                    
+                    const formData = new FormData();
+                    formData.append('file', file);
+                    
+                    try {
+                      const res = await fetch('/api/upload/blog', { method: 'POST', body: formData });
+                      const data = await res.json();
+                      if (data.url) {
+                        setFormData(prev => ({ ...prev, coverImage: data.url }));
+                      }
+                    } catch (err) {
+                      console.error('Upload failed', err);
+                      // Ideally show a toast here
+                    }
+                  }}
                 />
               </div>
               {formData.coverImage && (

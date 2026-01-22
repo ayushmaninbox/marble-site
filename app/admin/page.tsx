@@ -28,8 +28,22 @@ export default function AdminLogin() {
         // Store user info for role-based features
         if (data.user) {
           localStorage.setItem('adminUser', JSON.stringify(data.user));
+          // Redirect based on role
+          const role = data.user.role;
+          if (['super_admin', 'admin'].includes(role)) {
+            router.push('/admin/dashboard');
+          } else if (role === 'content_writer') {
+            router.push('/admin/blogs');
+          } else if (role === 'product_manager') {
+            router.push('/admin/products');
+          } else if (role === 'enquiry_handler') {
+            router.push('/admin/enquiries');
+          } else {
+            router.push('/admin/dashboard'); // Fallback
+          }
+        } else {
+          router.push('/admin/dashboard');
         }
-        router.push('/admin/dashboard');
       } else {
         setError(data.message || 'Invalid credentials');
       }
