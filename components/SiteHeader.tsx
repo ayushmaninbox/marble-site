@@ -63,7 +63,7 @@ export default function SiteHeader({ isRevealed = true, setIsQuoteOpen }: SiteHe
             <Link href="/" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-2 sm:gap-3 group">
               <div className="relative h-10 w-10 sm:h-12 sm:w-12 flex-shrink-0">
                 <img
-                  src="/Assets/logo_new.png"
+                  src="/assets/logo_new.png"
                   alt="Shree Radhe Marble Logo"
                   className="h-full w-full object-contain"
                 />

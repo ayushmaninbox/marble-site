@@ -239,7 +239,7 @@ export default function AdminLayout({ children }: LayoutProps) {
             <div className="flex items-center gap-3">
               <div className="relative h-8 w-8 flex-shrink-0">
                 <img
-                  src="/Assets/logo_new.png"
+                  src="/assets/logo_new.png"
                   alt="Shree Radhe Marble Logo"
                   className="h-full w-full object-contain"
                 />
@@ -315,7 +315,7 @@ export default function AdminLayout({ children }: LayoutProps) {
               </button>
               <div className="relative h-7 w-7 flex-shrink-0">
                 <img
-                  src="/Assets/logo_new.png"
+                  src="/assets/logo_new.png"
                   alt="Shree Radhe Marble Logo"
                   className="h-full w-full object-contain"
                 />

@@ -69,7 +69,7 @@ export default function AdminLogin() {
           <div className="mb-6 flex justify-center">
             <div className="relative h-14 w-14 flex-shrink-0">
               <img
-                src="/Assets/logo_new.png"
+                src="/assets/logo_new.png"
                 alt="Shree Radhe Marble Logo"
                 className="h-full w-full object-contain"
               />

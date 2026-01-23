@@ -257,7 +257,7 @@ export default function Home() {
               className="absolute w-full h-full object-cover scale-110"
               style={{ minWidth: '100%', minHeight: '100%' }}
             >
-              <source src="/assets/MarbleVideo.mp4" type="video/mp4" />
+              <source src="https://balfouidggrzgo7v.public.blob.vercel-storage.com/MarbleVideo.mp4" type="video/mp4" />
             </video>
             {/* Black overlay for text contrast */}
             <div className="absolute inset-0 bg-black/40" />

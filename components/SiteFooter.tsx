@@ -26,7 +26,7 @@ export default function SiteFooter({ setIsQuoteOpen }: SiteFooterProps) {
             <Link href="/" className="flex items-center gap-3 group">
               <div className="relative h-12 w-12 flex-shrink-0 group-hover:scale-105 transition-transform">
                 <img
-                  src="/Assets/logo_new.png"
+                  src="/assets/logo_new.png"
                   alt="Shree Radhe Marble Logo"
                   className="h-full w-full object-contain"
                 />

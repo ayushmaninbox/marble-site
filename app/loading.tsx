@@ -37,7 +37,7 @@ export default function Loading() {
                 className="w-full h-full bg-gradient-to-tr from-red-600/10 via-white to-orange-500/10"
              />
               <div className="absolute inset-0 flex items-center justify-center p-1.5">
-                <img src="/Assets/logo_new.png" alt="Logo" className="w-full h-full object-contain drop-shadow-sm" />
+                <img src="/assets/logo_new.png" alt="Logo" className="w-full h-full object-contain drop-shadow-sm" />
               </div>
           </div>
         </div>
