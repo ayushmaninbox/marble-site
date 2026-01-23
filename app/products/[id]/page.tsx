@@ -9,7 +9,7 @@ interface Props {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params;
-  const products = readProducts();
+  const products = await readProducts();
   const product = products.find(p => p.id === id);
   
   if (!product) {
@@ -40,7 +40,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function ProductPage({ params }: Props) {
   const { id } = await params;
-  const products = readProducts();
+  const products = await readProducts();
   const product = products.find(p => p.id === id);
   
   if (!product) {

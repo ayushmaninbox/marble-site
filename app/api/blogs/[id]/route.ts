@@ -1,6 +1,30 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { findBlogById, updateBlog, deleteBlog, generateSlug } from '@/lib/blogUtils';
-import { extractImageUrls, deleteImageFiles } from '@/lib/imageCleanup';
+import { del } from '@vercel/blob';
+
+// Helper to extract image URLs from blog content
+function extractImageUrls(content: string): string[] {
+  const regex = /!\[.*?\]\((.*?)\)/g;
+  const urls: string[] = [];
+  let match;
+  while ((match = regex.exec(content)) !== null) {
+    if (match[1]) urls.push(match[1]);
+  }
+  return urls;
+}
+
+// Delete blob images
+async function deleteBlobImages(urls: string[]): Promise<void> {
+  for (const url of urls) {
+    if (url.includes('blob.vercel-storage.com')) {
+      try {
+        await del(url);
+      } catch (error) {
+        console.error('Error deleting blob image:', error);
+      }
+    }
+  }
+}
 
 // GET: Get single blog by ID
 export async function GET(
@@ -9,7 +33,7 @@ export async function GET(
 ) {
   try {
     const { id } = await params;
-    const blog = findBlogById(id);
+    const blog = await findBlogById(id);
 
     if (!blog) {
       return NextResponse.json(
@@ -37,7 +61,7 @@ export async function PUT(
     const { id } = await params;
     const body = await request.json();
 
-    const blog = findBlogById(id);
+    const blog = await findBlogById(id);
     if (!blog) {
       return NextResponse.json(
         { error: 'Blog not found' },
@@ -48,10 +72,10 @@ export async function PUT(
     // Logic for Image Cleanup
     let oldImages: string[] = [];
     if (blog.content) {
-        oldImages = extractImageUrls(blog.content);
+      oldImages = extractImageUrls(blog.content);
     }
-    if (blog.coverImage && blog.coverImage.startsWith('/uploads/')) {
-        oldImages.push(blog.coverImage);
+    if (blog.coverImage && blog.coverImage.includes('blob.vercel-storage.com')) {
+      oldImages.push(blog.coverImage);
     }
 
     const updates: Record<string, unknown> = {};
@@ -65,7 +89,7 @@ export async function PUT(
     if (body.coverImage !== undefined) updates.coverImage = body.coverImage;
     if (body.author !== undefined) updates.author = body.author;
 
-    const updatedBlog = updateBlog(id, updates);
+    const updatedBlog = await updateBlog(id, updates);
 
     if (!updatedBlog) {
       return NextResponse.json(
@@ -77,16 +101,16 @@ export async function PUT(
     // Determine removed images
     let newImages: string[] = [];
     if (updatedBlog.content) {
-        newImages = extractImageUrls(updatedBlog.content);
+      newImages = extractImageUrls(updatedBlog.content);
     }
-    if (updatedBlog.coverImage && updatedBlog.coverImage.startsWith('/uploads/')) {
-        newImages.push(updatedBlog.coverImage);
+    if (updatedBlog.coverImage && updatedBlog.coverImage.includes('blob.vercel-storage.com')) {
+      newImages.push(updatedBlog.coverImage);
     }
 
     const removedImages = oldImages.filter(img => !newImages.includes(img));
     if (removedImages.length > 0) {
-        console.log('Cleaning up images:', removedImages);
-        deleteImageFiles(removedImages);
+      console.log('Cleaning up images:', removedImages);
+      await deleteBlobImages(removedImages);
     }
 
     return NextResponse.json(updatedBlog);
@@ -107,7 +131,7 @@ export async function DELETE(
   try {
     const { id } = await params;
 
-    const blog = findBlogById(id);
+    const blog = await findBlogById(id);
     if (!blog) {
       return NextResponse.json(
         { error: 'Blog not found' },
@@ -118,13 +142,13 @@ export async function DELETE(
     // Logic for Image Cleanup (Delete ALL associated images)
     let imagesToDelete: string[] = [];
     if (blog.content) {
-        imagesToDelete = extractImageUrls(blog.content);
+      imagesToDelete = extractImageUrls(blog.content);
     }
-    if (blog.coverImage && blog.coverImage.startsWith('/uploads/')) {
-        imagesToDelete.push(blog.coverImage);
+    if (blog.coverImage && blog.coverImage.includes('blob.vercel-storage.com')) {
+      imagesToDelete.push(blog.coverImage);
     }
 
-    const success = deleteBlog(id);
+    const success = await deleteBlog(id);
 
     if (!success) {
       return NextResponse.json(
@@ -134,8 +158,8 @@ export async function DELETE(
     }
 
     if (imagesToDelete.length > 0) {
-         console.log('Deleting blog images:', imagesToDelete);
-         deleteImageFiles(imagesToDelete);
+      console.log('Deleting blog images:', imagesToDelete);
+      await deleteBlobImages(imagesToDelete);
     }
 
     return NextResponse.json({ message: 'Blog deleted successfully' });

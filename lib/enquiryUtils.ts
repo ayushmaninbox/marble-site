@@ -1,123 +1,92 @@
-import fs from 'fs';
-import path from 'path';
-import Papa from 'papaparse';
+import { sql } from './db';
 import { Enquiry } from './types';
 
-const CSV_FILE_PATH = path.join(process.cwd(), 'data', 'enquiries.csv');
-
-// Ensure data directory exists
-const ensureDataDirectory = () => {
-  const dataDir = path.join(process.cwd(), 'data');
-  if (!fs.existsSync(dataDir)) {
-    fs.mkdirSync(dataDir, { recursive: true });
-  }
-};
-
-// Initialize CSV file with headers if it doesn't exist
-const initializeCsvFile = () => {
-  ensureDataDirectory();
-  if (!fs.existsSync(CSV_FILE_PATH)) {
-    const headers = 'id,firstName,lastName,email,phone,productCategory,productName,quantity,message,createdAt,status\n';
-    fs.writeFileSync(CSV_FILE_PATH, headers, 'utf-8');
-  }
-};
-
-export const readEnquiries = (): Enquiry[] => {
-  initializeCsvFile();
-
+export const readEnquiries = async (): Promise<Enquiry[]> => {
   try {
-    const fileContent = fs.readFileSync(CSV_FILE_PATH, 'utf-8');
-    const parsed = Papa.parse<Enquiry>(fileContent, {
-      header: true,
-      skipEmptyLines: true,
-      dynamicTyping: false,
-    });
-
-    return parsed.data.map(row => ({
-      ...row,
-      quantity: parseInt(row.quantity as unknown as string) || 0,
-      status: (row.status === 'solved' ? 'solved' : 'pending') as 'pending' | 'solved',
+    const { rows } = await sql`
+      SELECT * FROM enquiries ORDER BY created_at DESC
+    `;
+    
+    return rows.map(row => ({
+      id: row.id,
+      firstName: row.first_name,
+      lastName: row.last_name,
+      email: row.email,
+      phone: row.phone,
+      productCategory: row.product_category as 'Marbles' | 'Tiles' | 'Handicraft',
+      productName: row.product_name,
+      quantity: row.quantity,
+      message: row.message || '',
+      status: row.status as 'pending' | 'solved',
+      createdAt: row.created_at?.toISOString() || new Date().toISOString(),
     }));
   } catch (error) {
-    console.error('Error reading enquiries CSV:', error);
+    console.error('Error reading enquiries:', error);
     return [];
   }
 };
 
-export const writeEnquiries = (enquiries: Enquiry[]): void => {
-  ensureDataDirectory();
-
-  try {
-    const csv = Papa.unparse(enquiries, {
-      header: true,
-      columns: ['id', 'firstName', 'lastName', 'email', 'phone', 'productCategory', 'productName', 'quantity', 'message', 'createdAt', 'status'],
-    });
-    fs.writeFileSync(CSV_FILE_PATH, csv, 'utf-8');
-  } catch (error) {
-    console.error('Error writing enquiries CSV:', error);
-    throw error;
-  }
-};
-
-export const addEnquiry = (enquiry: Omit<Enquiry, 'id' | 'createdAt' | 'status'>): Enquiry => {
-  const enquiries = readEnquiries();
-  const newEnquiry: Enquiry = {
+export const addEnquiry = async (enquiry: Omit<Enquiry, 'id' | 'createdAt' | 'status'>): Promise<Enquiry> => {
+  const id = Date.now().toString();
+  const createdAt = new Date().toISOString();
+  
+  await sql`
+    INSERT INTO enquiries (id, first_name, last_name, email, phone, product_category, product_name, quantity, message, status, created_at)
+    VALUES (${id}, ${enquiry.firstName}, ${enquiry.lastName}, ${enquiry.email}, ${enquiry.phone}, ${enquiry.productCategory}, ${enquiry.productName}, ${enquiry.quantity}, ${enquiry.message || ''}, 'pending', ${createdAt})
+  `;
+  
+  return {
     ...enquiry,
-    id: Date.now().toString(),
-    createdAt: new Date().toISOString(),
+    id,
     status: 'pending',
+    createdAt,
   };
-  enquiries.push(newEnquiry);
-  writeEnquiries(enquiries);
-  return newEnquiry;
 };
 
-export const deleteEnquiry = (id: string): boolean => {
-  const enquiries = readEnquiries();
-  const filteredEnquiries = enquiries.filter(e => e.id !== id);
-
-  if (filteredEnquiries.length === enquiries.length) return false;
-
-  writeEnquiries(filteredEnquiries);
-  return true;
-};
-
-export const updateEnquiryStatus = (id: string, status: 'pending' | 'solved'): boolean => {
-  const enquiries = readEnquiries();
-  const enquiryIndex = enquiries.findIndex(e => e.id === id);
-
-  if (enquiryIndex === -1) return false;
-
-  enquiries[enquiryIndex].status = status;
-  writeEnquiries(enquiries);
-  return true;
-};
-
-export const updateEnquiriesStatus = (ids: string[], status: 'pending' | 'solved'): number => {
-  const enquiries = readEnquiries();
-  let updatedCount = 0;
-
-  enquiries.forEach(enquiry => {
-    if (ids.includes(enquiry.id)) {
-      enquiry.status = status;
-      updatedCount++;
-    }
-  });
-
-  if (updatedCount > 0) {
-    writeEnquiries(enquiries);
+export const deleteEnquiry = async (id: string): Promise<boolean> => {
+  try {
+    const result = await sql`DELETE FROM enquiries WHERE id = ${id}`;
+    return (result.rowCount ?? 0) > 0;
+  } catch (error) {
+    console.error('Error deleting enquiry:', error);
+    return false;
   }
-  return updatedCount;
 };
 
-export const deleteEnquiries = (ids: string[]): number => {
-  const enquiries = readEnquiries();
-  const initialLength = enquiries.length;
+export const updateEnquiryStatus = async (id: string, status: 'pending' | 'solved'): Promise<boolean> => {
+  try {
+    const result = await sql`UPDATE enquiries SET status = ${status} WHERE id = ${id}`;
+    return (result.rowCount ?? 0) > 0;
+  } catch (error) {
+    console.error('Error updating enquiry status:', error);
+    return false;
+  }
+};
 
-  const filteredEnquiries = enquiries.filter(e => !ids.includes(e.id));
+export const updateEnquiriesStatus = async (ids: string[], status: 'pending' | 'solved'): Promise<number> => {
+  try {
+    let count = 0;
+    for (const id of ids) {
+      const result = await sql`UPDATE enquiries SET status = ${status} WHERE id = ${id}`;
+      count += result.rowCount ?? 0;
+    }
+    return count;
+  } catch (error) {
+    console.error('Error updating enquiries status:', error);
+    return 0;
+  }
+};
 
-  if (filteredEnquiries.length === initialLength) return 0;
-
-  writeEnquiries(filteredEnquiries);
-  return initialLength - filteredEnquiries.length;
+export const deleteEnquiries = async (ids: string[]): Promise<number> => {
+  try {
+    let count = 0;
+    for (const id of ids) {
+      const result = await sql`DELETE FROM enquiries WHERE id = ${id}`;
+      count += result.rowCount ?? 0;
+    }
+    return count;
+  } catch (error) {
+    console.error('Error deleting enquiries:', error);
+    return 0;
+  }
 };

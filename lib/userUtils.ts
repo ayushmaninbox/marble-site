@@ -1,107 +1,74 @@
-import fs from 'fs';
-import path from 'path';
-import Papa from 'papaparse';
+import { sql } from './db';
 import bcrypt from 'bcryptjs';
 import { AdminUser, AdminRole } from './types';
 
-const USERS_CSV_PATH = path.join(process.cwd(), 'data', 'users.csv');
-
-// Ensure data directory exists
-const ensureDataDirectory = () => {
-  const dataDir = path.join(process.cwd(), 'data');
-  if (!fs.existsSync(dataDir)) {
-    fs.mkdirSync(dataDir, { recursive: true });
-  }
-};
-
-// Initialize users CSV with headers and default super admin
-const initializeUsersFile = async () => {
-  ensureDataDirectory();
-  if (!fs.existsSync(USERS_CSV_PATH)) {
-    // Create default super admin with hashed password
-    const passwordHash = await bcrypt.hash('password', 10);
-    const defaultAdmin: AdminUser = {
-      id: crypto.randomUUID(),
-      name: 'Super Admin',
-      email: 'admin@shreeradhemarble.com',
-      passwordHash,
-      role: 'super_admin',
-      createdAt: new Date().toISOString(),
-    };
-    
-    const csv = Papa.unparse([defaultAdmin], {
-      header: true,
-      columns: ['id', 'name', 'email', 'passwordHash', 'role', 'createdAt', 'lastLogin'],
-      quotes: true,
-    });
-    fs.writeFileSync(USERS_CSV_PATH, csv, 'utf-8');
-  }
-};
-
-interface RawUserRow {
-  id: string;
-  name: string;
-  email: string;
-  passwordHash: string;
-  role: AdminRole;
-  createdAt: string;
-  lastLogin?: string;
-}
-
-export const readUsers = (): AdminUser[] => {
-  ensureDataDirectory();
-  
-  if (!fs.existsSync(USERS_CSV_PATH)) {
-    return [];
-  }
-
+export const readUsers = async (): Promise<AdminUser[]> => {
   try {
-    const fileContent = fs.readFileSync(USERS_CSV_PATH, 'utf-8');
-    const parsed = Papa.parse<RawUserRow>(fileContent, {
-      header: true,
-      skipEmptyLines: true,
-      dynamicTyping: false,
-    });
-
-    return parsed.data.map(row => ({
+    const { rows } = await sql`
+      SELECT * FROM users ORDER BY created_at DESC
+    `;
+    
+    return rows.map(row => ({
       id: row.id,
       name: row.name || '',
       email: row.email,
-      passwordHash: row.passwordHash,
-      role: row.role,
-      createdAt: row.createdAt,
-      lastLogin: row.lastLogin || undefined,
+      passwordHash: row.password_hash,
+      role: row.role as AdminRole,
+      createdAt: row.created_at?.toISOString() || new Date().toISOString(),
+      lastLogin: row.last_login?.toISOString(),
     }));
   } catch (error) {
-    console.error('Error reading users CSV:', error);
+    console.error('Error reading users:', error);
     return [];
   }
 };
 
-export const writeUsers = (users: AdminUser[]): void => {
-  ensureDataDirectory();
-
+export const findUserByEmail = async (email: string): Promise<AdminUser | undefined> => {
   try {
-    const csv = Papa.unparse(users, {
-      header: true,
-      columns: ['id', 'name', 'email', 'passwordHash', 'role', 'createdAt', 'lastLogin'],
-      quotes: true,
-    });
-    fs.writeFileSync(USERS_CSV_PATH, csv, 'utf-8');
+    const { rows } = await sql`
+      SELECT * FROM users WHERE LOWER(email) = ${email.toLowerCase()}
+    `;
+    
+    if (rows.length === 0) return undefined;
+    
+    const row = rows[0];
+    return {
+      id: row.id,
+      name: row.name || '',
+      email: row.email,
+      passwordHash: row.password_hash,
+      role: row.role as AdminRole,
+      createdAt: row.created_at?.toISOString() || new Date().toISOString(),
+      lastLogin: row.last_login?.toISOString(),
+    };
   } catch (error) {
-    console.error('Error writing users CSV:', error);
-    throw error;
+    console.error('Error finding user by email:', error);
+    return undefined;
   }
 };
 
-export const findUserByEmail = (email: string): AdminUser | undefined => {
-  const users = readUsers();
-  return users.find(u => u.email.toLowerCase() === email.toLowerCase());
-};
-
-export const findUserById = (id: string): AdminUser | undefined => {
-  const users = readUsers();
-  return users.find(u => u.id === id);
+export const findUserById = async (id: string): Promise<AdminUser | undefined> => {
+  try {
+    const { rows } = await sql`
+      SELECT * FROM users WHERE id = ${id}
+    `;
+    
+    if (rows.length === 0) return undefined;
+    
+    const row = rows[0];
+    return {
+      id: row.id,
+      name: row.name || '',
+      email: row.email,
+      passwordHash: row.password_hash,
+      role: row.role as AdminRole,
+      createdAt: row.created_at?.toISOString() || new Date().toISOString(),
+      lastLogin: row.last_login?.toISOString(),
+    };
+  } catch (error) {
+    console.error('Error finding user by id:', error);
+    return undefined;
+  }
 };
 
 export const validatePassword = async (password: string, hash: string): Promise<boolean> => {
@@ -113,58 +80,86 @@ export const hashPassword = async (password: string): Promise<string> => {
 };
 
 export const createUser = async (name: string, email: string, password: string, role: AdminRole): Promise<AdminUser> => {
-  const users = readUsers();
-  
   // Check if email already exists
-  if (users.find(u => u.email.toLowerCase() === email.toLowerCase())) {
+  const existing = await findUserByEmail(email);
+  if (existing) {
     throw new Error('A user with this email already exists');
   }
-
+  
+  const id = crypto.randomUUID();
   const passwordHash = await hashPassword(password);
-  const newUser: AdminUser = {
-    id: crypto.randomUUID(),
+  const createdAt = new Date().toISOString();
+  
+  await sql`
+    INSERT INTO users (id, name, email, password_hash, role, created_at)
+    VALUES (${id}, ${name}, ${email.toLowerCase()}, ${passwordHash}, ${role}, ${createdAt})
+  `;
+  
+  return {
+    id,
     name,
     email: email.toLowerCase(),
     passwordHash,
     role,
-    createdAt: new Date().toISOString(),
+    createdAt,
   };
-
-  users.push(newUser);
-  writeUsers(users);
-  return newUser;
 };
 
-export const updateUser = (id: string, updates: Partial<Omit<AdminUser, 'id' | 'createdAt'>>): AdminUser | null => {
-  const users = readUsers();
-  const index = users.findIndex(u => u.id === id);
-
-  if (index === -1) return null;
-
-  users[index] = { ...users[index], ...updates };
-  writeUsers(users);
-  return users[index];
+export const updateUser = async (id: string, updates: Partial<Omit<AdminUser, 'id' | 'createdAt'>>): Promise<AdminUser | null> => {
+  try {
+    const existing = await findUserById(id);
+    if (!existing) return null;
+    
+    await sql`
+      UPDATE users SET
+        name = ${updates.name ?? existing.name},
+        email = ${updates.email ?? existing.email},
+        password_hash = ${updates.passwordHash ?? existing.passwordHash},
+        role = ${updates.role ?? existing.role},
+        last_login = ${updates.lastLogin ?? existing.lastLogin ?? null}
+      WHERE id = ${id}
+    `;
+    
+    return await findUserById(id) || null;
+  } catch (error) {
+    console.error('Error updating user:', error);
+    return null;
+  }
 };
 
-export const updateLastLogin = (id: string): void => {
-  updateUser(id, { lastLogin: new Date().toISOString() });
+export const updateLastLogin = async (id: string): Promise<void> => {
+  await sql`UPDATE users SET last_login = ${new Date().toISOString()} WHERE id = ${id}`;
 };
 
-export const deleteUser = (id: string): boolean => {
-  const users = readUsers();
-  const filteredUsers = users.filter(u => u.id !== id);
-
-  if (filteredUsers.length === users.length) return false;
-
-  writeUsers(filteredUsers);
-  return true;
+export const deleteUser = async (id: string): Promise<boolean> => {
+  try {
+    const result = await sql`DELETE FROM users WHERE id = ${id}`;
+    return (result.rowCount ?? 0) > 0;
+  } catch (error) {
+    console.error('Error deleting user:', error);
+    return false;
+  }
 };
 
 export const changePassword = async (id: string, newPassword: string): Promise<boolean> => {
   const passwordHash = await hashPassword(newPassword);
-  const result = updateUser(id, { passwordHash });
+  const result = await updateUser(id, { passwordHash });
   return result !== null;
 };
 
-// Initialize on first import
-initializeUsersFile();
+// Initialize default admin if none exists
+export const initializeDefaultAdmin = async (): Promise<void> => {
+  try {
+    const users = await readUsers();
+    if (users.length === 0) {
+      const passwordHash = await hashPassword('password');
+      await sql`
+        INSERT INTO users (id, name, email, password_hash, role, created_at)
+        VALUES (${crypto.randomUUID()}, 'Super Admin', 'admin@shreeradhemarble.com', ${passwordHash}, 'super_admin', ${new Date().toISOString()})
+      `;
+      console.log('Default admin created');
+    }
+  } catch (error) {
+    console.error('Error initializing default admin:', error);
+  }
+};

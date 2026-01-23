@@ -4,7 +4,7 @@ import { readBlogs, addBlog, generateSlug } from '@/lib/blogUtils';
 // GET: List all blogs
 export async function GET() {
   try {
-    const blogs = readBlogs();
+    const blogs = await readBlogs();
     return NextResponse.json(blogs);
   } catch (error) {
     console.error('Error fetching blogs:', error);
@@ -31,7 +31,7 @@ export async function POST(request: NextRequest) {
 
     const slug = generateSlug(title);
 
-    const newBlog = addBlog({
+    const newBlog = await addBlog({
       title,
       slug,
       excerpt,

@@ -6,7 +6,7 @@ export async function GET(request: NextRequest) {
     const searchParams = request.nextUrl.searchParams;
     const category = searchParams.get('category');
     
-    let products = readProducts();
+    let products = await readProducts();
     
     if (category) {
       products = products.filter(p => p.category === category);
@@ -52,7 +52,7 @@ export async function POST(request: NextRequest) {
     // Validate specifications array if provided
     const specsArray = Array.isArray(specifications) ? specifications : [];
     
-    const newProduct = addProduct({
+    const newProduct = await addProduct({
       name,
       category,
       description,
@@ -84,7 +84,7 @@ export async function PATCH(request: NextRequest) {
       );
     }
 
-    const success = reorderProducts(productId, newIndex);
+    const success = await reorderProducts(productId, newIndex);
 
     if (!success) {
       return NextResponse.json(
@@ -102,4 +102,3 @@ export async function PATCH(request: NextRequest) {
     );
   }
 }
-

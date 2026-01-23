@@ -10,7 +10,7 @@ interface Props {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
-  const blogs = readBlogs();
+  const blogs = await readBlogs();
   const blog = blogs.find((b: Blog) => b.slug === slug);
   
   if (!blog) {
@@ -44,7 +44,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function BlogPostPage({ params }: Props) {
   const { slug } = await params;
-  const blogs = readBlogs();
+  const blogs = await readBlogs();
   const blog = blogs.find((b: Blog) => b.slug === slug);
   
   if (!blog) {

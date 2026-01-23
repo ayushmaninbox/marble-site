@@ -22,7 +22,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const user = findUserById(userId);
+    const user = await findUserById(userId);
     if (!user) {
       return NextResponse.json(
         { error: 'User not found' },

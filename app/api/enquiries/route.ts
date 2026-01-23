@@ -3,7 +3,7 @@ import { readEnquiries, addEnquiry, deleteEnquiry, updateEnquiryStatus, updateEn
 
 export async function GET() {
   try {
-    const enquiries = readEnquiries();
+    const enquiries = await readEnquiries();
     return NextResponse.json(enquiries);
   } catch (error) {
     console.error('Error fetching enquiries:', error);
@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const newEnquiry = addEnquiry({
+    const newEnquiry = await addEnquiry({
       firstName,
       lastName,
       email,
@@ -58,7 +58,7 @@ export async function PUT(request: NextRequest) {
         return NextResponse.json({ error: 'Invalid status' }, { status: 400 });
       }
 
-      const count = updateEnquiriesStatus(ids, status);
+      const count = await updateEnquiriesStatus(ids, status);
       return NextResponse.json({ message: 'Enquiries updated successfully', count });
     }
 
@@ -77,7 +77,7 @@ export async function PUT(request: NextRequest) {
       );
     }
 
-    const success = updateEnquiryStatus(id, status);
+    const success = await updateEnquiryStatus(id, status);
 
     if (!success) {
       return NextResponse.json(
@@ -105,7 +105,7 @@ export async function DELETE(request: NextRequest) {
     // Handle batch delete
     if (idsParam) {
       const ids = idsParam.split(',').filter(Boolean);
-      const count = deleteEnquiries(ids);
+      const count = await deleteEnquiries(ids);
       return NextResponse.json({ message: 'Enquiries deleted successfully', count });
     }
 
@@ -117,7 +117,7 @@ export async function DELETE(request: NextRequest) {
       );
     }
 
-    const success = deleteEnquiry(id);
+    const success = await deleteEnquiry(id);
 
     if (!success) {
       return NextResponse.json(

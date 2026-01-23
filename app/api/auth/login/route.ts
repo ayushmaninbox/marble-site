@@ -19,7 +19,7 @@ export async function POST(request: NextRequest) {
     // Handle legacy 'admin' username
     const lookupEmail = userEmail === 'admin' ? 'admin@shreeradhemarble.com' : userEmail;
     
-    const user = findUserByEmail(lookupEmail);
+    const user = await findUserByEmail(lookupEmail);
     
     if (!user) {
       return NextResponse.json(
@@ -38,7 +38,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Update last login timestamp
-    updateLastLogin(user.id);
+    await updateLastLogin(user.id);
 
     // Return user info (without password hash)
     return NextResponse.json({

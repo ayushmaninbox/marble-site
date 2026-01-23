@@ -19,7 +19,7 @@ export async function POST(
       );
     }
 
-    const blog = findBlogById(id);
+    const blog = await findBlogById(id);
     if (!blog) {
       return NextResponse.json(
         { error: 'Blog not found' },
@@ -27,7 +27,7 @@ export async function POST(
       );
     }
 
-    const updatedBlog = addComment(id, { name, email, content });
+    const updatedBlog = await addComment(id, { name, email, content });
 
     if (!updatedBlog) {
       return NextResponse.json(

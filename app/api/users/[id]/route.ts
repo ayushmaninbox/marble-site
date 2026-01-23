@@ -12,7 +12,7 @@ export async function PUT(
     const body = await request.json();
     const { role, newPassword } = body;
 
-    const user = findUserById(id);
+    const user = await findUserById(id);
     if (!user) {
       return NextResponse.json(
         { error: 'User not found' },
@@ -57,7 +57,7 @@ export async function PUT(
       );
     }
 
-    const updatedUser = updateUser(id, updates);
+    const updatedUser = await updateUser(id, updates);
 
     if (!updatedUser) {
       return NextResponse.json(
@@ -86,7 +86,7 @@ export async function DELETE(
   try {
     const { id } = await params;
 
-    const user = findUserById(id);
+    const user = await findUserById(id);
     if (!user) {
       return NextResponse.json(
         { error: 'User not found' },
@@ -94,7 +94,7 @@ export async function DELETE(
       );
     }
 
-    const success = deleteUser(id);
+    const success = await deleteUser(id);
 
     if (!success) {
       return NextResponse.json(

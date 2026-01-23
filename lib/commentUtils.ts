@@ -1,7 +1,4 @@
-import fs from 'fs';
-import path from 'path';
-
-const COMMENTS_FILE = path.join(process.cwd(), 'data', 'comments.json');
+import { sql } from './db';
 
 export interface Comment {
   id: string;
@@ -14,78 +11,121 @@ export interface Comment {
   createdAt: string;
 }
 
-const ensureCommentsFile = () => {
-    const dir = path.dirname(COMMENTS_FILE);
-    if (!fs.existsSync(dir)) {
-        fs.mkdirSync(dir, { recursive: true });
-    }
-    if (!fs.existsSync(COMMENTS_FILE)) {
-        fs.writeFileSync(COMMENTS_FILE, '[]', 'utf-8');
-    }
+export const readAllComments = async (): Promise<Comment[]> => {
+  try {
+    const { rows } = await sql`
+      SELECT * FROM comments ORDER BY created_at ASC
+    `;
+    
+    return rows.map(row => ({
+      id: row.id,
+      blogId: row.blog_id,
+      parentId: row.parent_id,
+      name: row.name,
+      email: row.email,
+      content: row.content,
+      likes: row.likes || 0,
+      createdAt: row.created_at?.toISOString() || new Date().toISOString(),
+    }));
+  } catch (error) {
+    console.error('Error reading comments:', error);
+    return [];
+  }
 };
 
-export const readAllComments = (): Comment[] => {
-    ensureCommentsFile();
-    try {
-        const data = fs.readFileSync(COMMENTS_FILE, 'utf-8');
-        return JSON.parse(data);
-    } catch (error) {
-        console.error('Error reading comments:', error);
-        return [];
-    }
+export const getCommentsByBlogId = async (blogId: string): Promise<Comment[]> => {
+  try {
+    const { rows } = await sql`
+      SELECT * FROM comments WHERE blog_id = ${blogId} ORDER BY created_at ASC
+    `;
+    
+    return rows.map(row => ({
+      id: row.id,
+      blogId: row.blog_id,
+      parentId: row.parent_id,
+      name: row.name,
+      email: row.email,
+      content: row.content,
+      likes: row.likes || 0,
+      createdAt: row.created_at?.toISOString() || new Date().toISOString(),
+    }));
+  } catch (error) {
+    console.error('Error getting comments by blog ID:', error);
+    return [];
+  }
 };
 
-export const getCommentsByBlogId = (blogId: string): Comment[] => {
-    const comments = readAllComments();
-    return comments.filter(c => c.blogId === blogId);
+export const addComment = async (comment: Omit<Comment, 'id' | 'createdAt' | 'likes'>): Promise<Comment> => {
+  const id = crypto.randomUUID();
+  const createdAt = new Date().toISOString();
+  
+  await sql`
+    INSERT INTO comments (id, blog_id, parent_id, name, email, content, likes, created_at)
+    VALUES (${id}, ${comment.blogId}, ${comment.parentId}, ${comment.name}, ${comment.email}, ${comment.content}, 0, ${createdAt})
+  `;
+  
+  return {
+    ...comment,
+    id,
+    likes: 0,
+    createdAt,
+  };
 };
 
-export const addComment = (comment: Omit<Comment, 'id' | 'createdAt' | 'likes'>): Comment => {
-    const comments = readAllComments();
-    const newComment: Comment = {
-        ...comment,
-        id: crypto.randomUUID(),
-        likes: 0,
-        createdAt: new Date().toISOString(),
+export const likeComment = async (commentId: string): Promise<Comment | null> => {
+  try {
+    const { rows } = await sql`
+      UPDATE comments SET likes = likes + 1 WHERE id = ${commentId} RETURNING *
+    `;
+    
+    if (rows.length === 0) return null;
+    
+    const row = rows[0];
+    return {
+      id: row.id,
+      blogId: row.blog_id,
+      parentId: row.parent_id,
+      name: row.name,
+      email: row.email,
+      content: row.content,
+      likes: row.likes,
+      createdAt: row.created_at?.toISOString(),
     };
-    comments.push(newComment);
-    fs.writeFileSync(COMMENTS_FILE, JSON.stringify(comments, null, 2));
-    return newComment;
+  } catch (error) {
+    console.error('Error liking comment:', error);
+    return null;
+  }
 };
 
-export const likeComment = (commentId: string): Comment | null => {
-    const comments = readAllComments();
-    const index = comments.findIndex(c => c.id === commentId);
-    if (index === -1) return null;
-    
-    comments[index].likes += 1;
-    fs.writeFileSync(COMMENTS_FILE, JSON.stringify(comments, null, 2));
-    return comments[index];
-};
-
-export const deleteComment = (commentId: string): boolean => {
-    let comments = readAllComments();
-    const initialLength = comments.length;
-    
-    // Recursive deletion of replies? Or just delete the specific one?
-    // Let's delete the specific one and any children.
+export const deleteComment = async (commentId: string): Promise<boolean> => {
+  try {
+    // Get all descendant comment IDs (replies to replies, etc.)
     const idsToDelete = new Set<string>();
+    idsToDelete.add(commentId);
+    
+    const allComments = await readAllComments();
+    
     const findChildren = (parentId: string) => {
-        comments.forEach(c => {
-            if (c.parentId === parentId) {
-                idsToDelete.add(c.id);
-                findChildren(c.id);
-            }
-        });
+      allComments.forEach(c => {
+        if (c.parentId === parentId) {
+          idsToDelete.add(c.id);
+          findChildren(c.id);
+        }
+      });
     };
     
-    idsToDelete.add(commentId);
     findChildren(commentId);
     
-    comments = comments.filter(c => !idsToDelete.has(c.id));
+    // Delete all found comments
+    let deleted = 0;
+    for (const id of idsToDelete) {
+      const result = await sql`DELETE FROM comments WHERE id = ${id}`;
+      deleted += result.rowCount ?? 0;
+    }
     
-    if (comments.length === initialLength) return false;
-    
-    fs.writeFileSync(COMMENTS_FILE, JSON.stringify(comments, null, 2));
-    return true;
+    return deleted > 0;
+  } catch (error) {
+    console.error('Error deleting comment:', error);
+    return false;
+  }
 };

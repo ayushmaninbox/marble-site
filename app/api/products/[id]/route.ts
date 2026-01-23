@@ -1,25 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { readProducts, updateProduct, deleteProduct } from '@/lib/csvUtils';
-import { unlink } from 'fs/promises';
-import { existsSync } from 'fs';
-import path from 'path';
+import { del } from '@vercel/blob';
 
-// Helper function to delete an uploaded image
-async function deleteUploadedImage(imagePath: string): Promise<boolean> {
-  if (!imagePath || !imagePath.startsWith('/uploads/products/')) {
-    return false;
-  }
+// Helper function to delete a blob image
+async function deleteBlobImage(imageUrl: string): Promise<boolean> {
+  // Only delete if it's a Vercel Blob URL or local upload
+  if (!imageUrl) return false;
   
   try {
-    const filename = path.basename(imagePath);
-    const filePath = path.join(process.cwd(), 'public', 'uploads', 'products', filename);
-    
-    if (existsSync(filePath)) {
-      await unlink(filePath);
+    if (imageUrl.includes('blob.vercel-storage.com')) {
+      await del(imageUrl);
       return true;
     }
   } catch (error) {
-    console.error('Error deleting image:', error);
+    console.error('Error deleting blob image:', error);
   }
   return false;
 }
@@ -27,7 +21,7 @@ async function deleteUploadedImage(imagePath: string): Promise<boolean> {
 // Delete multiple images
 async function deleteImages(images: string[]): Promise<void> {
   for (const img of images) {
-    await deleteUploadedImage(img);
+    await deleteBlobImage(img);
   }
 }
 
@@ -40,7 +34,7 @@ export async function PUT(
     const body = await request.json();
     
     // Get the current product to check if images are being changed
-    const products = readProducts();
+    const products = await readProducts();
     const currentProduct = products.find(p => p.id === id);
     
     if (!currentProduct) {
@@ -78,7 +72,7 @@ export async function PUT(
     const newImages = body.images || oldImages;
     
     // Update the product first
-    const updatedProduct = updateProduct(id, body);
+    const updatedProduct = await updateProduct(id, body);
     
     // Find and delete removed images
     const removedImages = oldImages.filter(img => !newImages.includes(img));
@@ -102,7 +96,7 @@ export async function DELETE(
     const { id } = await params;
     
     // Get the product to find its images before deleting
-    const products = readProducts();
+    const products = await readProducts();
     const product = products.find(p => p.id === id);
     
     if (!product) {
@@ -112,8 +106,8 @@ export async function DELETE(
       );
     }
     
-    // Delete the product from CSV
-    const success = deleteProduct(id);
+    // Delete the product from database
+    const success = await deleteProduct(id);
     
     if (!success) {
       return NextResponse.json(
@@ -134,4 +128,3 @@ export async function DELETE(
     );
   }
 }
-

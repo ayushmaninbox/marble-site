@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { writeFile, mkdir, unlink } from 'fs/promises';
-import { existsSync } from 'fs';
-import path from 'path';
+import { put, del } from '@vercel/blob';
 
 // Allowed image types
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
@@ -41,27 +39,17 @@ export async function POST(request: NextRequest) {
     // Generate unique filename
     const timestamp = Date.now();
     const randomSuffix = Math.random().toString(36).substring(2, 8);
-    const filename = `product-${timestamp}-${randomSuffix}.${ext}`;
+    const filename = `products/product-${timestamp}-${randomSuffix}.${ext}`;
 
-    // Ensure upload directory exists
-    const uploadDir = path.join(process.cwd(), 'public', 'uploads', 'products');
-    if (!existsSync(uploadDir)) {
-      await mkdir(uploadDir, { recursive: true });
-    }
+    // Upload to Vercel Blob
+    const blob = await put(filename, file, {
+      access: 'public',
+      addRandomSuffix: false,
+    });
 
-    // Convert file to buffer and save
-    const bytes = await file.arrayBuffer();
-    const buffer = Buffer.from(bytes);
-    
-    const filePath = path.join(uploadDir, filename);
-    await writeFile(filePath, buffer);
-
-    // Return the public URL path
-    const publicPath = `/uploads/products/${filename}`;
-    
     return NextResponse.json({ 
       success: true,
-      path: publicPath,
+      path: blob.url,
       filename: filename
     });
   } catch (error) {
@@ -85,33 +73,19 @@ export async function DELETE(request: NextRequest) {
       );
     }
 
-    // Validate that the path is within the uploads directory (security check)
-    if (!imagePath.startsWith('/uploads/products/')) {
-      return NextResponse.json(
-        { error: 'Invalid image path' },
-        { status: 400 }
-      );
+    // Delete from Vercel Blob if it's a blob URL
+    if (imagePath.includes('blob.vercel-storage.com')) {
+      await del(imagePath);
+      return NextResponse.json({
+        success: true,
+        message: 'Image deleted successfully'
+      });
     }
 
-    // Extract filename and construct full path
-    const filename = path.basename(imagePath);
-    const filePath = path.join(process.cwd(), 'public', 'uploads', 'products', filename);
-
-    // Check if file exists before attempting to delete
-    if (!existsSync(filePath)) {
-      return NextResponse.json(
-        { error: 'Image file not found' },
-        { status: 404 }
-      );
-    }
-
-    // Delete the file
-    await unlink(filePath);
-
-    return NextResponse.json({
-      success: true,
-      message: 'Image deleted successfully'
-    });
+    return NextResponse.json(
+      { error: 'Invalid image path or image not found' },
+      { status: 400 }
+    );
   } catch (error) {
     console.error('Error deleting image:', error);
     return NextResponse.json(

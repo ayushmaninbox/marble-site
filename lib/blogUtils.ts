@@ -1,17 +1,5 @@
-import fs from 'fs';
-import path from 'path';
-import Papa from 'papaparse';
+import { sql } from './db';
 import { Blog, BlogComment } from './types';
-
-const BLOGS_CSV_PATH = path.join(process.cwd(), 'data', 'blogs.csv');
-
-// Ensure data directory exists
-const ensureDataDirectory = () => {
-  const dataDir = path.join(process.cwd(), 'data');
-  if (!fs.existsSync(dataDir)) {
-    fs.mkdirSync(dataDir, { recursive: true });
-  }
-};
 
 // Generate URL-friendly slug from title
 export const generateSlug = (title: string): string => {
@@ -21,189 +9,136 @@ export const generateSlug = (title: string): string => {
     .replace(/(^-|-$)/g, '');
 };
 
-interface RawBlogRow {
-  id: string;
-  title: string;
-  slug: string;
-  excerpt: string;
-  content: string;
-  coverImage: string;
-  author: string;
-  likes: string;
-  comments: string;
-  createdAt: string;
-  updatedAt: string;
-}
-
-const parseComments = (commentsStr: string): BlogComment[] => {
-  if (!commentsStr) return [];
+export const readBlogs = async (): Promise<Blog[]> => {
   try {
-    return JSON.parse(commentsStr);
-  } catch {
-    return [];
-  }
-};
-
-import { readAllComments } from './commentUtils';
-
-// ... existing imports
-
-export const readBlogs = (): Blog[] => {
-  ensureDataDirectory();
-  
-  if (!fs.existsSync(BLOGS_CSV_PATH)) {
-    return [];
-  }
-
-  try {
-    const fileContent = fs.readFileSync(BLOGS_CSV_PATH, 'utf-8');
-    const parsed = Papa.parse<RawBlogRow>(fileContent, {
-      header: true,
-      skipEmptyLines: true,
-      dynamicTyping: false,
-    });
-
-    const allComments = readAllComments();
-
-    return parsed.data.map(row => {
-      // Filter comments for this blog from the JSON source of truth
-      // We ignore the CSV 'comments' column now.
-      const blogComments = allComments.filter(c => c.blogId === row.id).map(c => ({
-          id: c.id,
-          name: c.name,
-          email: c.email,
-          content: c.content,
-          createdAt: c.createdAt
+    const { rows } = await sql`
+      SELECT * FROM blogs ORDER BY created_at DESC
+    `;
+    
+    const blogs: Blog[] = [];
+    
+    for (const row of rows) {
+      // Get comments for this blog
+      const commentsResult = await sql`
+        SELECT id, name, email, content, created_at FROM comments WHERE blog_id = ${row.id} ORDER BY created_at ASC
+      `;
+      
+      const comments: BlogComment[] = commentsResult.rows.map(c => ({
+        id: c.id,
+        name: c.name,
+        email: c.email,
+        content: c.content,
+        createdAt: c.created_at?.toISOString() || new Date().toISOString(),
       }));
-
-      return {
+      
+      blogs.push({
         id: row.id,
         title: row.title,
         slug: row.slug,
-        excerpt: row.excerpt,
-        content: row.content,
-        coverImage: row.coverImage,
+        excerpt: row.excerpt || '',
+        content: row.content || '',
+        coverImage: row.cover_image || '',
         author: row.author,
-        likes: parseInt(row.likes) || 0,
-        comments: blogComments, // Use live data
-        createdAt: row.createdAt,
-        updatedAt: row.updatedAt,
-      };
-    });
+        likes: row.likes || 0,
+        comments,
+        createdAt: row.created_at?.toISOString() || new Date().toISOString(),
+        updatedAt: row.updated_at?.toISOString() || new Date().toISOString(),
+      });
+    }
+    
+    return blogs;
   } catch (error) {
-    console.error('Error reading blogs CSV:', error);
+    console.error('Error reading blogs:', error);
     return [];
   }
 };
 
-export const writeBlogs = (blogs: Blog[]): void => {
-  ensureDataDirectory();
-
-  try {
-    const csvData = blogs.map(b => ({
-      id: b.id,
-      title: b.title,
-      slug: b.slug,
-      excerpt: b.excerpt,
-      content: b.content,
-      coverImage: b.coverImage,
-      author: b.author,
-      likes: b.likes,
-      comments: JSON.stringify(b.comments || []),
-      createdAt: b.createdAt,
-      updatedAt: b.updatedAt,
-    }));
-
-    const csv = Papa.unparse(csvData, {
-      header: true,
-      columns: ['id', 'title', 'slug', 'excerpt', 'content', 'coverImage', 'author', 'likes', 'comments', 'createdAt', 'updatedAt'],
-      quotes: true,
-    });
-    fs.writeFileSync(BLOGS_CSV_PATH, csv, 'utf-8');
-  } catch (error) {
-    console.error('Error writing blogs CSV:', error);
-    throw error;
-  }
-};
-
-export const findBlogById = (id: string): Blog | undefined => {
-  const blogs = readBlogs();
+export const findBlogById = async (id: string): Promise<Blog | undefined> => {
+  const blogs = await readBlogs();
   return blogs.find(b => b.id === id);
 };
 
-export const findBlogBySlug = (slug: string): Blog | undefined => {
-  const blogs = readBlogs();
+export const findBlogBySlug = async (slug: string): Promise<Blog | undefined> => {
+  const blogs = await readBlogs();
   return blogs.find(b => b.slug === slug);
 };
 
-export const addBlog = (data: Omit<Blog, 'id' | 'likes' | 'comments' | 'createdAt' | 'updatedAt'>): Blog => {
-  const blogs = readBlogs();
+export const addBlog = async (data: Omit<Blog, 'id' | 'likes' | 'comments' | 'createdAt' | 'updatedAt'>): Promise<Blog> => {
+  const id = crypto.randomUUID();
+  const now = new Date().toISOString();
   
-  const newBlog: Blog = {
-    id: crypto.randomUUID(),
+  await sql`
+    INSERT INTO blogs (id, title, slug, excerpt, content, cover_image, author, likes, created_at, updated_at)
+    VALUES (${id}, ${data.title}, ${data.slug}, ${data.excerpt}, ${data.content}, ${data.coverImage}, ${data.author}, 0, ${now}, ${now})
+  `;
+  
+  return {
+    id,
     ...data,
     likes: 0,
     comments: [],
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
+    createdAt: now,
+    updatedAt: now,
   };
-
-  blogs.push(newBlog);
-  writeBlogs(blogs);
-  return newBlog;
 };
 
-export const updateBlog = (id: string, updates: Partial<Omit<Blog, 'id' | 'createdAt'>>): Blog | null => {
-  const blogs = readBlogs();
-  const index = blogs.findIndex(b => b.id === id);
-
-  if (index === -1) return null;
-
-  blogs[index] = { 
-    ...blogs[index], 
-    ...updates, 
-    updatedAt: new Date().toISOString() 
-  };
-  writeBlogs(blogs);
-  return blogs[index];
+export const updateBlog = async (id: string, updates: Partial<Omit<Blog, 'id' | 'createdAt'>>): Promise<Blog | null> => {
+  try {
+    const existing = await sql`SELECT * FROM blogs WHERE id = ${id}`;
+    if (existing.rows.length === 0) return null;
+    
+    const current = existing.rows[0];
+    const now = new Date().toISOString();
+    
+    await sql`
+      UPDATE blogs SET
+        title = ${updates.title ?? current.title},
+        slug = ${updates.slug ?? current.slug},
+        excerpt = ${updates.excerpt ?? current.excerpt},
+        content = ${updates.content ?? current.content},
+        cover_image = ${updates.coverImage ?? current.cover_image},
+        author = ${updates.author ?? current.author},
+        likes = ${updates.likes ?? current.likes},
+        updated_at = ${now}
+      WHERE id = ${id}
+    `;
+    
+    return await findBlogById(id) || null;
+  } catch (error) {
+    console.error('Error updating blog:', error);
+    return null;
+  }
 };
 
-export const deleteBlog = (id: string): boolean => {
-  const blogs = readBlogs();
-  const filteredBlogs = blogs.filter(b => b.id !== id);
-
-  if (filteredBlogs.length === blogs.length) return false;
-
-  writeBlogs(filteredBlogs);
-  return true;
+export const deleteBlog = async (id: string): Promise<boolean> => {
+  try {
+    const result = await sql`DELETE FROM blogs WHERE id = ${id}`;
+    return (result.rowCount ?? 0) > 0;
+  } catch (error) {
+    console.error('Error deleting blog:', error);
+    return false;
+  }
 };
 
-export const likeBlog = (id: string): Blog | null => {
-  const blogs = readBlogs();
-  const index = blogs.findIndex(b => b.id === id);
-
-  if (index === -1) return null;
-
-  blogs[index].likes += 1;
-  blogs[index].updatedAt = new Date().toISOString();
-  writeBlogs(blogs);
-  return blogs[index];
+export const likeBlog = async (id: string): Promise<Blog | null> => {
+  try {
+    await sql`UPDATE blogs SET likes = likes + 1, updated_at = ${new Date().toISOString()} WHERE id = ${id}`;
+    return await findBlogById(id) || null;
+  } catch (error) {
+    console.error('Error liking blog:', error);
+    return null;
+  }
 };
 
-import { addComment as addCommentUtil } from './commentUtils';
-
-export const addComment = (blogId: string, comment: Omit<BlogComment, 'id' | 'createdAt'>): Blog | null => {
-   // This function is largely superseded by direct calls to commentUtils in the API
-   // But we maintain it for backward compatibility if called internally
-   addCommentUtil({
-       blogId,
-       name: comment.name,
-       email: comment.email,
-       content: comment.content,
-       parentId: null // Old style didn't have parents
-   });
-   
-   // We need to return the updated blog. 
-   const blogs = readBlogs(); // This now reads the fresh comments
-   return blogs.find(b => b.id === blogId) || null;
+// Legacy function - use commentUtils directly for new code
+export const addComment = async (blogId: string, comment: Omit<BlogComment, 'id' | 'createdAt'>): Promise<Blog | null> => {
+  const { addComment: addCommentUtil } = await import('./commentUtils');
+  await addCommentUtil({
+    blogId,
+    name: comment.name,
+    email: comment.email,
+    content: comment.content,
+    parentId: null,
+  });
+  return await findBlogById(blogId) || null;
 };

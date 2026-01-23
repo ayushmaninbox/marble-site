@@ -5,7 +5,7 @@ import { AdminRole } from '@/lib/types';
 // GET: List all users (for Super Admin)
 export async function GET() {
   try {
-    const users = readUsers();
+    const users = await readUsers();
     
     // Return users without password hashes
     const safeUsers = users.map(({ passwordHash, ...user }) => user);
@@ -61,7 +61,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Check if email already exists
-    const existingUser = findUserByEmail(email);
+    const existingUser = await findUserByEmail(email);
     if (existingUser) {
       return NextResponse.json(
         { error: 'A user with this email already exists' },
