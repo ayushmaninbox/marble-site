@@ -15,7 +15,9 @@ export default function ProductForm({ product, onSubmit, onCancel }: ProductForm
     category: (product?.category || 'Marbles') as ProductCategory,
     description: product?.description || '',
     price: product?.price?.toString() || '',
-    image: product?.image || '',
+    image: product?.images?.[0] || product?.image || '',
+    inStock: product?.inStock ?? true,
+    isFeatured: product?.isFeatured ?? false,
   });
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -25,7 +27,12 @@ export default function ProductForm({ product, onSubmit, onCancel }: ProductForm
       category: formData.category,
       description: formData.description,
       price: parseFloat(formData.price),
-      image: formData.image,
+      images: [formData.image], // Wrap in array for the new format
+      image: formData.image,    // Keep legacy field too
+      inStock: formData.inStock,
+      isFeatured: formData.isFeatured,
+      specifications: product?.specifications || [],
+      displayOrder: product?.displayOrder || 0,
     });
   };
 
@@ -97,6 +104,28 @@ export default function ProductForm({ product, onSubmit, onCancel }: ProductForm
             placeholder="https://..."
             className={inputClasses}
           />
+        </div>
+
+        <div className="flex items-center gap-6 pt-4">
+          <label className="flex items-center gap-2 cursor-pointer group">
+            <input
+              type="checkbox"
+              checked={formData.inStock}
+              onChange={(e) => setFormData({ ...formData, inStock: e.target.checked })}
+              className="w-4 h-4 rounded border-slate-300 text-blue-500 focus:ring-blue-500"
+            />
+            <span className="text-xs font-semibold text-slate-600 group-hover:text-slate-900 transition-colors">In Stock</span>
+          </label>
+
+          <label className="flex items-center gap-2 cursor-pointer group">
+            <input
+              type="checkbox"
+              checked={formData.isFeatured}
+              onChange={(e) => setFormData({ ...formData, isFeatured: e.target.checked })}
+              className="w-4 h-4 rounded border-slate-300 text-blue-500 focus:ring-blue-500"
+            />
+            <span className="text-xs font-semibold text-slate-600 group-hover:text-slate-900 transition-colors">Featured</span>
+          </label>
         </div>
       </div>
 
