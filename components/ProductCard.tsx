@@ -23,7 +23,7 @@ export default function ProductCard({ product }: ProductCardProps) {
               src={displayImage}
               alt={product.name}
               fill
-              className={`object-cover transition-transform duration-700 ${isOutOfStock ? '' : 'group-hover:scale-110'}`}
+              className={`object-cover transition-transform duration-700 ${isOutOfStock ? '' : 'md:group-hover:scale-110'}`}
               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
             />
           ) : (

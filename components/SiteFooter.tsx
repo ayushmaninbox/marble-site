@@ -60,10 +60,10 @@ export default function SiteFooter({ setIsQuoteOpen }: SiteFooterProps) {
           <div>
             <h4 className="text-base font-semibold text-white mb-5">Products</h4>
             <ul className="space-y-3 text-sm text-slate-300">
-              <li><Link href="/products?category=Marbles" className="hover:text-red-400 transition-colors">Italian Marble</Link></li>
-              <li><Link href="/products?category=Marbles" className="hover:text-red-400 transition-colors">Indian Granite</Link></li>
-              <li><Link href="/products?category=Tiles" className="hover:text-red-400 transition-colors">Designer Tiles</Link></li>
-              <li><Link href="/products?category=Handicraft" className="hover:text-red-400 transition-colors">Handicraft Items</Link></li>
+              <li><Link href="/products?category=Marbles" className="hover:text-red-400 transition-colors">Marbles</Link></li>
+              <li><Link href="/products?category=Tiles" className="hover:text-red-400 transition-colors">Tiles</Link></li>
+              <li><Link href="/products?category=Handicraft" className="hover:text-red-400 transition-colors">Handicrafts</Link></li>
+              <li><Link href="/products?category=All" className="hover:text-red-400 transition-colors">View More</Link></li>
             </ul>
           </div>
 

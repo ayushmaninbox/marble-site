@@ -172,11 +172,11 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
                   src={images[selectedImageIndex]}
                   alt={product.name}
                   fill
-                  className="object-cover transition-transform duration-200 ease-out"
                   style={{
                     transformOrigin: `${mousePosition.x}% ${mousePosition.y}%`,
                     transform: isHovering ? 'scale(2)' : 'scale(1)',
                   }}
+                  className="object-cover transition-transform duration-200 ease-out hidden md:block"
                   sizes="(max-width: 1024px) 100vw, 50vw"
                   priority
                 />
@@ -184,6 +184,17 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
                 <div className="absolute inset-0 flex items-center justify-center text-stone-300">
                    <span className="text-xs uppercase tracking-widest">No Image</span>
                 </div>
+              )}
+              {/* Mobile Image (No Zoom) */}
+              {images[selectedImageIndex] && (
+                <Image
+                  src={images[selectedImageIndex]}
+                  alt={product.name}
+                  fill
+                  className="object-cover md:hidden"
+                  sizes="100vw"
+                  priority
+                />
               )}
               
               {/* Navigation Arrows */}
@@ -254,7 +265,7 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5, delay: 0.1 }}
-            className="space-y-8"
+            className="flex flex-col"
           >
             {/* Product Details Card */}
             <div className="space-y-6">
@@ -266,20 +277,16 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
                   {product.name}
                 </h1>
                 
-                {/* Short description for "above fold" context - Optional or just keep Category/Title/Price */}
-                <div className="text-sm font-light text-slate-500 mb-6">
-                   {product.description.split('\n')[0].substring(0, 150)}... <a href="#details" className="text-red-600 hover:underline">Read more</a>
-                </div>
               </div>
 
-              <div className="flex items-baseline gap-2 pb-6 border-b border-stone-100">
+              <div className="flex items-baseline gap-2">
                 <span className="text-3xl font-medium text-slate-900">
                   ₹{product.price.toLocaleString('en-IN')}
                 </span>
                 <span className="text-sm text-slate-500 font-light">/ unit</span>
               </div>
 
-              <div className="grid grid-cols-2 gap-4 text-xs tracking-wide uppercase text-slate-500">
+              <div className="grid grid-cols-2 gap-4 text-xs tracking-wide uppercase text-slate-500 py-6 border-y border-stone-100">
                 <div className="flex items-center gap-2">
                   <div className={`w-1.5 h-1.5 rounded-full ${product.inStock ? 'bg-green-500' : 'bg-red-500'}`} />
                   {product.inStock ? 'In Stock' : 'Out of Stock'}
@@ -294,10 +301,41 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
                    <div className="w-1.5 h-1.5 bg-slate-300 rounded-full" /> Custom Sizes
                 </div>
               </div>
+
+              {/* Description Section - Now here to fill the gap */}
+              <div className="flex-1 min-h-[100px] flex flex-col pt-6">
+                <h3 className="text-xs font-bold uppercase tracking-wider text-slate-900 mb-3">Product Description</h3>
+                <div className={`relative overflow-hidden transition-all duration-500 ${isDescriptionExpanded ? 'max-h-[2000px]' : 'max-h-[120px]'}`}>
+                  <div className="prose prose-stone prose-sm max-w-none text-slate-600 font-light leading-relaxed">
+                    {product.description.split('\n').map((paragraph, index) => (
+                      paragraph.trim() && <p key={index} className="mb-2">{paragraph}</p>
+                    ))}
+                  </div>
+                  {!isDescriptionExpanded && product.description.length > 200 && (
+                    <div className="absolute bottom-0 left-0 right-0 h-12 bg-gradient-to-t from-white to-transparent" />
+                  )}
+                </div>
+                {product.description.length > 200 && (
+                  <button
+                    onClick={() => setIsDescriptionExpanded(!isDescriptionExpanded)}
+                    className="mt-2 text-xs font-bold text-red-600 hover:text-red-700 uppercase tracking-widest flex items-center gap-1 group w-fit"
+                  >
+                    {isDescriptionExpanded ? 'Read Less' : 'Read More'}
+                    <svg 
+                      className={`w-3 h-3 transition-transform duration-300 ${isDescriptionExpanded ? 'rotate-180' : ''}`} 
+                      fill="none" 
+                      stroke="currentColor" 
+                      viewBox="0 0 24 24"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </button>
+                )}
+              </div>
             </div>
 
-            {/* Enquiry Form Card (Stays in sidebar) */}
-            <div className="bg-stone-50 rounded-xl p-8 border border-stone-100">
+            {/* Enquiry Form Card (Stays in sidebar, pushed to bottom) */}
+            <div className="mt-auto bg-stone-50 rounded-xl p-8 border border-stone-100 w-full">
               {quoteSuccess ? (
                 <div className="text-center py-6">
                   <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-green-100 text-green-600">
@@ -410,23 +448,6 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
           </motion.div>
         </div>
 
-        {/* Full Width Description Section */}
-        <motion.section 
-          id="details"
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.2 }}
-          className="mt-20 border-t border-stone-100 pt-16"
-        >
-          <div className="w-full">
-            <h2 className="text-2xl font-serif text-slate-900 mb-8">Description</h2>
-            <div className="prose prose-stone prose-sm sm:prose-base max-w-none text-slate-600 font-light leading-relaxed">
-               {product.description.split('\n').map((paragraph, index) => (
-                  paragraph.trim() && <p key={index}>{paragraph}</p>
-               ))}
-            </div>
-          </div>
-        </motion.section>
 
 
         {/* You May Also Like Section */}
@@ -452,12 +473,27 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
                 </svg>
               </Link>
             </div>
-            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-              {relatedProducts.map((relatedProduct) => (
-                 <div key={relatedProduct.id}>
-                    <ProductCard product={relatedProduct} />
-                 </div>
-              ))}
+            {/* Related Products - Mobile Horizontal Scroll / Desktop Grid */}
+            <div className="relative">
+              {/* Mobile/Tablet Horizontal Scroll */}
+              <div className="lg:hidden -mx-4 px-4 overflow-x-auto pb-6 scrollbar-hide">
+                <div className="flex gap-4 min-w-min">
+                  {relatedProducts.map((relatedProduct) => (
+                    <div key={relatedProduct.id} className="w-[280px] flex-shrink-0">
+                      <ProductCard product={relatedProduct} />
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Desktop Grid */}
+              <div className="hidden lg:grid gap-6 grid-cols-4">
+                {relatedProducts.map((relatedProduct) => (
+                   <div key={relatedProduct.id}>
+                      <ProductCard product={relatedProduct} />
+                   </div>
+                ))}
+              </div>
             </div>
           </motion.section>
         )}

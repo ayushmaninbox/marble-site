@@ -14,14 +14,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   
   if (!product) {
     return {
-      title: 'Product Not Found | Shree Radhe Marble & Granite',
+      title: 'Product Not Found',
     };
   }
 
   const ogImage = product.images && product.images.length > 0 ? product.images[0] : (product.image || '');
 
   return {
-    title: `${product.name} | Shree Radhe Marble & Granite`,
+    title: product.name,
     description: product.description,
     openGraph: {
       title: product.name,

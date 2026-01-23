@@ -79,11 +79,26 @@ export default function QuoteModal({ isOpen, onClose }: QuoteModalProps) {
         
         setQuoteSubmitting(true);
 
-        // Simulate API call
-        await new Promise(resolve => setTimeout(resolve, 1500));
+        try {
+            const response = await fetch('/api/enquiries', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(quoteForm)
+            });
 
-        setQuoteSuccess(true);
-        setQuoteSubmitting(false);
+            if (!response.ok) {
+                throw new Error('Failed to submit enquiry');
+            }
+
+            setQuoteSuccess(true);
+        } catch (error) {
+            console.error('Error submitting enquiry:', error);
+            alert('Something went wrong. Please try again later.');
+        } finally {
+            setQuoteSubmitting(false);
+        }
         
         // Auto-close after success
         setTimeout(() => {

@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
+import AuthGuard from '@/components/AuthGuard';
 
 // SVG Icons
 const DashboardIcon = () => (
@@ -71,12 +72,6 @@ export default function AdminLayout({ children }: LayoutProps) {
   const pathname = usePathname();
 
   useEffect(() => {
-    const isAuthenticated = localStorage.getItem('isAdminAuthenticated');
-    if (!isAuthenticated) {
-      router.push('/admin');
-      return;
-    }
-
     // Get user info
     const userInfo = localStorage.getItem('adminUser');
     if (userInfo) {
@@ -104,20 +99,6 @@ export default function AdminLayout({ children }: LayoutProps) {
     };
 
     fetchCounts();
-
-    // Role-based protection: Redirect if on dashboard but not allowed
-    if (userInfo) {
-       try {
-         const parsed = JSON.parse(userInfo);
-         const role = parsed.role;
-         if (pathname === '/admin/dashboard' && !['super_admin', 'admin'].includes(role)) {
-            // Redirect to their allowed page
-            if (role === 'content_writer') router.push('/admin/blogs');
-            else if (role === 'product_manager') router.push('/admin/products');
-            else if (role === 'enquiry_handler') router.push('/admin/enquiries');
-         }
-       } catch {}
-    }
   }, [router, pathname]);
 
   const handleLogout = () => {
@@ -227,184 +208,200 @@ export default function AdminLayout({ children }: LayoutProps) {
 
   const navItems = allNavItems.filter(item => allowedPages.includes(item.key));
 
+  // Determine required roles for the current path during the 4s check
+  let requiredRolesForPath: string[] = [];
+  if (pathname === '/admin/dashboard') {
+    requiredRolesForPath = ['super_admin', 'admin'];
+  } else if (pathname === '/admin/products') {
+    requiredRolesForPath = ['super_admin', 'admin', 'product_manager'];
+  } else if (pathname === '/admin/enquiries') {
+    requiredRolesForPath = ['super_admin', 'admin', 'enquiry_handler'];
+  } else if (pathname === '/admin/blogs' || pathname.startsWith('/admin/blogs/')) {
+    requiredRolesForPath = ['super_admin', 'admin', 'content_writer'];
+  } else if (pathname === '/admin/users') {
+    requiredRolesForPath = ['super_admin'];
+  }
+
   return (
-    <div className="min-h-screen bg-stone-50 text-slate-900">
-      {/* Sidebar Overlay */}
-      {sidebarOpen && (
-        <div
-          className="fixed inset-0 bg-black/20 z-40 lg:hidden"
-          onClick={() => setSidebarOpen(false)}
-        />
-      )}
+    <AuthGuard requiredRoles={requiredRolesForPath}>
+      <div className="min-h-screen bg-stone-50 text-slate-900">
+        {/* Sidebar Overlay */}
+        {sidebarOpen && (
+          <div
+            className="fixed inset-0 bg-black/20 z-40 lg:hidden"
+            onClick={() => setSidebarOpen(false)}
+          />
+        )}
 
-      {/* Sidebar */}
-      <aside className={`fixed top-0 left-0 h-full w-64 bg-white border-r border-stone-200 z-50 transform transition-transform duration-300 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0`}>
-        <div className="p-6 border-b border-stone-100">
-          <div className="flex items-center gap-3">
-            <div className="relative h-8 w-8 flex-shrink-0">
-              <img
-                src="/Assets/logo_new.png"
-                alt="Shree Radhe Marble Logo"
-                className="h-full w-full object-contain"
-              />
-            </div>
-            <div>
-              <div className="text-sm font-bold text-slate-900 font-serif">Admin Panel</div>
-              <div className="text-[10px] tracking-wider text-slate-400">
-                <span className="font-bold text-slate-900">Shree Radhe</span> <span className="text-red-500 uppercase">Marble & Granite</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <nav className="p-3 space-y-1">
-          {navItems.map((item) => (
-            <Link
-              key={item.name}
-              href={item.href}
-              onClick={() => setSidebarOpen(false)}
-              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-colors ${item.isActive
-                ? 'bg-red-50 text-red-700'
-                : 'text-slate-500 hover:bg-stone-50 hover:text-slate-900'
-                }`}
-            >
-              <item.icon />
-              {item.name}
-              {item.badge !== undefined && item.badge > 0 && (
-                <span className={`ml-auto text-[10px] px-2 py-0.5 rounded-full font-bold ${item.badgeColor}`}>
-                  {item.badge}
-                </span>
-              )}
-            </Link>
-          ))}
-
-          <hr className="my-3 border-stone-100" />
-
-          <a
-            href="/"
-            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs font-bold uppercase tracking-wider text-slate-500 hover:bg-stone-50 hover:text-slate-900 transition-colors"
-          >
-            <GlobeIcon />
-            View Website
-          </a>
-
-          <button
-            onClick={() => setShowPasswordModal(true)}
-            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs font-bold uppercase tracking-wider text-slate-500 hover:bg-stone-50 hover:text-slate-900 transition-colors"
-          >
-            <KeyIcon />
-            Change Password
-          </button>
-
-          <button
-            onClick={handleLogout}
-            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs font-bold uppercase tracking-wider text-red-600 hover:bg-red-50 transition-colors"
-          >
-            <LogoutIcon />
-            Logout
-          </button>
-        </nav>
-      </aside>
-
-      {/* Main Content */}
-      <div className="lg:ml-64">
-        {/* Mobile Header */}
-        <header className="sticky top-0 z-30 bg-white/80 backdrop-blur-sm border-b border-stone-200 lg:hidden">
-          <div className="flex items-center justify-between px-4 py-3">
-            <button
-              onClick={() => setSidebarOpen(true)}
-              className="h-9 w-9 flex items-center justify-center rounded-lg border border-stone-200 hover:bg-stone-50"
-            >
-              <MenuIcon />
-            </button>
-            <div className="relative h-7 w-7 flex-shrink-0">
-              <img
-                src="/Assets/logo_new.png"
-                alt="Shree Radhe Marble Logo"
-                className="h-full w-full object-contain"
-              />
-            </div>
-          </div>
-        </header>
-
-        {children}
-      </div>
-
-      {/* Change Password Modal */}
-      {showPasswordModal && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/50 backdrop-blur-sm">
-          <div className="mx-4 w-full max-w-sm rounded-2xl bg-white p-6 shadow-2xl">
-            <div className="flex items-center justify-between mb-5">
-              <h2 className="text-lg font-bold text-slate-900">Change Password</h2>
-              <button
-                onClick={() => { setShowPasswordModal(false); setPasswordForm({ current: '', new: '', confirm: '' }); setPasswordError(''); }}
-                className="h-8 w-8 flex items-center justify-center rounded-full hover:bg-stone-100 text-slate-500"
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            </div>
-
-            <form onSubmit={handleChangePassword} className="space-y-4">
-              <div>
-                <label className="block text-xs font-semibold text-slate-600 mb-1.5">Current Password</label>
-                <input
-                  type="password"
-                  value={passwordForm.current}
-                  onChange={(e) => setPasswordForm({ ...passwordForm, current: e.target.value })}
-                  required
-                  className="w-full rounded-lg border border-stone-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none transition focus:border-red-400 focus:ring-2 focus:ring-red-500/20"
+        {/* Sidebar */}
+        <aside className={`fixed top-0 left-0 h-full w-64 bg-white border-r border-stone-200 z-50 transform transition-transform duration-300 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0`}>
+          <div className="p-6 border-b border-stone-100">
+            <div className="flex items-center gap-3">
+              <div className="relative h-8 w-8 flex-shrink-0">
+                <img
+                  src="/Assets/logo_new.png"
+                  alt="Shree Radhe Marble Logo"
+                  className="h-full w-full object-contain"
                 />
               </div>
               <div>
-                <label className="block text-xs font-semibold text-slate-600 mb-1.5">New Password</label>
-                <input
-                  type="password"
-                  value={passwordForm.new}
-                  onChange={(e) => setPasswordForm({ ...passwordForm, new: e.target.value })}
-                  required
-                  placeholder="Minimum 6 characters"
-                  className="w-full rounded-lg border border-stone-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none transition focus:border-red-400 focus:ring-2 focus:ring-red-500/20"
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-semibold text-slate-600 mb-1.5">Confirm New Password</label>
-                <input
-                  type="password"
-                  value={passwordForm.confirm}
-                  onChange={(e) => setPasswordForm({ ...passwordForm, confirm: e.target.value })}
-                  required
-                  className="w-full rounded-lg border border-stone-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none transition focus:border-red-400 focus:ring-2 focus:ring-red-500/20"
-                />
-              </div>
-
-              {passwordError && (
-                <div className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-600">
-                  {passwordError}
+                <div className="text-sm font-bold text-slate-900 font-serif">Admin Panel</div>
+                <div className="text-[10px] tracking-wider text-slate-400">
+                  <span className="font-bold text-slate-900">Shree Radhe</span> <span className="text-red-500 uppercase">Marble & Granite</span>
                 </div>
-              )}
+              </div>
+            </div>
+          </div>
 
-              <div className="flex gap-3 pt-2">
+          <nav className="p-3 space-y-1">
+            {navItems.map((item) => (
+              <Link
+                key={item.name}
+                href={item.href}
+                onClick={() => setSidebarOpen(false)}
+                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-colors ${item.isActive
+                  ? 'bg-red-50 text-red-700'
+                  : 'text-slate-500 hover:bg-stone-50 hover:text-slate-900'
+                  }`}
+              >
+                <item.icon />
+                {item.name}
+                {item.badge !== undefined && item.badge > 0 && (
+                  <span className={`ml-auto text-[10px] px-2 py-0.5 rounded-full font-bold ${item.badgeColor}`}>
+                    {item.badge}
+                  </span>
+                )}
+              </Link>
+            ))}
+
+            <hr className="my-3 border-stone-100" />
+
+            <a
+              href="/"
+              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs font-bold uppercase tracking-wider text-slate-500 hover:bg-stone-50 hover:text-slate-900 transition-colors"
+            >
+              <GlobeIcon />
+              View Website
+            </a>
+
+            <button
+              onClick={() => setShowPasswordModal(true)}
+              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs font-bold uppercase tracking-wider text-slate-500 hover:bg-stone-50 hover:text-slate-900 transition-colors"
+            >
+              <KeyIcon />
+              Change Password
+            </button>
+
+            <button
+              onClick={handleLogout}
+              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs font-bold uppercase tracking-wider text-red-600 hover:bg-red-50 transition-colors"
+            >
+              <LogoutIcon />
+              Logout
+            </button>
+          </nav>
+        </aside>
+
+        {/* Main Content */}
+        <div className="lg:ml-64">
+          {/* Mobile Header */}
+          <header className="sticky top-0 z-30 bg-white/80 backdrop-blur-sm border-b border-stone-200 lg:hidden">
+            <div className="flex items-center justify-between px-4 py-3">
+              <button
+                onClick={() => setSidebarOpen(true)}
+                className="h-9 w-9 flex items-center justify-center rounded-lg border border-stone-200 hover:bg-stone-50"
+              >
+                <MenuIcon />
+              </button>
+              <div className="relative h-7 w-7 flex-shrink-0">
+                <img
+                  src="/Assets/logo_new.png"
+                  alt="Shree Radhe Marble Logo"
+                  className="h-full w-full object-contain"
+                />
+              </div>
+            </div>
+          </header>
+
+          {children}
+        </div>
+
+        {/* Change Password Modal */}
+        {showPasswordModal && (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/50 backdrop-blur-sm">
+            <div className="mx-4 w-full max-w-sm rounded-2xl bg-white p-6 shadow-2xl">
+              <div className="flex items-center justify-between mb-5">
+                <h2 className="text-lg font-bold text-slate-900">Change Password</h2>
                 <button
-                  type="submit"
-                  disabled={passwordSubmitting}
-                  className="flex-1 inline-flex items-center justify-center rounded-lg bg-red-600 hover:bg-red-700 px-4 py-2.5 text-sm font-semibold text-white transition-colors disabled:opacity-50"
-                >
-                  {passwordSubmitting ? 'Changing...' : 'Change Password'}
-                </button>
-                <button
-                  type="button"
                   onClick={() => { setShowPasswordModal(false); setPasswordForm({ current: '', new: '', confirm: '' }); setPasswordError(''); }}
-                  className="flex-1 inline-flex items-center justify-center rounded-lg border border-stone-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-600 hover:bg-stone-50 transition-colors"
+                  className="h-8 w-8 flex items-center justify-center rounded-full hover:bg-stone-100 text-slate-500"
                 >
-                  Cancel
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
                 </button>
               </div>
-            </form>
+
+              <form onSubmit={handleChangePassword} className="space-y-4">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-600 mb-1.5">Current Password</label>
+                  <input
+                    type="password"
+                    value={passwordForm.current}
+                    onChange={(e) => setPasswordForm({ ...passwordForm, current: e.target.value })}
+                    required
+                    className="w-full rounded-lg border border-stone-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none transition focus:border-red-400 focus:ring-2 focus:ring-red-500/20"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-slate-600 mb-1.5">New Password</label>
+                  <input
+                    type="password"
+                    value={passwordForm.new}
+                    onChange={(e) => setPasswordForm({ ...passwordForm, new: e.target.value })}
+                    required
+                    placeholder="Minimum 6 characters"
+                    className="w-full rounded-lg border border-stone-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none transition focus:border-red-400 focus:ring-2 focus:ring-red-500/20"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-slate-600 mb-1.5">Confirm New Password</label>
+                  <input
+                    type="password"
+                    value={passwordForm.confirm}
+                    onChange={(e) => setPasswordForm({ ...passwordForm, confirm: e.target.value })}
+                    required
+                    className="w-full rounded-lg border border-stone-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none transition focus:border-red-400 focus:ring-2 focus:ring-red-500/20"
+                  />
+                </div>
+
+                {passwordError && (
+                  <div className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-600">
+                    {passwordError}
+                  </div>
+                )}
+
+                <div className="flex gap-3 pt-2">
+                  <button
+                    type="submit"
+                    disabled={passwordSubmitting}
+                    className="flex-1 inline-flex items-center justify-center rounded-lg bg-red-600 hover:bg-red-700 px-4 py-2.5 text-sm font-semibold text-white transition-colors disabled:opacity-50"
+                  >
+                    {passwordSubmitting ? 'Changing...' : 'Change Password'}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => { setShowPasswordModal(false); setPasswordForm({ current: '', new: '', confirm: '' }); setPasswordError(''); }}
+                    className="flex-1 inline-flex items-center justify-center rounded-lg border border-stone-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-600 hover:bg-stone-50 transition-colors"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </form>
+            </div>
           </div>
-        </div>
-      )}
-    </div>
+        )}
+      </div>
+    </AuthGuard>
   );
 }
