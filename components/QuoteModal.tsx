@@ -29,6 +29,19 @@ export default function QuoteModal({ isOpen, onClose }: QuoteModalProps) {
     const [quoteSubmitting, setQuoteSubmitting] = useState(false);
     const [quoteSuccess, setQuoteSuccess] = useState(false);
 
+    // Sync WhatsApp visibility
+    useEffect(() => {
+        if (isOpen) {
+            window.dispatchEvent(new CustomEvent('toggle-whatsapp-visibility', { detail: { visible: false } }));
+        } else {
+            window.dispatchEvent(new CustomEvent('toggle-whatsapp-visibility', { detail: { visible: true } }));
+        }
+        
+        return () => {
+            window.dispatchEvent(new CustomEvent('toggle-whatsapp-visibility', { detail: { visible: true } }));
+        };
+    }, [isOpen]);
+
     // Fetch products for dropdown
     useEffect(() => {
         const fetchProducts = async () => {
@@ -121,12 +134,12 @@ export default function QuoteModal({ isOpen, onClose }: QuoteModalProps) {
     return (
         <AnimatePresence>
             {isOpen && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4">
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4 overflow-y-auto pt-20 pb-10">
                     <motion.div
                         initial={{ opacity: 0, scale: 0.95 }}
                         animate={{ opacity: 1, scale: 1 }}
                         exit={{ opacity: 0, scale: 0.95 }}
-                        className="mx-4 w-full max-w-lg rounded-2xl bg-white p-6 shadow-2xl sm:p-8"
+                        className="relative mx-auto w-full max-w-lg rounded-2xl bg-white p-5 shadow-2xl sm:p-8 max-h-[90vh] overflow-y-auto"
                     >
                         {quoteSuccess ? (
                             /* Success Confirmation */
@@ -153,7 +166,7 @@ export default function QuoteModal({ isOpen, onClose }: QuoteModalProps) {
                                     <button
                                         type="button"
                                         onClick={onClose}
-                                        className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-500 hover:bg-slate-50"
+                                        className="sticky top-0 inline-flex h-8 w-8 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-500 hover:bg-slate-50 shadow-sm z-10"
                                         aria-label="Close quote form"
                                     >
                                         ✕
