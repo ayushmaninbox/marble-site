@@ -9,6 +9,8 @@ import SiteHeader from '@/components/SiteHeader';
 import SiteFooter from '@/components/SiteFooter';
 import ProductCard from '@/components/ProductCard';
 import QuoteModal from '@/components/QuoteModal';
+import ProgressiveImage from '@/components/ProgressiveImage';
+import SchemaMarkup from '@/components/SchemaMarkup';
 
 interface ProductDetailClientProps {
   product: Product;
@@ -41,6 +43,27 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
 
   // Get images array with fallback
   const images = product.images?.length ? product.images : (product.image ? [product.image] : []);
+
+  // SEO Schema
+  const productSchema = {
+    "@context": "https://schema.org/",
+    "@type": "Product",
+    "name": product.name,
+    "image": images,
+    "description": product.description,
+    "brand": {
+      "@type": "Brand",
+      "name": "Shree Radhe Marble & Granite"
+    },
+    "offers": {
+      "@type": "Offer",
+      "url": typeof window !== 'undefined' ? window.location.href : '',
+      "priceCurrency": "INR",
+      "price": product.price,
+      "availability": product.inStock ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
+      "itemCondition": "https://schema.org/NewCondition"
+    }
+  };
 
   const validateForm = () => {
     const errors: { phone?: string; email?: string; quantity?: string } = {};
@@ -121,6 +144,15 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
     return () => clearInterval(interval);
   }, [images.length, isHovering]);
 
+  // Update WhatsApp context
+  useEffect(() => {
+    if (product?.name) {
+      window.dispatchEvent(new CustomEvent('set-whatsapp-context', { 
+        detail: { productName: product.name } 
+      }));
+    }
+  }, [product?.name]);
+
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     const { left, top, width, height } = e.currentTarget.getBoundingClientRect();
     const x = ((e.clientX - left) / width) * 100;
@@ -132,6 +164,7 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
     <div className="min-h-screen bg-white text-slate-900 selection:bg-red-100 selection:text-red-900">
       
       <SiteHeader setIsQuoteOpen={setIsQuoteOpen} isRevealed={true} />
+      <SchemaMarkup schema={productSchema} />
 
       <main className="mx-auto w-full max-w-7xl px-3 pt-24 pb-16 sm:px-6 lg:px-4">
         {/* Breadcrumb */}
@@ -168,7 +201,7 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
               onMouseMove={handleMouseMove}
             >
               {images[selectedImageIndex] ? (
-                <Image
+                <ProgressiveImage
                   src={images[selectedImageIndex]}
                   alt={product.name}
                   fill
@@ -176,8 +209,8 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
                     transformOrigin: `${mousePosition.x}% ${mousePosition.y}%`,
                     transform: isHovering ? 'scale(2)' : 'scale(1)',
                   }}
-                  className="object-cover transition-transform duration-200 ease-out hidden md:block"
-                  sizes="(max-width: 1024px) 100vw, 50vw"
+                  containerClassName="hidden md:block"
+                  className="object-cover transition-transform duration-200 ease-out"
                   priority
                 />
               ) : (
@@ -187,12 +220,12 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
               )}
               {/* Mobile Image (No Zoom) */}
               {images[selectedImageIndex] && (
-                <Image
+                <ProgressiveImage
                   src={images[selectedImageIndex]}
                   alt={product.name}
                   fill
-                  className="object-cover md:hidden"
-                  sizes="100vw"
+                  containerClassName="md:hidden"
+                  className="object-cover"
                   priority
                 />
               )}
@@ -233,12 +266,11 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
                         : 'border-stone-200 opacity-60 hover:opacity-100'
                     }`}
                   >
-                    <Image
+                    <ProgressiveImage
                       src={img}
                       alt={`${product.name} - Image ${index + 1}`}
                       fill
                       className="object-cover"
-                      sizes="80px"
                     />
                   </button>
                 ))}

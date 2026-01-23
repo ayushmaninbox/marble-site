@@ -12,6 +12,7 @@ import { DynamicBackground } from '@/components/DynamicBackground';
 import SiteHeader from '@/components/SiteHeader';
 import SiteFooter from '@/components/SiteFooter';
 import QuoteModal from '@/components/QuoteModal';
+import ProgressiveImage from '@/components/ProgressiveImage';
 import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion';
 
 export default function Home() {
@@ -410,10 +411,11 @@ export default function Home() {
                         <Link href={`/products/${product.id}`}>
                           <div className="relative overflow-hidden rounded-2xl aspect-[3/4] shadow-md transition-shadow duration-300 group-hover:shadow-2xl group-hover:shadow-slate-400/30">
                             {product.images && product.images.length > 0 ? (
-                              <img
+                              <ProgressiveImage
                                 src={product.images[0]}
                                 alt={product.name}
-                                className="w-full h-full object-cover transition-transform duration-500 md:group-hover:scale-105"
+                                fill
+                                className="object-cover transition-transform duration-500 md:group-hover:scale-105"
                               />
                             ) : (
                               <div className="w-full h-full bg-gradient-to-br from-slate-200 via-slate-100 to-slate-200" />
@@ -493,10 +495,11 @@ export default function Home() {
                         <Link href={`/products/${product.id}`}>
                           <div className="relative overflow-hidden rounded-2xl aspect-[3/4] shadow-md transition-shadow duration-300 group-hover:shadow-2xl group-hover:shadow-slate-400/30">
                             {product.images && product.images.length > 0 ? (
-                              <img
+                              <ProgressiveImage
                                 src={product.images[0]}
                                 alt={product.name}
-                                className="w-full h-full object-cover transition-transform duration-500 md:group-hover:scale-105"
+                                fill
+                                className="object-cover transition-transform duration-500 md:group-hover:scale-105"
                               />
                             ) : (
                               <div className="w-full h-full bg-gradient-to-br from-slate-200 via-slate-100 to-slate-200" />
@@ -634,10 +637,11 @@ export default function Home() {
                         <Link href={`/products/${product.id}`}>
                           <div className="relative overflow-hidden rounded-2xl aspect-[3/4] shadow-md transition-shadow duration-300 group-hover:shadow-2xl group-hover:shadow-slate-400/30">
                             {product.images && product.images.length > 0 ? (
-                              <img
+                              <ProgressiveImage
                                 src={product.images[0]}
                                 alt={product.name}
-                                className="w-full h-full object-cover transition-transform duration-500 md:group-hover:scale-105"
+                                fill
+                                className="object-cover transition-transform duration-500 md:group-hover:scale-105"
                               />
                             ) : (
                               <div className="w-full h-full bg-gradient-to-br from-slate-200 via-slate-100 to-slate-200" />
@@ -690,10 +694,11 @@ export default function Home() {
                   <article className="bg-white rounded-2xl overflow-hidden border border-stone-200 shadow-sm hover:shadow-lg transition-all duration-300 h-full flex flex-col">
                     {blog.coverImage ? (
                       <div className="aspect-[16/9] overflow-hidden">
-                        <img
+                        <ProgressiveImage
                           src={blog.coverImage}
                           alt={blog.title}
-                          className="w-full h-full object-cover md:group-hover:scale-105 transition-transform duration-500"
+                          fill
+                          className="object-cover md:group-hover:scale-105 transition-transform duration-500"
                         />
                       </div>
                     ) : (

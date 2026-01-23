@@ -1,7 +1,7 @@
 'use client';
 
 import { Product } from '@/lib/types';
-import Image from 'next/image';
+import ProgressiveImage from '@/components/ProgressiveImage';
 import Link from 'next/link';
 
 interface ProductCardProps {
@@ -19,7 +19,7 @@ export default function ProductCard({ product }: ProductCardProps) {
         <div className={`relative overflow-hidden h-52 sm:h-64 bg-stone-100 ${isOutOfStock ? 'grayscale' : ''}`}>
           <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent z-10" />
           {displayImage && (displayImage.startsWith('http') || displayImage.startsWith('/')) ? (
-            <Image
+            <ProgressiveImage
               src={displayImage}
               alt={product.name}
               fill

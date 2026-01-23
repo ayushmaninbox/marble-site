@@ -20,13 +20,18 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 
   return {
-    title: blog.title,
+    title: `${blog.title} | Shree Radhe Marble`,
     description: blog.excerpt,
+    keywords: ['Interior Design', 'Marble', 'Granite', 'Tiles', 'Shree Radhe Marble'],
+    authors: [{ name: blog.author }],
     openGraph: {
       title: blog.title,
       description: blog.excerpt,
       images: blog.coverImage ? [blog.coverImage] : [],
       type: 'article',
+      authors: [blog.author],
+      publishedTime: blog.createdAt,
+      section: 'Interior Design',
     },
     twitter: {
       card: 'summary_large_image',

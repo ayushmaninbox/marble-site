@@ -7,6 +7,8 @@ import { Blog } from '@/lib/types';
 import SiteHeader from '@/components/SiteHeader';
 import SiteFooter from '@/components/SiteFooter';
 import QuoteModal from '@/components/QuoteModal';
+import ProgressiveImage from '@/components/ProgressiveImage';
+import SchemaMarkup from '@/components/SchemaMarkup';
 
 const HeartIcon = ({ filled }: { filled?: boolean }) => (
   <svg
@@ -59,6 +61,11 @@ export default function BlogPostClient() {
     if (blog) {
       const isLiked = localStorage.getItem(`blog_liked_${blog.id}`);
       if (isLiked) setLiked(true);
+      
+      // Update WhatsApp context
+      window.dispatchEvent(new CustomEvent('set-whatsapp-context', { 
+        detail: { productName: `Blog: ${blog.title}` } 
+      }));
     }
   }, [blog]);
 
@@ -77,6 +84,20 @@ export default function BlogPostClient() {
       console.error('Error liking blog:', error);
     }
   };
+
+  // SEO Schema
+  const blogSchema = blog ? {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    "headline": blog.title,
+    "image": [blog.coverImage],
+    "datePublished": blog.createdAt,
+    "dateModified": blog.updatedAt,
+    "author": [{
+        "@type": "Person",
+        "name": blog.author
+      }]
+  } : null;
 
   if (loading) {
     return (
@@ -98,6 +119,7 @@ export default function BlogPostClient() {
   return (
     <div className="min-h-screen bg-stone-50 pt-24">
       <SiteHeader setIsQuoteOpen={setIsQuoteOpen} />
+      {blogSchema && <SchemaMarkup schema={blogSchema} />}
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <Link href="/blogs" className="inline-flex items-center gap-2 text-sm text-slate-600 hover:text-red-600 transition">
@@ -107,8 +129,8 @@ export default function BlogPostClient() {
 
       <article className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pb-16">
         {blog.coverImage && (
-          <div className="aspect-[21/9] rounded-2xl overflow-hidden mb-8">
-            <img src={blog.coverImage} alt={blog.title} className="w-full h-full object-cover" />
+          <div className="aspect-[21/9] rounded-2xl overflow-hidden mb-8 relative">
+            <ProgressiveImage src={blog.coverImage} alt={blog.title} fill className="object-cover" priority />
           </div>
         )}
 
