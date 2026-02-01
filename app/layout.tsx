@@ -24,9 +24,9 @@ const businessSchema = {
   "@context": "https://schema.org",
   "@type": "LocalBusiness",
   "name": "Shree Radhe Marble & Granite",
-  "image": "https://shreeradhe.vercel.app/Assets/logo_new.png", // Replace with real domain if available
-  "@id": "https://shreeradhe.vercel.app/",
-  "url": "https://shreeradhe.vercel.app/",
+  "image": "https://shree-radhe.in/Assets/logo_new.png", // Replace with real domain if available
+  "@id": "https://shree-radhe.in/",
+  "url": "https://shree-radhe.in/",
   "telephone": "+918794946566",
   "address": {
     "@type": "PostalAddress",

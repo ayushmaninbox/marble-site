@@ -699,39 +699,10 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Content: Left Description + Right Carousel */}
-          <div className="grid gap-8 lg:grid-cols-[280px_1fr] lg:gap-12 items-start">
-            {/* Left Column - Description */}
-            <div className="space-y-6 text-center lg:text-left px-4">
-              <h3 className="text-4xl sm:text-4xl font-light text-red-500 leading-tight">
-                Artisan<br className="hidden sm:block" /> Handicrafts
-              </h3>
-              <p className="text-slate-600 text-sm leading-relaxed max-w-md mx-auto lg:max-w-none lg:mx-0">
-                Celebrate the soul of stone with our Handcrafted Masterpieces. From intricately carved Temples to contemporary Decor and Jaali work, every artifact is a testament to centuries-old artistry tailored for modern living.
-              </p>
-              {/* Navigation Arrows */}
-              <div className="flex items-center gap-4 pt-4 justify-center lg:justify-start">
-                <button
-                  onClick={() => {
-                    setHandicraftIndex((prev: number) => (prev - 1 + handicraftProducts.length * 2) % (handicraftProducts.length * 2));
-                  }}
-                  className="w-10 h-10 rounded-full border border-slate-300 flex items-center justify-center text-slate-500 hover:border-red-500 hover:text-red-500 transition-colors"
-                >
-                  ←
-                </button>
-                <button
-                  onClick={() => {
-                    setHandicraftIndex((prev: number) => (prev + 1) % (handicraftProducts.length * 2));
-                  }}
-                  className="w-10 h-10 rounded-full border border-slate-300 flex items-center justify-center text-slate-500 hover:border-red-500 hover:text-red-500 transition-colors"
-                >
-                  →
-                </button>
-              </div>
-            </div>
-
-            {/* Right Column - Carousel */}
-            <div className="relative overflow-hidden">
+          {/* Content: Left Carousel + Right Description */}
+          <div className="grid gap-8 lg:grid-cols-[1fr_280px] lg:gap-12 items-start">
+            {/* Left Column - Carousel */}
+            <div className="relative overflow-hidden order-2 lg:order-1">
               {loading ? (
                 <div className="py-16 text-center">
                   <div className="inline-block h-10 w-10 animate-spin rounded-full border-4 border-red-500 border-t-transparent" />
@@ -796,6 +767,35 @@ export default function Home() {
                   </div>
                 </div>
               )}
+            </div>
+
+            {/* Right Column - Description */}
+            <div className="space-y-6 text-center lg:text-right px-4 order-1 lg:order-2">
+              <h3 className="text-4xl sm:text-4xl font-light text-red-500 leading-tight">
+                Artisan<br className="hidden sm:block" /> Handicrafts
+              </h3>
+              <p className="text-slate-600 text-sm leading-relaxed max-w-md mx-auto lg:max-w-none lg:mx-0">
+                Celebrate the soul of stone with our Handcrafted Masterpieces. From intricately carved Temples to contemporary Decor and Jaali work, every artifact is a testament to centuries-old artistry tailored for modern living.
+              </p>
+              {/* Navigation Arrows */}
+              <div className="flex items-center gap-4 pt-4 justify-center lg:justify-end">
+                <button
+                  onClick={() => {
+                    setHandicraftIndex((prev: number) => (prev - 1 + handicraftProducts.length * 2) % (handicraftProducts.length * 2));
+                  }}
+                  className="w-10 h-10 rounded-full border border-slate-300 flex items-center justify-center text-slate-500 hover:border-red-500 hover:text-red-500 transition-colors"
+                >
+                  ←
+                </button>
+                <button
+                  onClick={() => {
+                    setHandicraftIndex((prev: number) => (prev + 1) % (handicraftProducts.length * 2));
+                  }}
+                  className="w-10 h-10 rounded-full border border-slate-300 flex items-center justify-center text-slate-500 hover:border-red-500 hover:text-red-500 transition-colors"
+                >
+                  →
+                </button>
+              </div>
             </div>
           </div>
         </AnimatedSection>

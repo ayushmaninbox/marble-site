@@ -108,7 +108,7 @@ Paste this content (Right-click to paste):
 ```nginx
 server {
     listen 80;
-    server_name yourdomain.com www.yourdomain.com; # <--- CHANGE THIS to your actual domain
+    server_name shree-radhe.in www.shree-radhe.in; # <--- CHANGE THIS to your actual domain
 
     location / {
         proxy_pass http://localhost:3000;
