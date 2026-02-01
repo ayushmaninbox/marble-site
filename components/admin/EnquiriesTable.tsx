@@ -189,9 +189,14 @@ export default function EnquiriesTable({
                       <div className="flex flex-col gap-1">
                         <span className="text-xs font-medium text-slate-900 line-clamp-1">{enquiry.productName}</span>
                         <div className="flex items-center gap-2">
-                          <span className={`inline-flex items-center rounded-full px-1.5 py-0.5 text-[10px] font-medium ${enquiry.productCategory === 'Marbles' ? 'bg-red-50 text-red-700' :
-                            enquiry.productCategory === 'Tiles' ? 'bg-stone-100 text-stone-700' :
-                              'bg-orange-50 text-orange-700'
+                          <span className={`inline-flex items-center rounded-full px-1.5 py-0.5 text-[10px] font-medium ${
+                            enquiry.productCategory === 'Marbles' 
+                              ? 'bg-red-50 text-red-700' 
+                              : enquiry.productCategory === 'Granite'
+                                ? 'bg-purple-50 text-purple-700'
+                                : enquiry.productCategory === 'Tiles' 
+                                  ? 'bg-blue-50 text-blue-700' 
+                                  : 'bg-orange-50 text-orange-700'
                             }`}>
                             {enquiry.productCategory}
                           </span>

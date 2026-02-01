@@ -167,11 +167,14 @@ export default function ProductTable({
                      </span>
                 </td>
                 <td className="px-4 py-3">
-                  <span className={`inline-flex px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wide ${product.category === 'Marbles'
-                    ? 'bg-red-50 text-red-700'
-                    : product.category === 'Tiles'
-                      ? 'bg-stone-100 text-stone-700'
-                      : 'bg-orange-50 text-orange-700'
+                  <span className={`inline-flex px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wide ${
+                    product.category === 'Marbles'
+                      ? 'bg-red-50 text-red-700'
+                      : product.category === 'Granite'
+                        ? 'bg-purple-50 text-purple-700'
+                        : product.category === 'Tiles'
+                          ? 'bg-blue-50 text-blue-700'
+                          : 'bg-orange-50 text-orange-700'
                     }`}>
                     {product.category}
                   </span>

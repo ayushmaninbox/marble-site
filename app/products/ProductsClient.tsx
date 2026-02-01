@@ -10,7 +10,7 @@ import SiteFooter from '@/components/SiteFooter';
 import QuoteModal from '@/components/QuoteModal';
 import { motion, AnimatePresence } from 'framer-motion';
 
-const FILTERS: Array<ProductCategory | 'All'> = ['All', 'Marbles', 'Tiles', 'Handicraft'];
+const FILTERS: Array<ProductCategory | 'All'> = ['All', 'Marbles', 'Tiles', 'Granite', 'Handicraft'];
 
 export default function ProductsPage() {
   const searchParams = useSearchParams();
@@ -154,23 +154,26 @@ export default function ProductsPage() {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             {/* Category Filters */}
             <div className="flex flex-wrap items-center justify-center gap-2 md:gap-8 mb-4">
-              {FILTERS.map((filter) => (
-                <button
-                  key={filter}
-                  onClick={() => setSelected(filter)}
-                  className={`text-xs md:text-sm font-semibold tracking-widest uppercase py-2 px-4 transition-all duration-300 relative
-                     ${selected === filter ? 'text-red-700' : 'text-slate-500 hover:text-slate-800'}
-                   `}
-                >
-                  {filter}
-                  {selected === filter && (
-                    <motion.div
-                      layoutId="activeFilter"
-                      className="absolute bottom-0 left-0 right-0 h-0.5 bg-red-600"
-                    />
-                  )}
-                </button>
-              ))}
+              {FILTERS.map((filter) => {
+                const isSelected = selected === filter;
+                return (
+                  <button
+                    key={filter}
+                    onClick={() => setSelected(filter)}
+                    className={`text-xs md:text-sm font-semibold tracking-widest uppercase py-2 px-4 transition-all duration-300 relative
+                      ${isSelected ? 'text-red-700' : 'text-slate-500 hover:text-slate-800'}
+                    `}
+                  >
+                    {filter}
+                    {isSelected && (
+                      <motion.div
+                        layoutId="activeFilter"
+                        className="absolute bottom-0 left-0 right-0 h-0.5 bg-red-600"
+                      />
+                    )}
+                  </button>
+                );
+              })}
             </div>
 
             {/* Sort and Items Per Page Controls */}
