@@ -27,7 +27,7 @@ export default function ProductsPage() {
 
   useEffect(() => {
     const categoryParam = searchParams.get('category');
-    if (categoryParam && ['Marbles', 'Tiles', 'Handicraft', 'All'].includes(categoryParam)) {
+    if (categoryParam && ['Marbles', 'Tiles', 'Granite', 'Handicraft', 'All'].includes(categoryParam)) {
       setSelected(categoryParam as ProductCategory | 'All');
     } else if (!categoryParam) {
       setSelected('All');
