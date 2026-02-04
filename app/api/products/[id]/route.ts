@@ -4,30 +4,30 @@ import { unlink } from 'fs/promises';
 import { existsSync } from 'fs';
 import path from 'path';
 
-// Helper function to delete an uploaded image
-async function deleteUploadedImage(imagePath: string): Promise<boolean> {
-  if (!imagePath || !imagePath.startsWith('/uploads/products/')) {
+// Helper function to delete an uploaded file (image or video)
+async function deleteUploadedFile(filePath: string): Promise<boolean> {
+  if (!filePath || !filePath.startsWith('/uploads/products/')) {
     return false;
   }
   
   try {
-    const filename = path.basename(imagePath);
-    const filePath = path.join(process.cwd(), 'public', 'uploads', 'products', filename);
+    const filename = path.basename(filePath);
+    const absolutePath = path.join(process.cwd(), 'public', 'uploads', 'products', filename);
     
-    if (existsSync(filePath)) {
-      await unlink(filePath);
+    if (existsSync(absolutePath)) {
+      await unlink(absolutePath);
       return true;
     }
   } catch (error) {
-    console.error('Error deleting image:', error);
+    console.error('Error deleting file:', error);
   }
   return false;
 }
 
-// Delete multiple images
-async function deleteImages(images: string[]): Promise<void> {
-  for (const img of images) {
-    await deleteUploadedImage(img);
+// Delete multiple files
+async function deleteFiles(filePaths: string[]): Promise<void> {
+  for (const path of filePaths) {
+    await deleteUploadedFile(path);
   }
 }
 
@@ -82,7 +82,12 @@ export async function PUT(
     
     // Find and delete removed images
     const removedImages = oldImages.filter(img => !newImages.includes(img));
-    await deleteImages(removedImages);
+    await deleteFiles(removedImages);
+
+    // Cleanup old video if it changed or was removed
+    if (currentProduct.video && currentProduct.video !== body.video) {
+        await deleteUploadedFile(currentProduct.video);
+    }
     
     return NextResponse.json(updatedProduct);
   } catch (error) {
@@ -122,8 +127,10 @@ export async function DELETE(
       );
     }
     
-    // Delete all associated images
-    await deleteImages(product.images || []);
+    // Delete all associated images and video
+    const filesToDelete = [...(product.images || [])];
+    if (product.video) filesToDelete.push(product.video);
+    await deleteFiles(filesToDelete);
     
     return NextResponse.json({ message: 'Product deleted successfully' });
   } catch (error) {
