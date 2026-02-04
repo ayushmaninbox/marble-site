@@ -55,6 +55,7 @@ export default function ProgressiveImage({
         fill={fill}
         sizes={sizes}
         priority={priority}
+        unoptimized={typeof src === 'string' && src.startsWith('/uploads/')}
         onLoad={() => setIsLoaded(true)}
         onError={() => setIsLoaded(true)} // Force reveal on error
         className={`transition-opacity duration-500 ease-in-out ${isLoaded ? 'opacity-100' : 'opacity-0'} ${className}`}
