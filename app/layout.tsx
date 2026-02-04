@@ -24,9 +24,9 @@ const businessSchema = {
   "@context": "https://schema.org",
   "@type": "LocalBusiness",
   "name": "Shree Radhe Marble & Granite",
-  "image": "https://shree-radhe.in/Assets/logo_new.png", // Replace with real domain if available
-  "@id": "https://shree-radhe.in/",
-  "url": "https://shree-radhe.in/",
+  "image": "https://shreeradhemarbles.in/Assets/logo_new.png", 
+  "@id": "https://shreeradhemarbles.in/",
+  "url": "https://shreeradhemarbles.in/",
   "telephone": "+918794946566",
   "address": {
     "@type": "PostalAddress",

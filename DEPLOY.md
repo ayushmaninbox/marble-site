@@ -28,9 +28,9 @@ Once you buy the VPS, you will get an **IP Address** (e.g., `123.45.67.89`) and 
 ### A. Login to your Server
 Open your terminal on your Mac and run:
 ```bash
-ssh root@<YOUR_VPS_IP>
-# Enter the password when prompted (it won't show on screen)
+ssh root@123.45.67.89
 ```
+# Enter the password when prompted (it won't show on screen)
 
 ### B. Update & Install Basics
 Run these commands one by one:

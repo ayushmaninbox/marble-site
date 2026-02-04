@@ -11,7 +11,7 @@ export default function SiteFooter({ setIsQuoteOpen }: SiteFooterProps) {
       {/* Background Image with Overlay */}
       <div className="absolute inset-0 z-0">
         <img
-          src="/assets/footer_image.png"
+          src="/Assets/footer_image.png"
           alt="Footer Background"
           className="w-full h-full object-cover"
         />
