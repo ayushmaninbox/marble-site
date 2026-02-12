@@ -1,12 +1,33 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { readProducts, addProduct, reorderProducts } from '@/lib/csvUtils';
+import { Product } from '@/lib/types';
+
+// Simple in-memory cache
+let cachedProducts: Product[] | null = null;
+let lastFetchTime = 0;
+const CACHE_DURATION = 60 * 1000; // 1 minute
+
+function getCachedProducts() {
+  const now = Date.now();
+  if (cachedProducts && (now - lastFetchTime < CACHE_DURATION)) {
+    return cachedProducts;
+  }
+  cachedProducts = readProducts();
+  lastFetchTime = now;
+  return cachedProducts;
+}
+
+function invalidateCache() {
+  cachedProducts = null;
+  lastFetchTime = 0;
+}
 
 export async function GET(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams;
     const category = searchParams.get('category');
     
-    let products = readProducts();
+    let products = getCachedProducts();
     
     if (category) {
       products = products.filter(p => p.category === category);
@@ -25,7 +46,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { name, category, description, price, images, specifications, inStock } = body;
+    const { name, category, description, price, images, video, specifications, inStock } = body;
     
     if (!name || !category || !description || price === undefined) {
       return NextResponse.json(
@@ -58,9 +79,12 @@ export async function POST(request: NextRequest) {
       description,
       price: parseFloat(price),
       images: imageArray,
+      video: video || undefined,
       specifications: specsArray,
       inStock: inStock !== false,
     });
+
+    invalidateCache();
     
     return NextResponse.json(newProduct, { status: 201 });
   } catch (error) {
@@ -92,6 +116,8 @@ export async function PATCH(request: NextRequest) {
         { status: 400 }
       );
     }
+
+    invalidateCache();
 
     return NextResponse.json({ success: true });
   } catch (error) {

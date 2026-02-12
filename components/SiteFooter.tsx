@@ -11,7 +11,7 @@ export default function SiteFooter({ setIsQuoteOpen }: SiteFooterProps) {
       {/* Background Image with Overlay */}
       <div className="absolute inset-0 z-0">
         <img
-          src="/assets/footer_image.png"
+          src="/Assets/footer_image.png"
           alt="Footer Background"
           className="w-full h-full object-cover"
         />
@@ -53,6 +53,14 @@ export default function SiteFooter({ setIsQuoteOpen }: SiteFooterProps) {
               <li><Link href="/products" className="hover:text-red-400 transition-colors">Products</Link></li>
               <li><Link href="/blogs" className="hover:text-red-400 transition-colors">Blog</Link></li>
               <li><Link href="/contact" className="hover:text-red-400 transition-colors">Contact</Link></li>
+              <li>
+                <button 
+                  onClick={() => setIsQuoteOpen(true)}
+                  className="hover:text-red-400 transition-colors text-left"
+                >
+                  Get a Quote
+                </button>
+              </li>
             </ul>
           </div>
 
@@ -61,6 +69,7 @@ export default function SiteFooter({ setIsQuoteOpen }: SiteFooterProps) {
             <h4 className="text-base font-semibold text-white mb-5">Products</h4>
             <ul className="space-y-3 text-sm text-slate-300">
               <li><Link href="/products?category=Marbles" className="hover:text-red-400 transition-colors">Marbles</Link></li>
+              <li><Link href="/products?category=Granite" className="hover:text-red-400 transition-colors">Granite</Link></li>
               <li><Link href="/products?category=Tiles" className="hover:text-red-400 transition-colors">Tiles</Link></li>
               <li><Link href="/products?category=Handicraft" className="hover:text-red-400 transition-colors">Handicrafts</Link></li>
               <li><Link href="/products?category=All" className="hover:text-red-400 transition-colors">View More</Link></li>

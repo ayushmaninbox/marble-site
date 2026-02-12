@@ -21,6 +21,7 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const [marbleIndex, setMarbleIndex] = useState(0);
   const [tilesIndex, setTilesIndex] = useState(0);
+  const [graniteIndex, setGraniteIndex] = useState(0);
   const [handicraftIndex, setHandicraftIndex] = useState(0);
   const [isQuoteOpen, setIsQuoteOpen] = useState(false);
   const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(null);
@@ -156,10 +157,6 @@ export default function Home() {
 
     fetchProducts();
     fetchBlogs();
-
-    // Poll for updates every 5 seconds to show real-time changes
-    const interval = setInterval(fetchProducts, 5000);
-    return () => clearInterval(interval);
   }, []);
 
   // Filter products by category
@@ -170,6 +167,10 @@ export default function Home() {
   
   const tilesProducts = products
     .filter(p => p.category === 'Tiles')
+    .sort((a, b) => (Number(b.isFeatured || 0) - Number(a.isFeatured || 0)));
+
+  const graniteProducts = products
+    .filter(p => p.category === 'Granite')
     .sort((a, b) => (Number(b.isFeatured || 0) - Number(a.isFeatured || 0)));
   
   const handicraftProducts = products
@@ -199,6 +200,17 @@ export default function Home() {
     }, 4500);
     return () => clearInterval(interval);
   }, [tilesProducts.length]);
+
+  useEffect(() => {
+    if (graniteProducts.length === 0) return;
+    const interval = setInterval(() => {
+      setGraniteIndex((prev) => {
+        const next = prev + 1;
+        return next >= graniteProducts.length * 2 ? 0 : next;
+      });
+    }, 4800);
+    return () => clearInterval(interval);
+  }, [graniteProducts.length]);
 
   useEffect(() => {
     if (handicraftProducts.length === 0) return;
@@ -257,7 +269,7 @@ export default function Home() {
               className="absolute w-full h-full object-cover scale-110"
               style={{ minWidth: '100%', minHeight: '100%' }}
             >
-              <source src="/assets/MarbleVideo.mp4" type="video/mp4" />
+              <source src="/Assets/MarbleVideo.mp4" type="video/mp4" />
             </video>
             {/* Black overlay for text contrast */}
             <div className="absolute inset-0 bg-black/40" />
@@ -415,6 +427,7 @@ export default function Home() {
                                 src={product.images[0]}
                                 alt={product.name}
                                 fill
+                                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 33vw, 25vw"
                                 className="object-cover transition-transform duration-500 md:group-hover:scale-105"
                               />
                             ) : (
@@ -499,6 +512,7 @@ export default function Home() {
                                 src={product.images[0]}
                                 alt={product.name}
                                 fill
+                                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 33vw, 25vw"
                                 className="object-cover transition-transform duration-500 md:group-hover:scale-105"
                               />
                             ) : (
@@ -557,6 +571,121 @@ export default function Home() {
           </div>
         </AnimatedSection>
 
+        {/* Granite Collection Carousel Section */}
+        <AnimatedSection className="py-16 lg:py-24" staggerChildren={0.1}>
+          {/* Section Header with Decorative Brackets */}
+          <div className="text-center mb-16 px-6">
+            <div className="inline-block relative">
+              <span className="absolute -top-3 -left-4 sm:-left-6 w-5 h-5 border-l-2 border-t-2 border-red-500" />
+              <h2 className="text-2xl sm:text-4xl font-light tracking-wide text-slate-900 uppercase px-2">
+                Granite Collection
+              </h2>
+              <span className="absolute -bottom-3 -right-4 sm:-right-6 w-5 h-5 border-r-2 border-b-2 border-red-500" />
+            </div>
+          </div>
+
+          {/* Content: Left Description + Right Carousel */}
+          <div className="grid gap-8 lg:grid-cols-[280px_1fr] lg:gap-12 items-start">
+            {/* Left Column - Description */}
+            <div className="space-y-6 text-center lg:text-left px-4">
+              <h3 className="text-4xl sm:text-4xl font-light text-red-500 leading-tight">
+                Durable<br className="hidden sm:block" /> Granite
+              </h3>
+              <p className="text-slate-600 text-sm leading-relaxed max-w-md mx-auto lg:max-w-none lg:mx-0">
+                Discover the strength and beauty of our Premium Granite Collection. Perfect for countertops, flooring, and exterior applications, our granites combine exceptional durability with stunning natural patterns.
+              </p>
+              {/* Navigation Arrows */}
+              <div className="flex items-center gap-4 pt-4 justify-center lg:justify-start">
+                <button
+                  onClick={() => {
+                    setGraniteIndex((prev: number) => (prev - 1 + graniteProducts.length * 2) % (graniteProducts.length * 2));
+                  }}
+                  className="w-10 h-10 rounded-full border border-slate-300 flex items-center justify-center text-slate-500 hover:border-red-500 hover:text-red-500 transition-colors"
+                >
+                  ←
+                </button>
+                <button
+                  onClick={() => {
+                    setGraniteIndex((prev: number) => (prev + 1) % (graniteProducts.length * 2));
+                  }}
+                  className="w-10 h-10 rounded-full border border-slate-300 flex items-center justify-center text-slate-500 hover:border-red-500 hover:text-red-500 transition-colors"
+                >
+                  →
+                </button>
+              </div>
+            </div>
+
+            {/* Right Column - Carousel */}
+            <div className="relative overflow-hidden">
+              {loading ? (
+                <div className="py-16 text-center">
+                  <div className="inline-block h-10 w-10 animate-spin rounded-full border-4 border-red-500 border-t-transparent" />
+                  <p className="mt-4 text-sm text-slate-500">Loading products...</p>
+                </div>
+              ) : graniteProducts.length === 0 ? (
+                <div className="py-16 text-center text-sm text-slate-500 border border-dashed border-stone-200 rounded-lg bg-stone-50">
+                  <p>No granite products available yet.</p>
+                  <p className="text-xs mt-1">Add products in Admin Dashboard.</p>
+                </div>
+              ) : (
+                <div
+                  className="pt-4 pb-6 relative"
+                  style={{
+                    maskImage: 'linear-gradient(to right, transparent, black 10%, black 90%, transparent)',
+                    WebkitMaskImage: 'linear-gradient(to right, transparent, black 10%, black 90%, transparent)'
+                  }}
+                >
+                  {/* Sliding Track - products repeated 3x for infinite effect */}
+                  <div
+                    className="flex gap-5"
+                    style={{
+                      transform: `translateX(calc(-${graniteIndex} * (280px + 20px)))`,
+                      transition: 'transform 0.4s ease-out'
+                    }}
+                  >
+                    {[...graniteProducts, ...graniteProducts, ...graniteProducts].map((product, idx) => (
+                      <div
+                        key={`granite-${idx}`}
+                        className="flex-shrink-0 group cursor-pointer transition-all duration-300 hover:-translate-y-3"
+                        style={{ width: '280px' }}
+                      >
+                        <Link href={`/products/${product.id}`}>
+                          <div className="relative overflow-hidden rounded-2xl aspect-[3/4] shadow-md transition-shadow duration-300 group-hover:shadow-2xl group-hover:shadow-slate-400/30">
+                            {product.images && product.images.length > 0 ? (
+                              <ProgressiveImage
+                                src={product.images[0]}
+                                alt={product.name}
+                                fill
+                                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 33vw, 25vw"
+                                className="object-cover transition-transform duration-500 md:group-hover:scale-105"
+                              />
+                            ) : (
+                              <div className="w-full h-full bg-gradient-to-br from-slate-200 via-slate-100 to-slate-200" />
+                            )}
+                          </div>
+                        </Link>
+                        <div className="mt-4 space-y-1.5 px-1">
+                          <h4 className="text-base font-semibold text-slate-900 truncate group-hover:text-red-600 transition-colors duration-200">{product.name}</h4>
+                          <p className="text-xs text-slate-500 line-clamp-2 leading-relaxed">{product.description}</p>
+                          <div className="flex items-center justify-between pt-2">
+                            <span className="text-lg font-bold text-slate-900">₹{product.price.toLocaleString()}</span>
+                            <Link
+                              href={`/products/${product.id}`}
+                              className="px-4 py-2 text-xs font-medium border border-slate-200 rounded-full transition-all duration-200 hover:border-red-500 hover:text-red-500 hover:bg-red-50"
+                            >
+                              View Details
+                            </Link>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </AnimatedSection>
+
         {/* Handicraft Collection Carousel Section */}
         <AnimatedSection className="py-16 lg:py-24" staggerChildren={0.1}>
           {/* Section Header with Decorative Brackets */}
@@ -570,39 +699,10 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Content: Left Description + Right Carousel */}
-          <div className="grid gap-8 lg:grid-cols-[280px_1fr] lg:gap-12 items-start">
-            {/* Left Column - Description */}
-            <div className="space-y-6 text-center lg:text-left px-4">
-              <h3 className="text-4xl sm:text-4xl font-light text-red-500 leading-tight">
-                Artisan<br className="hidden sm:block" /> Handicrafts
-              </h3>
-              <p className="text-slate-600 text-sm leading-relaxed max-w-md mx-auto lg:max-w-none lg:mx-0">
-                Celebrate the soul of stone with our Handcrafted Masterpieces. From intricately carved Temples to contemporary Decor and Jaali work, every artifact is a testament to centuries-old artistry tailored for modern living.
-              </p>
-              {/* Navigation Arrows */}
-              <div className="flex items-center gap-4 pt-4 justify-center lg:justify-start">
-                <button
-                  onClick={() => {
-                    setHandicraftIndex((prev: number) => (prev - 1 + handicraftProducts.length * 2) % (handicraftProducts.length * 2));
-                  }}
-                  className="w-10 h-10 rounded-full border border-slate-300 flex items-center justify-center text-slate-500 hover:border-red-500 hover:text-red-500 transition-colors"
-                >
-                  ←
-                </button>
-                <button
-                  onClick={() => {
-                    setHandicraftIndex((prev: number) => (prev + 1) % (handicraftProducts.length * 2));
-                  }}
-                  className="w-10 h-10 rounded-full border border-slate-300 flex items-center justify-center text-slate-500 hover:border-red-500 hover:text-red-500 transition-colors"
-                >
-                  →
-                </button>
-              </div>
-            </div>
-
-            {/* Right Column - Carousel */}
-            <div className="relative overflow-hidden">
+          {/* Content: Left Carousel + Right Description */}
+          <div className="grid gap-8 lg:grid-cols-[1fr_280px] lg:gap-12 items-start">
+            {/* Left Column - Carousel */}
+            <div className="relative overflow-hidden order-2 lg:order-1">
               {loading ? (
                 <div className="py-16 text-center">
                   <div className="inline-block h-10 w-10 animate-spin rounded-full border-4 border-red-500 border-t-transparent" />
@@ -641,6 +741,7 @@ export default function Home() {
                                 src={product.images[0]}
                                 alt={product.name}
                                 fill
+                                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 33vw, 25vw"
                                 className="object-cover transition-transform duration-500 md:group-hover:scale-105"
                               />
                             ) : (
@@ -666,6 +767,35 @@ export default function Home() {
                   </div>
                 </div>
               )}
+            </div>
+
+            {/* Right Column - Description */}
+            <div className="space-y-6 text-center lg:text-right px-4 order-1 lg:order-2">
+              <h3 className="text-4xl sm:text-4xl font-light text-red-500 leading-tight">
+                Artisan<br className="hidden sm:block" /> Handicrafts
+              </h3>
+              <p className="text-slate-600 text-sm leading-relaxed max-w-md mx-auto lg:max-w-none lg:mx-0">
+                Celebrate the soul of stone with our Handcrafted Masterpieces. From intricately carved Temples to contemporary Decor and Jaali work, every artifact is a testament to centuries-old artistry tailored for modern living.
+              </p>
+              {/* Navigation Arrows */}
+              <div className="flex items-center gap-4 pt-4 justify-center lg:justify-end">
+                <button
+                  onClick={() => {
+                    setHandicraftIndex((prev: number) => (prev - 1 + handicraftProducts.length * 2) % (handicraftProducts.length * 2));
+                  }}
+                  className="w-10 h-10 rounded-full border border-slate-300 flex items-center justify-center text-slate-500 hover:border-red-500 hover:text-red-500 transition-colors"
+                >
+                  ←
+                </button>
+                <button
+                  onClick={() => {
+                    setHandicraftIndex((prev: number) => (prev + 1) % (handicraftProducts.length * 2));
+                  }}
+                  className="w-10 h-10 rounded-full border border-slate-300 flex items-center justify-center text-slate-500 hover:border-red-500 hover:text-red-500 transition-colors"
+                >
+                  →
+                </button>
+              </div>
             </div>
           </div>
         </AnimatedSection>
@@ -698,6 +828,7 @@ export default function Home() {
                           src={blog.coverImage}
                           alt={blog.title}
                           fill
+                          sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
                           className="object-cover md:group-hover:scale-105 transition-transform duration-500"
                         />
                       </div>

@@ -22,6 +22,8 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
   const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
   const [isHovering, setIsHovering] = useState(false);
   const [mousePosition, setMousePosition] = useState({ x: 50, y: 50 });
+  const [isVideoPlaying, setIsVideoPlaying] = useState(false);
+  const [videoRef, setVideoRef] = useState<HTMLVideoElement | null>(null);
   
   // Header Modal State
   const [isQuoteOpen, setIsQuoteOpen] = useState(false);
@@ -43,6 +45,13 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
 
   // Get images array with fallback
   const images = product.images?.length ? product.images : (product.image ? [product.image] : []);
+  
+  // Create media array (images + video)
+  const mediaItems = [...images];
+  const videoIndex = product.video ? mediaItems.length : -1;
+  if (product.video) {
+    mediaItems.push(product.video); // Add video as last item
+  }
 
   // SEO Schema
   const productSchema = {
@@ -135,14 +144,33 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
     setSelectedImageIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1));
   };
 
-  // Auto-play gallery
+  // Auto-play gallery (pause when video is playing)
   useEffect(() => {
-    if (images.length <= 1 || isHovering) return;
+    if (mediaItems.length <= 1 || isHovering || isVideoPlaying) return;
     const interval = setInterval(() => {
-      setSelectedImageIndex(prev => (prev === images.length - 1 ? 0 : prev + 1));
+      setSelectedImageIndex(prev => (prev === mediaItems.length - 1 ? 0 : prev + 1));
     }, 4000);
     return () => clearInterval(interval);
-  }, [images.length, isHovering]);
+  }, [mediaItems.length, isHovering, isVideoPlaying]);
+  
+  // Handle video playback state
+  useEffect(() => {
+    if (videoRef) {
+      const handlePlay = () => setIsVideoPlaying(true);
+      const handlePause = () => setIsVideoPlaying(false);
+      const handleEnded = () => setIsVideoPlaying(false);
+      
+      videoRef.addEventListener('play', handlePlay);
+      videoRef.addEventListener('pause', handlePause);
+      videoRef.addEventListener('ended', handleEnded);
+      
+      return () => {
+        videoRef.removeEventListener('play', handlePlay);
+        videoRef.removeEventListener('pause', handlePause);
+        videoRef.removeEventListener('ended', handleEnded);
+      };
+    }
+  }, [videoRef]);
 
   // Update WhatsApp context
   useEffect(() => {
@@ -190,7 +218,7 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
             transition={{ duration: 0.5 }}
             className="space-y-4"
           >
-            {/* Main Image */}
+            {/* Main Media Display */}
             <div 
               className="relative aspect-[4/3] rounded-sm overflow-hidden bg-stone-100 shadow-sm border border-stone-200 group cursor-crosshair"
               onMouseEnter={() => setIsHovering(true)}
@@ -200,38 +228,68 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
               }}
               onMouseMove={handleMouseMove}
             >
-              {images[selectedImageIndex] ? (
-                <ProgressiveImage
-                  src={images[selectedImageIndex]}
-                  alt={product.name}
-                  fill
-                  style={{
-                    transformOrigin: `${mousePosition.x}% ${mousePosition.y}%`,
-                    transform: isHovering ? 'scale(2)' : 'scale(1)',
-                  }}
-                  containerClassName="hidden md:block"
-                  className="object-cover transition-transform duration-200 ease-out"
-                  priority
-                />
+              {selectedImageIndex === videoIndex && product.video ? (
+                // Video Display with styled player
+                <div className="absolute inset-0 bg-gradient-to-br from-slate-900 to-black flex items-center justify-center">
+                  <video
+                    ref={setVideoRef}
+                    src={product.video}
+                    controls
+                    controlsList="nodownload"
+                    className="w-full h-full object-contain"
+                    style={{
+                      filter: isVideoPlaying ? 'none' : 'brightness(0.8)',
+                    }}
+                  >
+                    Your browser does not support the video tag.
+                  </video>
+                  {/* Play Button Overlay - shown when video is not playing */}
+                  {!isVideoPlaying && (
+                    <div 
+                      className="absolute inset-0 flex items-center justify-center bg-gradient-to-b from-black/10 via-black/30 to-black/10 cursor-pointer transition-all"
+                      onClick={() => videoRef?.play()}
+                    >
+                      <div className="w-24 h-24 rounded-full bg-white/95 flex items-center justify-center shadow-2xl hover:scale-110 hover:bg-red-600 transition-all duration-300 group">
+                        <svg className="w-12 h-12 text-red-600 group-hover:text-white ml-1.5 transition-colors" fill="currentColor" viewBox="0 0 24 24">
+                          <path d="M8 5v14l11-7z" />
+                        </svg>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ) : mediaItems[selectedImageIndex] ? (
+                // Image Display
+                <>
+                  <ProgressiveImage
+                    src={mediaItems[selectedImageIndex]}
+                    alt={product.name}
+                    fill
+                    style={{
+                      transformOrigin: `${mousePosition.x}% ${mousePosition.y}%`,
+                      transform: isHovering ? 'scale(2)' : 'scale(1)',
+                    }}
+                    containerClassName="hidden md:block"
+                    className="object-cover transition-transform duration-200 ease-out"
+                    priority
+                  />
+                  {/* Mobile Image (No Zoom) */}
+                  <ProgressiveImage
+                    src={mediaItems[selectedImageIndex]}
+                    alt={product.name}
+                    fill
+                    containerClassName="md:hidden"
+                    className="object-cover"
+                    priority
+                  />
+                </>
               ) : (
                 <div className="absolute inset-0 flex items-center justify-center text-stone-300">
-                   <span className="text-xs uppercase tracking-widest">No Image</span>
+                   <span className="text-xs uppercase tracking-widest">No Media</span>
                 </div>
-              )}
-              {/* Mobile Image (No Zoom) */}
-              {images[selectedImageIndex] && (
-                <ProgressiveImage
-                  src={images[selectedImageIndex]}
-                  alt={product.name}
-                  fill
-                  containerClassName="md:hidden"
-                  className="object-cover"
-                  priority
-                />
               )}
               
               {/* Navigation Arrows */}
-              {images.length > 1 && (
+              {mediaItems.length > 1 && (
                 <>
                   <button
                     onClick={goToPreviousImage}
@@ -254,26 +312,49 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
             </div>
 
             {/* Thumbnails */}
-            {images.length > 1 && (
+            {mediaItems.length > 1 && (
               <div className="flex gap-3 overflow-x-auto pb-2">
-                {images.map((img, index) => (
-                  <button
-                    key={index}
-                    onClick={() => setSelectedImageIndex(index)}
-                    className={`relative flex-shrink-0 w-20 h-20 rounded-sm overflow-hidden transition-all border ${
-                      index === selectedImageIndex
-                        ? 'border-red-600 opacity-100 ring-1 ring-red-600'
-                        : 'border-stone-200 opacity-60 hover:opacity-100'
-                    }`}
-                  >
-                    <ProgressiveImage
-                      src={img}
-                      alt={`${product.name} - Image ${index + 1}`}
-                      fill
-                      className="object-cover"
-                    />
-                  </button>
-                ))}
+                {mediaItems.map((item, index) => {
+                  const isVideo = index === videoIndex;
+                  return (
+                    <button
+                      key={index}
+                      onClick={() => setSelectedImageIndex(index)}
+                      className={`relative flex-shrink-0 w-20 h-20 rounded-sm overflow-hidden transition-all border ${
+                        index === selectedImageIndex
+                          ? 'border-red-600 opacity-100 ring-1 ring-red-600'
+                          : 'border-stone-200 opacity-60 hover:opacity-100'
+                      }`}
+                    >
+                      {isVideo ? (
+                        // Video thumbnail with first frame and play icon
+                        <div className="relative w-full h-full bg-gradient-to-br from-slate-800 to-slate-900 flex items-center justify-center overflow-hidden">
+                          <video
+                            src={`${item}#t=0.1`}
+                            className="w-full h-full object-cover"
+                            preload="metadata"
+                            muted
+                            playsInline
+                          />
+                          <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-b from-black/20 via-black/40 to-black/20">
+                            <div className="w-10 h-10 rounded-full bg-white/90 flex items-center justify-center shadow-lg">
+                              <svg className="w-5 h-5 text-red-600 ml-0.5" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M8 5v14l11-7z" />
+                              </svg>
+                            </div>
+                          </div>
+                        </div>
+                      ) : (
+                        <ProgressiveImage
+                          src={item}
+                          alt={`${product.name} - Image ${index + 1}`}
+                          fill
+                          className="object-cover"
+                        />
+                      )}
+                    </button>
+                  );
+                })}
               </div>
             )}
             {/* Specifications Section - Moved here */}
@@ -291,6 +372,8 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
               </div>
             )}
           </motion.div>
+
+
 
           {/* Product Info & Enquiry Form */}
           <motion.div 

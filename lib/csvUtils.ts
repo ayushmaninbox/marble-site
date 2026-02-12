@@ -17,7 +17,7 @@ const ensureDataDirectory = () => {
 const initializeCsvFile = () => {
   ensureDataDirectory();
   if (!fs.existsSync(CSV_FILE_PATH)) {
-    const headers = 'id,name,category,description,price,images,specifications,inStock,isFeatured,displayOrder,createdAt\n';
+    const headers = 'id,name,category,description,price,images,video,specifications,inStock,isFeatured,displayOrder,createdAt\n';
     fs.writeFileSync(CSV_FILE_PATH, headers, 'utf-8');
   }
 };
@@ -56,10 +56,11 @@ const parseSpecifications = (specsValue: string | undefined): ProductSpecificati
 interface RawProductRow {
   id: string;
   name: string;
-  category: 'Marbles' | 'Tiles' | 'Handicraft';
+  category: 'Marbles' | 'Tiles' | 'Handicraft' | 'Granite';
   description: string;
   price: string;
   images?: string;
+  video?: string;
   image?: string; // Legacy field
   specifications?: string;
   inStock?: string; // 'true' or 'false' - defaults to 'true' for backwards compatibility
@@ -86,6 +87,7 @@ export const readProducts = (): Product[] => {
       description: row.description,
       price: parseFloat(row.price) || 0,
       images: parseImages(row.images, row.image),
+      video: row.video,
       specifications: parseSpecifications(row.specifications),
       inStock: row.inStock !== 'false', // Default to true for backwards compatibility
       isFeatured: row.isFeatured === 'true',
@@ -110,6 +112,7 @@ export const writeProducts = (products: Product[]): void => {
       description: p.description,
       price: p.price,
       images: JSON.stringify(p.images || []),
+      video: p.video || '',
       specifications: JSON.stringify(p.specifications || []),
       inStock: p.inStock !== false ? 'true' : 'false',
       isFeatured: p.isFeatured ? 'true' : 'false',
@@ -119,7 +122,7 @@ export const writeProducts = (products: Product[]): void => {
 
     const csv = Papa.unparse(csvData, {
       header: true,
-      columns: ['id', 'name', 'category', 'description', 'price', 'images', 'specifications', 'inStock', 'isFeatured', 'displayOrder', 'createdAt'],
+      columns: ['id', 'name', 'category', 'description', 'price', 'images', 'video', 'specifications', 'inStock', 'isFeatured', 'displayOrder', 'createdAt'],
       quotes: true,
     });
     fs.writeFileSync(CSV_FILE_PATH, csv, 'utf-8');

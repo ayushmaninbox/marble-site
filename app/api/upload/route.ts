@@ -4,8 +4,13 @@ import { existsSync } from 'fs';
 import path from 'path';
 
 // Allowed image types
-const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
-const MAX_SIZE = 5 * 1024 * 1024; // 5MB
+// Allowed image & video types
+const ALLOWED_TYPES = [
+  'image/jpeg', 'image/png', 'image/webp', 'image/gif',
+  'video/mp4', 'video/webm', 'video/quicktime'
+];
+const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5MB
+const MAX_VIDEO_SIZE = 50 * 1024 * 1024; // 50MB
 
 export async function POST(request: NextRequest) {
   try {
@@ -22,15 +27,19 @@ export async function POST(request: NextRequest) {
     // Validate file type
     if (!ALLOWED_TYPES.includes(file.type)) {
       return NextResponse.json(
-        { error: 'Invalid file type. Allowed: JPEG, PNG, WebP, GIF' },
+        { error: 'Invalid file type. Allowed: Images (JPEG, PNG, WebP, GIF) & Videos (MP4, WebM)' },
         { status: 400 }
       );
     }
 
     // Validate file size
-    if (file.size > MAX_SIZE) {
+    // Validate file size based on type
+    const isVideo = file.type.startsWith('video/');
+    const maxSize = isVideo ? MAX_VIDEO_SIZE : MAX_IMAGE_SIZE;
+
+    if (file.size > maxSize) {
       return NextResponse.json(
-        { error: 'File too large. Maximum size: 5MB' },
+        { error: `File too large. Maximum size: ${isVideo ? '50MB' : '5MB'}` },
         { status: 400 }
       );
     }

@@ -251,6 +251,7 @@ export default function QuoteModal({ isOpen, onClose }: QuoteModalProps) {
                                                 required
                                             >
                                                 <option value="Marbles">Marbles</option>
+                                                <option value="Granite">Granite</option>
                                                 <option value="Tiles">Tiles</option>
                                                 <option value="Handicraft">Handicraft</option>
                                             </select>

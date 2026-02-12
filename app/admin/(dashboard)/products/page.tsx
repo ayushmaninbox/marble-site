@@ -89,6 +89,7 @@ export default function ProductsPage() {
     inStock: true,
   });
   const [formImages, setFormImages] = useState<string[]>([]);
+  const [formVideo, setFormVideo] = useState<File | string | null>(null); // File for new upload, string for existing path
   const [formSpecifications, setFormSpecifications] = useState<ProductSpecification[]>([]);
   const [pendingFiles, setPendingFiles] = useState<File[]>([]);
   const [isUploading, setIsUploading] = useState(false);
@@ -352,6 +353,19 @@ export default function ProductsPage() {
 
       const allImages = [...formImages, ...uploadedPaths];
       
+      // Upload video if new file selected
+      let videoPath = typeof formVideo === 'string' ? formVideo : undefined;
+      if (formVideo instanceof File) {
+        const path = await uploadImage(formVideo); // Reusing uploadImage for video
+        if (path) videoPath = path;
+        else {
+          setFormError('Failed to upload video. Please try again.');
+          setFormSubmitting(false);
+          setIsUploading(false);
+          return;
+        }
+      }
+      
       // Filter out empty specifications
       const validSpecs = formSpecifications.filter(s => s.key.trim() && s.value.trim());
       
@@ -361,6 +375,7 @@ export default function ProductsPage() {
         description: formData.description.trim(),
         price: parseFloat(formData.price),
         images: allImages,
+        video: videoPath,
         specifications: validSpecs,
         inStock: formData.inStock,
       };
@@ -392,6 +407,7 @@ export default function ProductsPage() {
     setEditingProduct(undefined);
     setFormData({ name: '', category: 'Marbles', description: '', price: '', inStock: true });
     setFormImages([]);
+    setFormVideo(null);
     setFormSpecifications([]);
     setPendingFiles([]);
     setFormError('');
@@ -408,6 +424,7 @@ export default function ProductsPage() {
       inStock: product.inStock !== false,
     });
     setFormImages(product.images || (product.image ? [product.image] : []));
+    setFormVideo(product.video || null);
     setFormSpecifications(product.specifications || []);
     setPendingFiles([]);
     setFormError('');
@@ -419,6 +436,7 @@ export default function ProductsPage() {
     setEditingProduct(undefined);
     setFormData({ name: '', category: 'Marbles', description: '', price: '', inStock: true });
     setFormImages([]);
+    setFormVideo(null);
     setFormSpecifications([]);
     setPendingFiles([]);
     setFormError('');
@@ -654,6 +672,7 @@ export default function ProductsPage() {
               >
                 <option value="all">All Categories</option>
                 <option value="Marbles">Marbles</option>
+                <option value="Granite">Granite</option>
                 <option value="Tiles">Tiles</option>
                 <option value="Handicraft">Handicraft</option>
               </select>
@@ -783,6 +802,7 @@ export default function ProductsPage() {
                     className={inputClasses}
                   >
                     <option value="Marbles">Marbles</option>
+                    <option value="Granite">Granite</option>
                     <option value="Tiles">Tiles</option>
                     <option value="Handicraft">Handicraft</option>
                   </select>
@@ -882,6 +902,65 @@ export default function ProductsPage() {
                   )}
                 </div>
                 <p className="text-xs text-slate-400">Drag & drop or click to add images.</p>
+              </div>
+
+              {/* Video Upload Section */}
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <label className="block text-xs font-semibold text-slate-600">
+                    Product Video (Optional)
+                  </label>
+                  {formVideo && (
+                    <button
+                      type="button"
+                      onClick={() => setFormVideo(null)}
+                      className="text-xs text-red-600 hover:text-red-700 font-semibold"
+                    >
+                      Remove Video
+                    </button>
+                  )}
+                </div>
+                {formVideo ? (
+                  <div className="relative rounded-lg overflow-hidden bg-stone-100 aspect-video">
+                    <video 
+                      src={typeof formVideo === 'string' ? formVideo : URL.createObjectURL(formVideo)} 
+                      controls 
+                      className="w-full h-full object-contain"
+                    />
+                    {typeof formVideo !== 'string' && (
+                      <div className="absolute top-2 right-2 bg-purple-600 text-white text-xs px-2 py-1 rounded">
+                        {(formVideo.size / (1024 * 1024)).toFixed(2)} MB
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <label className="block border-2 border-dashed border-stone-300 rounded-lg p-6 text-center cursor-pointer hover:border-purple-400 hover:bg-purple-50/50 transition">
+                    <div className="flex flex-col items-center gap-2">
+                      <svg className="w-8 h-8 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                      </svg>
+                      <span className="text-sm font-medium text-slate-600">Upload Product Video</span>
+                      <span className="text-xs text-slate-400">MP4, WebM, MOV (Max 50MB)</span>
+                    </div>
+                    <input
+                      type="file"
+                      accept="video/mp4,video/webm,video/quicktime"
+                      onChange={(e) => {
+                        if (e.target.files && e.target.files[0]) {
+                          const file = e.target.files[0];
+                          if (file.size > 50 * 1024 * 1024) {
+                            setFormError('Video too large. Maximum size is 50MB.');
+                            return;
+                          }
+                          setFormVideo(file);
+                        }
+                        e.target.value = '';
+                      }}
+                      className="hidden"
+                    />
+                  </label>
+                )}
+                <p className="text-xs text-slate-400 mt-2">Video will be displayed on the product detail page</p>
               </div>
 
               <div>

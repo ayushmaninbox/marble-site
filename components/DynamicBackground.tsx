@@ -66,7 +66,7 @@ export function DynamicBackground() {
             {blobs.map((blob, i) => (
                 <motion.div
                     key={i}
-                    className={`absolute rounded-full blur-3xl ${blob.color} ${blob.size}`}
+                    className={`absolute rounded-full blur-2xl opacity-60 ${blob.color} ${blob.size} ${i > 2 ? 'hidden md:block' : ''} will-change-transform`}
                     style={{
                         left: blob.initialPos.x,
                         top: blob.initialPos.y,

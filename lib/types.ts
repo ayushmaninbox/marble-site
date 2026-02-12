@@ -6,10 +6,11 @@ export interface ProductSpecification {
 export interface Product {
   id: string;
   name: string;
-  category: 'Marbles' | 'Tiles' | 'Handicraft';
+  category: 'Marbles' | 'Tiles' | 'Handicraft' | 'Granite';
   description: string;
   price: number;
   images: string[]; // Array of up to 7 image URLs/paths
+  video?: string; // Optional path to product video
   image?: string; // Legacy field for backward compatibility
   specifications?: ProductSpecification[]; // Custom key-value specifications
   inStock: boolean; // Stock availability status
@@ -18,7 +19,7 @@ export interface Product {
   createdAt: string;
 }
 
-export type ProductCategory = 'Marbles' | 'Tiles' | 'Handicraft';
+export type ProductCategory = 'Marbles' | 'Tiles' | 'Handicraft' | 'Granite';
 
 export interface Enquiry {
   id: string;
@@ -26,7 +27,7 @@ export interface Enquiry {
   lastName: string;
   email: string;
   phone: string;
-  productCategory: 'Marbles' | 'Tiles' | 'Handicraft';
+  productCategory: 'Marbles' | 'Tiles' | 'Handicraft' | 'Granite';
   productName: string;
   quantity: number;
   message?: string;

@@ -86,7 +86,7 @@ export default function FeaturedCarousel({ products }: FeaturedCarouselProps) {
                 </h2>
             </div>
             
-            <div className="relative group">
+            <div className="relative">
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                     <AnimatePresence mode='popLayout'>
                         {visibleProducts.map((product, i) => (
