@@ -37,6 +37,7 @@ export default function SiteHeader({ isRevealed = true, setIsQuoteOpen }: SiteHe
     { href: '/', label: 'Home' },
     { href: '/products', label: 'Product' },
     { href: '/blogs', label: 'Blog' },
+    { href: '/about', label: 'About Us' },
     { href: '/contact', label: 'Contact' },
   ];
 
@@ -51,11 +52,10 @@ export default function SiteHeader({ isRevealed = true, setIsQuoteOpen }: SiteHe
         initial={{ y: -100, opacity: 0 }}
         animate={isRevealed ? { y: 0, opacity: 1 } : { y: -100, opacity: 0 }}
         transition={{ duration: 0.8, ease: [0.22, 0.61, 0.36, 1] }}
-        className={`fixed top-0 left-0 right-0 z-[60] transition-all duration-300 ${
-          scrolled || isMobileMenuOpen 
-            ? 'bg-white border-b border-red-100 shadow-md shadow-slate-200/50 py-3' 
+        className={`fixed top-0 left-0 right-0 z-[60] transition-all duration-300 ${scrolled || isMobileMenuOpen
+            ? 'bg-white border-b border-red-100 shadow-md shadow-slate-200/50 py-3'
             : 'bg-white/95 backdrop-blur-sm border-b border-red-100/50 py-4'
-        }`}
+          }`}
       >
         <div className="mx-auto flex w-full max-w-7xl items-center justify-between px-4 sm:px-6">
           {/* Logo Section */}
@@ -134,10 +134,9 @@ export default function SiteHeader({ isRevealed = true, setIsQuoteOpen }: SiteHe
       </motion.header>
 
       {/* Mobile Menu Overlay */}
-      <div 
-        className={`fixed inset-0 z-[55] bg-white md:hidden transition-all duration-300 ease-in-out ${
-          isMobileMenuOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
-        }`}
+      <div
+        className={`fixed inset-0 z-[55] bg-white md:hidden transition-all duration-300 ease-in-out ${isMobileMenuOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
+          }`}
       >
         <div className="flex flex-col items-center justify-center h-full space-y-8 pt-20 pb-10">
           {navLinks.map((link, index) => (
@@ -145,19 +144,17 @@ export default function SiteHeader({ isRevealed = true, setIsQuoteOpen }: SiteHe
               key={link.href}
               href={link.href}
               onClick={() => setIsMobileMenuOpen(false)}
-              className={`text-2xl font-light tracking-widest uppercase transition-all duration-300 ${
-                isActive(link.href) ? 'text-red-600' : 'text-slate-900'
-              } ${isMobileMenuOpen ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'}`}
+              className={`text-2xl font-light tracking-widest uppercase transition-all duration-300 ${isActive(link.href) ? 'text-red-600' : 'text-slate-900'
+                } ${isMobileMenuOpen ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'}`}
               style={{ transitionDelay: `${index * 100}ms` }}
             >
               {link.label}
             </Link>
           ))}
-          
-          <div 
-            className={`pt-8 transition-all duration-300 ${
-              isMobileMenuOpen ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'
-            }`}
+
+          <div
+            className={`pt-8 transition-all duration-300 ${isMobileMenuOpen ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'
+              }`}
             style={{ transitionDelay: '400ms' }}
           >
             {setIsQuoteOpen ? (
