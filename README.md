@@ -1,36 +1,74 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Shree Radhe Marble & Granite
 
-## Getting Started
+A premium web application for a marble and granite business, featuring a dynamic product showcase, rich-text blogging system, and a custom administrative dashboard with local CSV-based data persistence.
 
-First, run the development server:
+## 🚀 Features
+
+- **Dynamic Product Showcase**: Categorized product displays with smooth animations and interactive tabs.
+- **Admin Dashboard**: Secure management of products, blogs, enquiries, and users.
+- **CSV Data Persistence**: Lightweight data storage solution using local CSV files for simplified deployment.
+- **Rich-Text Blog System**: Full-featured editor using Tiptap for creating and managing engaging content.
+- **Quote Request System**: Integrated enquiry forms for potential customers.
+- **Animated UI**: High-performance animations using Framer Motion and custom CSS transitions.
+- **WhatsApp Integration**: Floating contact button for immediate customer support.
+- **Responsive Design**: Fully optimized for mobile, tablet, and desktop viewing.
+
+## 🛠️ Tech Stack
+
+- **Framework**: [Next.js 16 (App Router)](https://nextjs.org/)
+- **Styling**: [Tailwind CSS 4](https://tailwindcss.com/)
+- **Animations**: [Framer Motion](https://www.framer.com/motion/)
+- **Editor**: [Tiptap](https://tiptap.dev/)
+- **Icons**: [Lucide React](https://lucide.dev/)
+- **Data Parsing**: [PapaParse](https://www.papaparse.com/)
+- **Language**: [TypeScript](https://www.typescriptlang.org/)
+
+## 📁 Project Structure
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+├── app/              # Next.js App Router (Pages, API routes)
+├── components/       # Reusable UI components
+├── data/             # CSV storage (products, blogs, enquiries, users)
+├── lib/              # Utility functions and shared logic
+├── public/           # Static assets (images, fonts, icons)
+└── styles/           # Global styles and Tailwind configuration
 ```
+
+## ⚙️ Getting Started
+
+### Prerequisites
+
+- Node.js 20+
+- npm or yarn
+
+### Installation
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/ayushmaninbox/marble-site.git
+   cd marble-site
+   ```
+
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+
+3. Run the development server:
+   ```bash
+   npm run dev
+   ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 🔒 Admin Access
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+The admin panel is located at `/admin`. Authentication is managed via a simple user system stored in `data/users.csv`.
 
-## Learn More
+## 🌐 Deployment
 
-To learn more about Next.js, take a look at the following resources:
+For detailed deployment instructions on Hostinger VPS using PM2 and Nginx, please refer to [DEPLOY.md](file:///Users/ayushmaninbox/Documents/Freelance/marble-site/DEPLOY.md).
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 📄 License
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+This project is private and intended for freelance use by Shree Radhe Marble & Granite.
