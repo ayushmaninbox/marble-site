@@ -9,12 +9,16 @@ const jost = Jost({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://shreeradhemarbles.in"),
   title: {
     default: "Shree Radhe Marble & Granite - Premium Marbles, Tiles & Handicraft",
     template: "%s | Shree Radhe Marble & Granite",
   },
   description: "Discover premium quality marbles, tiles, and handicraft products at Shree Radhe Marble & Granite. Browse our exclusive collection and order online.",
   keywords: ["marble", "tiles", "granite", "handicraft", "premium marble", "Indian marble"],
+  alternates: {
+    canonical: "/",
+  },
 };
 
 import FloatingWhatsApp from "@/components/FloatingWhatsApp";
