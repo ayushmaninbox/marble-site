@@ -59,7 +59,7 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
     "@type": "Product",
     "name": product.name,
     "image": images,
-    "description": product.description,
+    "description": product.description || '',
     "brand": {
       "@type": "Brand",
       "name": "Shree Radhe Marble & Granite"
@@ -396,9 +396,9 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
 
               <div className="flex items-baseline gap-2">
                 <span className="text-3xl font-medium text-slate-900">
-                  ₹{product.price.toLocaleString('en-IN')}
+                  {product.price === 'Price on Request' ? 'Price on Request' : `₹${Number(product.price).toLocaleString('en-IN')}`}
                 </span>
-                <span className="text-sm text-slate-500 font-light">/ unit</span>
+                {product.price !== 'Price on Request' && <span className="text-sm text-slate-500 font-light">/ unit</span>}
               </div>
 
               <div className="grid grid-cols-2 gap-4 text-xs tracking-wide uppercase text-slate-500 py-6 border-y border-stone-100">
@@ -422,15 +422,16 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
                 <h3 className="text-xs font-bold uppercase tracking-wider text-slate-900 mb-3">Product Description</h3>
                 <div className={`relative overflow-hidden transition-all duration-500 ${isDescriptionExpanded ? 'max-h-[2000px]' : 'max-h-[120px]'}`}>
                   <div className="prose prose-stone prose-sm max-w-none text-slate-600 font-light leading-relaxed">
-                    {product.description.split('\n').map((paragraph, index) => (
+                    {(product.description || '').split('\n').map((paragraph, index) => (
                       paragraph.trim() && <p key={index} className="mb-2">{paragraph}</p>
                     ))}
+                    {!product.description && <p className="italic text-slate-400">No description available for this product.</p>}
                   </div>
-                  {!isDescriptionExpanded && product.description.length > 200 && (
+                  {!isDescriptionExpanded && (product.description || '').length > 200 && (
                     <div className="absolute bottom-0 left-0 right-0 h-12 bg-gradient-to-t from-white to-transparent" />
                   )}
                 </div>
-                {product.description.length > 200 && (
+                {(product.description || '').length > 200 && (
                   <button
                     onClick={() => setIsDescriptionExpanded(!isDescriptionExpanded)}
                     className="mt-2 text-xs font-bold text-red-600 hover:text-red-700 uppercase tracking-widest flex items-center gap-1 group w-fit"

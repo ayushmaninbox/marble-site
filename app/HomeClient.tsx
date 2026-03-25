@@ -437,9 +437,9 @@ export default function Home() {
                         </Link>
                         <div className="mt-4 space-y-1.5 px-1">
                           <h4 className="text-base font-semibold text-slate-900 truncate group-hover:text-red-600 transition-colors duration-200">{product.name}</h4>
-                          <p className="text-xs text-slate-500 line-clamp-2 leading-relaxed">{product.description}</p>
+                          <p className="text-xs text-slate-500 line-clamp-2 leading-relaxed">{product.description || ''}</p>
                           <div className="flex items-center justify-between pt-2">
-                            <span className="text-lg font-bold text-slate-900">₹{product.price.toLocaleString()}</span>
+                            <span className="text-lg font-bold text-slate-900">{product.price === 'Price on Request' ? 'Price on Request' : `₹${Number(product.price).toLocaleString()}`}</span>
                             <Link
                               href={`/products/${product.id}`}
                               className="px-4 py-2 text-xs font-medium border border-slate-200 rounded-full transition-all duration-200 hover:border-red-500 hover:text-red-500 hover:bg-red-50"
@@ -522,9 +522,9 @@ export default function Home() {
                         </Link>
                         <div className="mt-4 space-y-1.5 px-1">
                           <h4 className="text-base font-semibold text-slate-900 truncate group-hover:text-red-600 transition-colors duration-200">{product.name}</h4>
-                          <p className="text-xs text-slate-500 line-clamp-2 leading-relaxed">{product.description}</p>
+                          <p className="text-xs text-slate-500 line-clamp-2 leading-relaxed">{product.description || ''}</p>
                           <div className="flex items-center justify-between pt-2">
-                            <span className="text-lg font-bold text-slate-900">₹{product.price.toLocaleString()}</span>
+                            <span className="text-lg font-bold text-slate-900">{product.price === 'Price on Request' ? 'Price on Request' : `₹${Number(product.price).toLocaleString()}`}</span>
                             <Link
                               href={`/products/${product.id}`}
                               className="px-4 py-2 text-xs font-medium border border-slate-200 rounded-full transition-all duration-200 hover:border-red-500 hover:text-red-500 hover:bg-red-50"
@@ -666,9 +666,9 @@ export default function Home() {
                         </Link>
                         <div className="mt-4 space-y-1.5 px-1">
                           <h4 className="text-base font-semibold text-slate-900 truncate group-hover:text-red-600 transition-colors duration-200">{product.name}</h4>
-                          <p className="text-xs text-slate-500 line-clamp-2 leading-relaxed">{product.description}</p>
+                          <p className="text-xs text-slate-500 line-clamp-2 leading-relaxed">{product.description || ''}</p>
                           <div className="flex items-center justify-between pt-2">
-                            <span className="text-lg font-bold text-slate-900">₹{product.price.toLocaleString()}</span>
+                            <span className="text-lg font-bold text-slate-900">{product.price === 'Price on Request' ? 'Price on Request' : `₹${Number(product.price).toLocaleString()}`}</span>
                             <Link
                               href={`/products/${product.id}`}
                               className="px-4 py-2 text-xs font-medium border border-slate-200 rounded-full transition-all duration-200 hover:border-red-500 hover:text-red-500 hover:bg-red-50"
@@ -751,9 +751,9 @@ export default function Home() {
                         </Link>
                         <div className="mt-4 space-y-1.5 px-1">
                           <h4 className="text-base font-semibold text-slate-900 truncate group-hover:text-red-600 transition-colors duration-200">{product.name}</h4>
-                          <p className="text-xs text-slate-500 line-clamp-2 leading-relaxed">{product.description}</p>
+                          <p className="text-xs text-slate-500 line-clamp-2 leading-relaxed">{product.description || ''}</p>
                           <div className="flex items-center justify-between pt-2">
-                            <span className="text-lg font-bold text-slate-900">₹{product.price.toLocaleString()}</span>
+                            <span className="text-lg font-bold text-slate-900">{product.price === 'Price on Request' ? 'Price on Request' : `₹${Number(product.price).toLocaleString()}`}</span>
                             <Link
                               href={`/products/${product.id}`}
                               className="px-4 py-2 text-xs font-medium border border-slate-200 rounded-full transition-all duration-200 hover:border-red-500 hover:text-red-500 hover:bg-red-50"

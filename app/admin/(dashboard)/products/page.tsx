@@ -87,6 +87,7 @@ export default function ProductsPage() {
     description: '',
     price: '',
     inStock: true,
+    isPriceOnRequest: false,
   });
   const [formImages, setFormImages] = useState<string[]>([]);
   const [formVideo, setFormVideo] = useState<File | string | null>(null); // File for new upload, string for existing path
@@ -323,8 +324,12 @@ export default function ProductsPage() {
     setFormError('');
 
     if (!formData.name.trim()) return setFormError('Product name is required');
-    if (!formData.description.trim()) return setFormError('Description is required');
-    if (!formData.price || parseFloat(formData.price) <= 0) return setFormError('Price must be greater than 0');
+    
+    if (!formData.isPriceOnRequest) {
+      if (!formData.price || isNaN(parseFloat(formData.price)) || parseFloat(formData.price) <= 0) {
+        return setFormError('Price must be greater than 0, or select "Price on Request"');
+      }
+    }
     
     const totalImages = formImages.length + pendingFiles.length;
     if (totalImages === 0) return setFormError('Please add at least one image');
@@ -372,8 +377,8 @@ export default function ProductsPage() {
       const productData = {
         name: formData.name.trim(),
         category: formData.category,
-        description: formData.description.trim(),
-        price: parseFloat(formData.price),
+        description: (formData.description || '').trim(),
+        price: formData.isPriceOnRequest ? 'Price on Request' : formData.price,
         images: allImages,
         video: videoPath,
         specifications: validSpecs,
@@ -405,7 +410,7 @@ export default function ProductsPage() {
 
   const openAddForm = () => {
     setEditingProduct(undefined);
-    setFormData({ name: '', category: 'Marbles', description: '', price: '', inStock: true });
+    setFormData({ name: '', category: 'Marbles', description: '', price: '', inStock: true, isPriceOnRequest: false });
     setFormImages([]);
     setFormVideo(null);
     setFormSpecifications([]);
@@ -419,9 +424,10 @@ export default function ProductsPage() {
     setFormData({
       name: product.name,
       category: product.category,
-      description: product.description,
-      price: product.price.toString(),
+      description: product.description || '',
+      price: product.price === 'Price on Request' ? '' : product.price.toString(),
       inStock: product.inStock !== false,
+      isPriceOnRequest: product.price === 'Price on Request',
     });
     setFormImages(product.images || (product.image ? [product.image] : []));
     setFormVideo(product.video || null);
@@ -434,7 +440,7 @@ export default function ProductsPage() {
   const closeForm = () => {
     setShowForm(false);
     setEditingProduct(undefined);
-    setFormData({ name: '', category: 'Marbles', description: '', price: '', inStock: true });
+    setFormData({ name: '', category: 'Marbles', description: '', price: '', inStock: true, isPriceOnRequest: false });
     setFormImages([]);
     setFormVideo(null);
     setFormSpecifications([]);
@@ -818,15 +824,55 @@ export default function ProductsPage() {
                 </div>
               </div>
 
+              <div className="bg-stone-50 p-4 rounded-xl border border-stone-200 space-y-3">
+                <div className="flex items-center justify-between">
+                  <label className="block text-xs font-semibold text-slate-600">Price Configuration</label>
+                  <button
+                    type="button"
+                    onClick={() => setFormData({ ...formData, isPriceOnRequest: !formData.isPriceOnRequest })}
+                    className={`text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded transition-colors ${
+                      formData.isPriceOnRequest 
+                        ? 'bg-red-600 text-white shadow-sm' 
+                        : 'bg-stone-200 text-slate-600 hover:bg-stone-300'
+                    }`}
+                  >
+                    {formData.isPriceOnRequest ? '✓ Price on Request' : 'Set Price on Request'}
+                  </button>
+                </div>
+
+                {!formData.isPriceOnRequest ? (
+                  <div className="relative">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 font-medium">₹</span>
+                    <input
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      value={formData.price}
+                      onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+                      placeholder="25000"
+                      className={`${inputClasses} pl-7`}
+                    />
+                  </div>
+                ) : (
+                  <div className="py-2 px-3 bg-red-50 text-red-700 rounded-lg text-sm font-semibold border border-red-100 flex items-center gap-2">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    Price will be shown as "Price on Request"
+                  </div>
+                )}
+              </div>
+
               <div>
-                <label className="block text-xs font-semibold text-slate-600 mb-1.5">Price (₹)</label>
-                <input
-                  type="number"
-                  min="0"
-                  step="0.01"
-                  value={formData.price}
-                  onChange={(e) => setFormData({ ...formData, price: e.target.value })}
-                  placeholder="25000"
+                <label className="block text-xs font-semibold text-slate-600 mb-1.5 flex justify-between">
+                  Product Description (Optional)
+                  <span className="text-[10px] text-slate-400 font-normal uppercase">Keep empty if not needed</span>
+                </label>
+                <textarea
+                  value={formData.description}
+                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                  placeholder="Tell clients about this product..."
+                  rows={4}
                   className={inputClasses}
                 />
               </div>
@@ -1044,16 +1090,6 @@ export default function ProductsPage() {
                 )}
               </div>
 
-              <div>
-                <label className="block text-xs font-semibold text-slate-600 mb-1.5">Description</label>
-                <textarea
-                  value={formData.description}
-                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  placeholder="Brief product description..."
-                  rows={3}
-                  className={inputClasses + " resize-none"}
-                />
-              </div>
 
               {formError && (
                 <div className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-600">

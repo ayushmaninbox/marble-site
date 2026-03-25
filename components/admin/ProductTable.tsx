@@ -180,7 +180,7 @@ export default function ProductTable({
                   </span>
                 </td>
                 <td className="px-4 py-3 text-sm font-bold text-slate-900">
-                  ₹{product.price.toLocaleString('en-IN')}
+                  {product.price === 'Price on Request' ? 'Price on Request' : `₹${Number(product.price).toLocaleString('en-IN')}`}
                 </td>
                 <td className="px-4 py-3 text-xs text-slate-500 whitespace-nowrap md:block hidden">
                   {product.createdAt ? new Date(product.createdAt).toLocaleDateString('en-IN', {

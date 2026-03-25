@@ -85,7 +85,7 @@ export const readProducts = (): Product[] => {
       name: row.name,
       category: row.category,
       description: row.description,
-      price: parseFloat(row.price) || 0,
+      price: row.price || '',
       images: parseImages(row.images, row.image),
       video: row.video,
       specifications: parseSpecifications(row.specifications),

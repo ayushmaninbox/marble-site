@@ -59,7 +59,7 @@ export default function ProductsPage() {
       const query = searchQuery.toLowerCase();
       result = result.filter(p => 
         p.name.toLowerCase().includes(query) || 
-        p.description.toLowerCase().includes(query)
+        (p.description && p.description.toLowerCase().includes(query))
       );
     }
 
@@ -71,11 +71,15 @@ export default function ProductsPage() {
       }
 
       // Secondary sort: Selected criteria
+      const aPrice = a.price === 'Price on Request' ? 0 : Number(a.price);
+      const bPrice = b.price === 'Price on Request' ? 0 : Number(b.price);
+
+      // Secondary sort: Selected criteria
       switch (sortBy) {
         case 'price-asc':
-          return a.price - b.price;
+          return aPrice - bPrice;
         case 'price-desc':
-          return b.price - a.price;
+          return bPrice - aPrice;
         case 'name-asc':
           return a.name.localeCompare(b.name);
         case 'name-desc':

@@ -59,7 +59,10 @@ export default function ProductCard({ product }: ProductCardProps) {
           </div>
           <div className="mt-5 flex items-center justify-between border-t border-stone-100 pt-3">
             <span className={`text-base font-medium ${isOutOfStock ? 'text-slate-400' : 'text-slate-900'}`}>
-              ₹{product.price.toLocaleString('en-IN')}
+              {typeof product.price === 'string' && product.price === 'Price on Request' 
+                ? 'Price on Request' 
+                : `₹${Number(product.price).toLocaleString('en-IN')}`
+              }
             </span>
             <span className={`text-xs uppercase tracking-widest font-semibold inline-flex items-center gap-1 ${isOutOfStock ? 'text-slate-400' : 'text-red-600 group-hover:translate-x-1 transition-transform'}`}>
               View Details 

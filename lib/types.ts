@@ -7,8 +7,8 @@ export interface Product {
   id: string;
   name: string;
   category: 'Marbles' | 'Tiles' | 'Handicraft' | 'Granite';
-  description: string;
-  price: number;
+  description?: string;
+  price: string | number;
   images: string[]; // Array of up to 7 image URLs/paths
   video?: string; // Optional path to product video
   image?: string; // Legacy field for backward compatibility
