@@ -2,9 +2,14 @@ import { Metadata } from 'next';
 import ContactClient from './ContactClient';
 
 export const metadata: Metadata = {
-  title: 'Contact Us',
-  description: 'Get in touch with Shree Radhe Marble & Granite for inquiries, quotes, or to discuss your stone project requirements.',
-  keywords: ['contact stone supplier', 'marble quotes', 'granite inquiry', 'stone showroom location'],
+  title: 'Get in Touch',
+  description: 'Connect with Shree Radhe Marble & Granite in Agartala. Contact us for premium marble quotes, customized stone projects, or visiting our showroom.',
+  keywords: ['contact marble shop agartala', 'request stone quote', 'marble showroom location tripura', 'stone consultancy agartala'],
+  openGraph: {
+    title: "Contact Us | Shree Radhe Marble & Granite",
+    description: "Ready to start your project? Reach out for expert stone advice and premium quotes.",
+    images: ["/Assets/logo_new.png"],
+  },
 };
 
 export default function ContactPage() {

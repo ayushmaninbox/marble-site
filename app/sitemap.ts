@@ -35,16 +35,18 @@ export default function sitemap(): MetadataRoute.Sitemap {
     const blogsPath = path.join(process.cwd(), 'data', 'blogs.csv')
     if (fs.existsSync(blogsPath)) {
       const fileContent = fs.readFileSync(blogsPath, 'utf-8')
-      const parsed = Papa.parse<BlogRow>(fileContent, {
+      const parsed = Papa.parse<any>(fileContent, {
         header: true,
         skipEmptyLines: true,
       })
-      blogRoutes = parsed.data.map((blog) => ({
-        url: `${BASE_URL}/blogs/${blog.slug}`,
-        lastModified: new Date(blog.updatedAt || new Date()),
-        changeFrequency: 'weekly' as const,
-        priority: 0.6,
-      }))
+      blogRoutes = parsed.data
+        .filter(blog => blog.slug) // Ensure slug exists
+        .map((blog) => ({
+          url: `${BASE_URL}/blogs/${blog.slug}`,
+          lastModified: blog.updatedAt ? new Date(blog.updatedAt) : new Date(),
+          changeFrequency: 'weekly' as const,
+          priority: 0.7,
+        }))
     }
   } catch (error) {
     console.error('Error generating blog sitemap:', error)
@@ -56,16 +58,18 @@ export default function sitemap(): MetadataRoute.Sitemap {
     const productsPath = path.join(process.cwd(), 'data', 'products.csv')
     if (fs.existsSync(productsPath)) {
       const fileContent = fs.readFileSync(productsPath, 'utf-8')
-      const parsed = Papa.parse<ProductRow>(fileContent, {
+      const parsed = Papa.parse<any>(fileContent, {
         header: true,
         skipEmptyLines: true,
       })
-      productRoutes = parsed.data.map((product) => ({
-        url: `${BASE_URL}/products/${product.id}`,
-        lastModified: new Date(product.createdAt || new Date()),
-        changeFrequency: 'weekly' as const,
-        priority: 0.7,
-      }))
+      productRoutes = parsed.data
+        .filter(product => product.id) // Ensure ID exists
+        .map((product) => ({
+          url: `${BASE_URL}/products/${product.id}`,
+          lastModified: product.createdAt ? new Date(product.createdAt) : new Date(),
+          changeFrequency: 'daily' as const, // Products might change more often (stock/price)
+          priority: 0.9,
+        }))
     }
   } catch (error) {
     console.error('Error generating product sitemap:', error)
