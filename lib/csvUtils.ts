@@ -167,6 +167,17 @@ export const deleteProduct = (id: string): boolean => {
   return true;
 };
 
+export const deleteProducts = (ids: string[]): Product[] => {
+  const products = readProducts();
+  const deletedProducts = products.filter(p => ids.includes(p.id));
+  const filteredProducts = products.filter(p => !ids.includes(p.id));
+
+  if (deletedProducts.length > 0) {
+    writeProducts(filteredProducts);
+  }
+  return deletedProducts;
+};
+
 export const reorderProducts = (productId: string, newIndex: number): boolean => {
   const products = readProducts();
   const currentIndex = products.findIndex(p => p.id === productId);

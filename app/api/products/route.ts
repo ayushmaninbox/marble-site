@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { readProducts, addProduct, reorderProducts } from '@/lib/csvUtils';
+import { deleteProducts, readProducts, addProduct, reorderProducts } from '@/lib/csvUtils';
 import { Product } from '@/lib/types';
+import { deleteFiles } from '@/lib/fileUtils';
 
 // Simple in-memory cache
 let cachedProducts: Product[] | null = null;
@@ -129,3 +130,42 @@ export async function PATCH(request: NextRequest) {
   }
 }
 
+export async function DELETE(request: NextRequest) {
+  try {
+    const body = await request.json();
+    const { ids } = body;
+
+    if (!ids || !Array.isArray(ids) || ids.length === 0) {
+      return NextResponse.json(
+        { error: 'Missing or invalid ids' },
+        { status: 400 }
+      );
+    }
+
+    const deletedProducts = deleteProducts(ids);
+    
+    // Cleanup files for all deleted products
+    const allFilesToDelete: string[] = [];
+    deletedProducts.forEach(p => {
+      if (p.images) allFilesToDelete.push(...p.images);
+      if (p.video) allFilesToDelete.push(p.video);
+    });
+    
+    if (allFilesToDelete.length > 0) {
+      await deleteFiles(allFilesToDelete);
+    }
+
+    invalidateCache();
+
+    return NextResponse.json({ 
+      message: `${deletedProducts.length} products deleted successfully`,
+      deletedCount: deletedProducts.length
+    });
+  } catch (error) {
+    console.error('Error in bulk delete products:', error);
+    return NextResponse.json(
+      { error: 'Failed to delete products' },
+      { status: 500 }
+    );
+  }
+}

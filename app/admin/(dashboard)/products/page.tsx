@@ -493,13 +493,22 @@ export default function ProductsPage() {
     
     setLoading(true);
     try {
-      for (const id of selectedIds) {
-        await fetch(`/api/products/${id}`, { method: 'DELETE' });
+      const response = await fetch('/api/products', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ids: selectedIds }),
+      });
+      
+      if (response.ok) {
+        setSelectedIds([]);
+        await fetchProducts();
+      } else {
+        const error = await response.json();
+        alert(error.error || 'Failed to delete products');
       }
-      setSelectedIds([]);
-      await fetchProducts();
     } catch (error) {
       console.error('Bulk delete error:', error);
+      alert('Failed to delete products');
     } finally {
       setLoading(false);
     }
@@ -760,7 +769,7 @@ export default function ProductsPage() {
           products={paginatedProducts}
           selectedIds={selectedIds}
           onSelect={(id) => setSelectedIds(prev => prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id])}
-          onSelectAll={(selected) => setSelectedIds(selected ? paginatedProducts.map(p => p.id) : [])}
+          onSelectAll={(selected) => setSelectedIds(selected ? filteredProducts.map(p => p.id) : [])}
           onEdit={openEditForm}
           onDelete={handleDeleteProduct}
           onPreview={(product) => { setPreviewProduct(product); setPreviewImageIndex(0); }}

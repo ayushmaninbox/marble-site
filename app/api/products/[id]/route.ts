@@ -1,35 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { readProducts, updateProduct, deleteProduct } from '@/lib/csvUtils';
-import { unlink } from 'fs/promises';
-import { existsSync } from 'fs';
-import path from 'path';
-
-// Helper function to delete an uploaded file (image or video)
-async function deleteUploadedFile(filePath: string): Promise<boolean> {
-  if (!filePath || !filePath.startsWith('/uploads/products/')) {
-    return false;
-  }
-  
-  try {
-    const filename = path.basename(filePath);
-    const absolutePath = path.join(process.cwd(), 'public', 'uploads', 'products', filename);
-    
-    if (existsSync(absolutePath)) {
-      await unlink(absolutePath);
-      return true;
-    }
-  } catch (error) {
-    console.error('Error deleting file:', error);
-  }
-  return false;
-}
-
-// Delete multiple files
-async function deleteFiles(filePaths: string[]): Promise<void> {
-  for (const path of filePaths) {
-    await deleteUploadedFile(path);
-  }
-}
+import { deleteFiles, deleteUploadedFile } from '@/lib/fileUtils';
 
 export async function PUT(
   request: NextRequest,
