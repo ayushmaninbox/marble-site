@@ -71,12 +71,18 @@ export default function FloatingWhatsApp() {
     let message = "Hi! I'm interested in your marble and granite collection. Could you please share more details?";
     const currentUrl = typeof window !== 'undefined' ? window.location.href : '';
     
-    // Check if on a product or blog page to customize message
-    if (pathname.includes('/products/')) {
-      const name = productName || 'one of your products';
+    // Check if on a product detail page more precisely (avoid matching /products or /products/)
+    const isProductPage = pathname.match(/^\/products\/.+$/);
+    const isBlogPage = pathname.match(/^\/blogs\/.+$/);
+
+    if (isProductPage) {
+      // Try to get product name from state or fall back to document title (cleaning up site suffix)
+      const nameFromTitle = typeof document !== 'undefined' ? document.title.split(' | ')[0] : '';
+      const name = productName || nameFromTitle || 'one of your products';
       message = `Hi! I'm interested in "${name}". \n\nProduct Link: ${currentUrl}\n\nCould you please share the latest pricing and availability?`;
-    } else if (pathname.includes('/blogs/')) {
-      message = `Hi! I just read your blog post: ${currentUrl}\n\nI had some questions about your materials.`;
+    } else if (isBlogPage) {
+      const blogTitle = typeof document !== 'undefined' ? document.title.split(' | ')[0] : 'your blog post';
+      message = `Hi! I just read your blog post: "${blogTitle}"\n\nLink: ${currentUrl}\n\nI had some questions about your materials.`;
     }
 
     return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
