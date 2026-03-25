@@ -253,7 +253,7 @@ export default function QuoteModal({ isOpen, onClose }: QuoteModalProps) {
                                                 <option value="Marbles">Marbles</option>
                                                 <option value="Granite">Granite</option>
                                                 <option value="Tiles">Tiles</option>
-                                                <option value="Handicraft">Handicraft</option>
+                                                <option value="Handicrafts">Handicrafts</option>
                                             </select>
                                         </div>
                                         <div className="flex flex-col gap-1">

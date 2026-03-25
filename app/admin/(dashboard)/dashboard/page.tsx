@@ -91,7 +91,7 @@ export default function DashboardPage() {
   const categoryEnquiries = {
     Marbles: enquiries.filter(e => e.productCategory === 'Marbles').length,
     Tiles: enquiries.filter(e => e.productCategory === 'Tiles').length,
-    Handicraft: enquiries.filter(e => e.productCategory === 'Handicraft').length,
+    Handicrafts: enquiries.filter(e => e.productCategory === 'Handicrafts').length,
   };
   const maxCategoryEnquiries = Math.max(...Object.values(categoryEnquiries), 1);
 
@@ -500,21 +500,21 @@ export default function DashboardPage() {
               <span className="text-xs text-slate-400 mt-1.5 block">{categoryEnquiries.Tiles} enquiries</span>
             </div>
 
-            {/* Handicraft */}
+            {/* Handicrafts */}
             <div>
               <div className="flex items-center justify-between mb-2">
-                <span className="text-sm font-bold text-slate-700">Handicraft</span>
+                <span className="text-sm font-bold text-slate-700">Handicrafts</span>
                 <span className="text-sm font-bold text-orange-600">
-                  {((categoryEnquiries.Handicraft / (totalEnquiries || 1)) * 100).toFixed(0)}%
+                  {((categoryEnquiries.Handicrafts / (totalEnquiries || 1)) * 100).toFixed(0)}%
                 </span>
               </div>
               <div className="h-2 bg-stone-100 rounded-full overflow-hidden">
                 <div 
                   className="h-full bg-gradient-to-r from-orange-500 to-orange-400 rounded-full transition-all duration-500"
-                  style={{ width: `${(categoryEnquiries.Handicraft / (totalEnquiries || 1)) * 100}%` }}
+                  style={{ width: `${(categoryEnquiries.Handicrafts / (totalEnquiries || 1)) * 100}%` }}
                 />
               </div>
-              <span className="text-xs text-slate-400 mt-1.5 block">{categoryEnquiries.Handicraft} enquiries</span>
+              <span className="text-xs text-slate-400 mt-1.5 block">{categoryEnquiries.Handicrafts} enquiries</span>
             </div>
           </div>
         </div>

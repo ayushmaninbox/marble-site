@@ -689,7 +689,7 @@ export default function ProductsPage() {
                 <option value="Marbles">Marbles</option>
                 <option value="Granite">Granite</option>
                 <option value="Tiles">Tiles</option>
-                <option value="Handicraft">Handicraft</option>
+                <option value="Handicrafts">Handicrafts</option>
               </select>
             </div>
 
@@ -819,7 +819,7 @@ export default function ProductsPage() {
                     <option value="Marbles">Marbles</option>
                     <option value="Granite">Granite</option>
                     <option value="Tiles">Tiles</option>
-                    <option value="Handicraft">Handicraft</option>
+                    <option value="Handicrafts">Handicrafts</option>
                   </select>
                 </div>
               </div>

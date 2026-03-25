@@ -69,12 +69,14 @@ export default function FloatingWhatsApp() {
 
   const getWhatsAppUrl = () => {
     let message = "Hi! I'm interested in your marble and granite collection. Could you please share more details?";
+    const currentUrl = typeof window !== 'undefined' ? window.location.href : '';
     
     // Check if on a product or blog page to customize message
     if (pathname.includes('/products/')) {
-      message = `Hi! I'm interested in "${productName || 'one of your products'}". Could you please share the latest pricing and availability?`;
+      const name = productName || 'one of your products';
+      message = `Hi! I'm interested in "${name}". \n\nProduct Link: ${currentUrl}\n\nCould you please share the latest pricing and availability?`;
     } else if (pathname.includes('/blogs/')) {
-        message = "Hi! I just read your blog post and had some questions about your materials.";
+      message = `Hi! I just read your blog post: ${currentUrl}\n\nI had some questions about your materials.`;
     }
 
     return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;

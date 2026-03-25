@@ -76,7 +76,7 @@ export default function ProductForm({ product, onSubmit, onCancel }: ProductForm
           >
             <option value="Marbles">Marbles</option>
             <option value="Tiles">Tiles</option>
-            <option value="Handicraft">Handicraft</option>
+            <option value="Handicrafts">Handicrafts</option>
           </select>
         </div>
 

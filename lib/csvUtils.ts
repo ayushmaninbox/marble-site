@@ -56,7 +56,7 @@ const parseSpecifications = (specsValue: string | undefined): ProductSpecificati
 interface RawProductRow {
   id: string;
   name: string;
-  category: 'Marbles' | 'Tiles' | 'Handicraft' | 'Granite';
+  category: 'Marbles' | 'Tiles' | 'Handicrafts' | 'Granite';
   description: string;
   price: string;
   images?: string;
@@ -139,6 +139,7 @@ export const addProduct = (product: Omit<Product, 'id' | 'createdAt'>): Product 
     images: product.images || [],
     inStock: product.inStock !== false,
     id: crypto.randomUUID(),
+    displayOrder: products.length,
     createdAt: new Date().toISOString(),
   };
   products.push(newProduct);
@@ -180,8 +181,11 @@ export const deleteProducts = (ids: string[]): Product[] => {
 
 export const reorderProducts = (productId: string, newIndex: number): boolean => {
   const products = readProducts();
+  
+  // Sort products by displayOrder first to match the UI state
+  products.sort((a, b) => (a.displayOrder ?? 0) - (b.displayOrder ?? 0));
+  
   const currentIndex = products.findIndex(p => p.id === productId);
-
   if (currentIndex === -1 || newIndex < 0 || newIndex >= products.length) {
     return false;
   }
@@ -192,7 +196,7 @@ export const reorderProducts = (productId: string, newIndex: number): boolean =>
   // Insert at new position
   products.splice(newIndex, 0, movedProduct);
 
-  // Update displayOrder for all products
+  // Re-assign displayOrder for all products to ensure clean sequential indices
   products.forEach((product, index) => {
     product.displayOrder = index;
   });

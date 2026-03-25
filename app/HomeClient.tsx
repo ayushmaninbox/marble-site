@@ -174,7 +174,7 @@ export default function Home() {
     .sort((a, b) => (Number(b.isFeatured || 0) - Number(a.isFeatured || 0)));
   
   const handicraftProducts = products
-    .filter(p => p.category === 'Handicraft')
+    .filter(p => p.category === 'Handicrafts')
     .sort((a, b) => (Number(b.isFeatured || 0) - Number(a.isFeatured || 0)));
 
   // Auto-advance carousels (infinite loop - cycles through 2x length then resets)
@@ -693,7 +693,7 @@ export default function Home() {
             <div className="inline-block relative">
               <span className="absolute -top-3 -left-4 sm:-left-6 w-5 h-5 border-l-2 border-t-2 border-red-500" />
               <h2 className="text-2xl sm:text-4xl font-light tracking-wide text-slate-900 uppercase px-2">
-                Handicraft Collection
+                Handicrafts Collection
               </h2>
               <span className="absolute -bottom-3 -right-4 sm:-right-6 w-5 h-5 border-r-2 border-b-2 border-red-500" />
             </div>
@@ -1280,7 +1280,7 @@ export default function Home() {
                       >
                         <option value="Marbles">Marbles</option>
                         <option value="Tiles">Tiles</option>
-                        <option value="Handicraft">Handicraft</option>
+                        <option value="Handicrafts">Handicrafts</option>
                       </select>
                     </div>
                     <div className="flex flex-col gap-1">

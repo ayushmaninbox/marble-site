@@ -6,7 +6,7 @@ export interface ProductSpecification {
 export interface Product {
   id: string;
   name: string;
-  category: 'Marbles' | 'Tiles' | 'Handicraft' | 'Granite';
+  category: 'Marbles' | 'Tiles' | 'Handicrafts' | 'Granite';
   description?: string;
   price: string | number;
   images: string[]; // Array of up to 7 image URLs/paths
@@ -19,7 +19,7 @@ export interface Product {
   createdAt: string;
 }
 
-export type ProductCategory = 'Marbles' | 'Tiles' | 'Handicraft' | 'Granite';
+export type ProductCategory = 'Marbles' | 'Tiles' | 'Handicrafts' | 'Granite';
 
 export interface Enquiry {
   id: string;
@@ -27,7 +27,7 @@ export interface Enquiry {
   lastName: string;
   email: string;
   phone: string;
-  productCategory: 'Marbles' | 'Tiles' | 'Handicraft' | 'Granite';
+  productCategory: 'Marbles' | 'Tiles' | 'Handicrafts' | 'Granite';
   productName: string;
   quantity: number;
   message?: string;

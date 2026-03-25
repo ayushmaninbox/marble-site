@@ -7,7 +7,7 @@ interface ProductTabsProps {
   onTabChange: (tab: ProductCategory) => void;
 }
 
-const tabs: ProductCategory[] = ['Marbles', 'Tiles', 'Handicraft'];
+const tabs: ProductCategory[] = ['Marbles', 'Tiles', 'Handicrafts'];
 
 export default function ProductTabs({ activeTab, onTabChange }: ProductTabsProps) {
   return (

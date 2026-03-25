@@ -10,7 +10,7 @@ import SiteFooter from '@/components/SiteFooter';
 import QuoteModal from '@/components/QuoteModal';
 import { motion, AnimatePresence } from 'framer-motion';
 
-const FILTERS: Array<ProductCategory | 'All'> = ['All', 'Marbles', 'Tiles', 'Granite', 'Handicraft'];
+const FILTERS: Array<ProductCategory | 'All'> = ['All', 'Marbles', 'Tiles', 'Granite', 'Handicrafts'];
 
 export default function ProductsPage() {
   const searchParams = useSearchParams();
@@ -27,7 +27,7 @@ export default function ProductsPage() {
 
   useEffect(() => {
     const categoryParam = searchParams.get('category');
-    if (categoryParam && ['Marbles', 'Tiles', 'Granite', 'Handicraft', 'All'].includes(categoryParam)) {
+    if (categoryParam && ['Marbles', 'Tiles', 'Granite', 'Handicrafts', 'All'].includes(categoryParam)) {
       setSelected(categoryParam as ProductCategory | 'All');
     } else if (!categoryParam) {
       setSelected('All');
