@@ -71,15 +71,27 @@ export default function FloatingWhatsApp() {
     let message = "Hi! I'm interested in your marble and granite collection. Could you please share more details?";
     const currentUrl = typeof window !== 'undefined' ? window.location.href : '';
     
-    // Check if on a product detail page more precisely (avoid matching /products or /products/)
     const isProductPage = pathname.match(/^\/products\/.+$/);
     const isBlogPage = pathname.match(/^\/blogs\/.+$/);
 
     if (isProductPage) {
-      // Try to get product name from state or fall back to document title (cleaning up site suffix)
-      const nameFromTitle = typeof document !== 'undefined' ? document.title.split(' | ')[0] : '';
-      const name = productName || nameFromTitle || 'one of your products';
-      message = `Hi! I'm interested in "${name}". \n\nProduct Link: ${currentUrl}\n\nCould you please share the latest pricing and availability?`;
+      // 1. Try internal state
+      // 2. Try DOM query (most reliable during transitions)
+      // 3. Try document title
+      let name = productName;
+      if (!name && typeof document !== 'undefined') {
+        const h1 = (document.querySelector('h1[data-product-name]') as HTMLElement) || document.querySelector('h1');
+        if (h1 && h1.innerText) name = h1.innerText.trim();
+      }
+      if (!name && typeof document !== 'undefined') {
+        const titlePart = document.title.split(' | ')[0];
+        if (!titlePart.toLowerCase().includes('products')) {
+          name = titlePart;
+        }
+      }
+      
+      const finalName = name || 'one of your products';
+      message = `Hi! I'm interested in "${finalName}". \n\nProduct Link: ${currentUrl}\n\nCould you please share the latest pricing and availability?`;
     } else if (isBlogPage) {
       const blogTitle = typeof document !== 'undefined' ? document.title.split(' | ')[0] : 'your blog post';
       message = `Hi! I just read your blog post: "${blogTitle}"\n\nLink: ${currentUrl}\n\nI had some questions about your materials.`;

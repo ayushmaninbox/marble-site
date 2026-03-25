@@ -388,7 +388,10 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
                 <span className="text-red-600 text-xs font-bold tracking-widest uppercase mb-2 block">
                   {product.category}
                 </span>
-                <h1 className="text-3xl sm:text-4xl font-serif text-slate-900 mb-4">
+                <h1 
+                  data-product-name={product.name}
+                  className="text-3xl sm:text-4xl font-serif text-slate-900 mb-4"
+                >
                   {product.name}
                 </h1>
                 
