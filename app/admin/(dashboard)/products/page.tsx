@@ -119,7 +119,7 @@ export default function ProductsPage() {
 
   const fetchProducts = async () => {
     try {
-      const response = await fetch('/api/products');
+      const response = await fetch('/api/products', { cache: 'no-store' });
       const data = await response.json();
       setProducts(data);
     } catch (error) {
@@ -543,7 +543,7 @@ export default function ProductsPage() {
     const searchLower = productSearch.toLowerCase();
     const matchesSearch = product.name.toLowerCase().includes(searchLower) ||
       product.category.toLowerCase().includes(searchLower) ||
-      product.description.toLowerCase().includes(searchLower);
+      (product.description || '').toLowerCase().includes(searchLower);
     const matchesCategory = productFilterCategory === 'all' || product.category === productFilterCategory;
     const matchesStock = productFilterStock === 'all' || 
        (productFilterStock === 'in-stock' ? product.inStock : !product.inStock);

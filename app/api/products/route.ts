@@ -3,32 +3,12 @@ import { deleteProducts, readProducts, addProduct, reorderProducts } from '@/lib
 import { Product } from '@/lib/types';
 import { deleteFiles } from '@/lib/fileUtils';
 
-// Simple in-memory cache
-let cachedProducts: Product[] | null = null;
-let lastFetchTime = 0;
-const CACHE_DURATION = 60 * 1000; // 1 minute
-
-function getCachedProducts() {
-  const now = Date.now();
-  if (cachedProducts && (now - lastFetchTime < CACHE_DURATION)) {
-    return cachedProducts;
-  }
-  cachedProducts = readProducts();
-  lastFetchTime = now;
-  return cachedProducts;
-}
-
-function invalidateCache() {
-  cachedProducts = null;
-  lastFetchTime = 0;
-}
-
 export async function GET(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams;
     const category = searchParams.get('category');
     
-    let products = getCachedProducts();
+    let products = readProducts();
     
     if (category) {
       products = products.filter(p => p.category === category);
@@ -85,7 +65,6 @@ export async function POST(request: NextRequest) {
       inStock: inStock !== false,
     });
 
-    invalidateCache();
     
     return NextResponse.json(newProduct, { status: 201 });
   } catch (error) {
@@ -118,7 +97,6 @@ export async function PATCH(request: NextRequest) {
       );
     }
 
-    invalidateCache();
 
     return NextResponse.json({ success: true });
   } catch (error) {
@@ -155,7 +133,6 @@ export async function DELETE(request: NextRequest) {
       await deleteFiles(allFilesToDelete);
     }
 
-    invalidateCache();
 
     return NextResponse.json({ 
       message: `${deletedProducts.length} products deleted successfully`,
