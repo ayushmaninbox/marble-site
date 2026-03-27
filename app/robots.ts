@@ -7,6 +7,6 @@ export default function robots(): MetadataRoute.Robots {
       allow: '/',
       disallow: '/admin/',
     },
-    sitemap: 'https://shreeradhemarbles.in/sitemap.xml',
+    sitemap: 'https://www.shreeradhemarbles.in/sitemap.xml',
   }
 }

@@ -8,7 +8,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Shree Radhe Marble & Granite | Premium Stone Collection",
     description: "Agartala's premier destination for high-quality marbles, tiles, and granites. Transform your space with our exclusive collection.",
-    url: "https://shreeradhemarbles.in",
+    url: "https://www.shreeradhemarbles.in",
     siteName: "Shree Radhe Marble & Granite",
     images: [
       {

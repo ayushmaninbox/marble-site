@@ -3,7 +3,7 @@ import fs from 'fs'
 import path from 'path'
 import Papa from 'papaparse'
 
-const BASE_URL = 'https://shreeradhemarbles.in'
+const BASE_URL = 'https://www.shreeradhemarbles.in'
 
 interface BlogRow {
   slug: string

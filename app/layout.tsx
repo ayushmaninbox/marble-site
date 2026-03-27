@@ -9,7 +9,7 @@ const jost = Jost({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://shreeradhemarbles.in"),
+  metadataBase: new URL("https://www.shreeradhemarbles.in"),
   title: {
     default: "Shree Radhe Marble & Granite - Premium Marbles, Tiles & Handicrafts",
     template: "%s | Shree Radhe Marble & Granite",
@@ -28,9 +28,9 @@ const businessSchema = {
   "@context": "https://schema.org",
   "@type": "LocalBusiness",
   "name": "Shree Radhe Marble & Granite",
-  "image": "https://shreeradhemarbles.in/Assets/logo_new.png", 
-  "@id": "https://shreeradhemarbles.in/",
-  "url": "https://shreeradhemarbles.in/",
+  "image": "https://www.shreeradhemarbles.in/Assets/logo_new.png", 
+  "@id": "https://www.shreeradhemarbles.in/",
+  "url": "https://www.shreeradhemarbles.in/",
   "telephone": "+918794946566",
   "address": {
     "@type": "PostalAddress",
