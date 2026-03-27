@@ -8,6 +8,10 @@ const WHATSAPP_NUMBER = "918794946566";
 
 export default function FloatingWhatsApp() {
   const pathname = usePathname();
+
+  // Hide on admin pages
+  if (pathname?.startsWith('/admin')) return null;
+
   const [isVisible, setIsVisible] = useState(true); // Visible from start
   const [isForcedHidden, setIsForcedHidden] = useState(false); // For modal overlap
   const [showTooltip, setShowTooltip] = useState(false);
