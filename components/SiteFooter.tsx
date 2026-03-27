@@ -47,7 +47,7 @@ export default function SiteFooter({ setIsQuoteOpen }: SiteFooterProps) {
 
           {/* Quick Links */}
           <div>
-            <h4 className="text-base font-semibold text-white mb-5">Quick Links</h4>
+            <h3 className="text-base font-semibold text-white mb-5">Quick Links</h3>
             <ul className="space-y-3 text-sm text-slate-300">
               <li><Link href="/" className="hover:text-red-400 transition-colors">Home</Link></li>
               <li><Link href="/products" className="hover:text-red-400 transition-colors">Products</Link></li>
@@ -66,7 +66,7 @@ export default function SiteFooter({ setIsQuoteOpen }: SiteFooterProps) {
 
           {/* Products */}
           <div>
-            <h4 className="text-base font-semibold text-white mb-5">Products</h4>
+            <h3 className="text-base font-semibold text-white mb-5">Products</h3>
             <ul className="space-y-3 text-sm text-slate-300">
               <li><Link href="/products?category=Marbles" className="hover:text-red-400 transition-colors">Marbles</Link></li>
               <li><Link href="/products?category=Granite" className="hover:text-red-400 transition-colors">Granite</Link></li>
@@ -78,7 +78,7 @@ export default function SiteFooter({ setIsQuoteOpen }: SiteFooterProps) {
 
           {/* Contact */}
           <div>
-            <h4 className="text-base font-semibold text-white mb-5">Contact Us</h4>
+            <h3 className="text-base font-semibold text-white mb-5">Contact Us</h3>
             <ul className="space-y-4 text-sm text-slate-300">
               <li className="flex items-start gap-3">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5 text-white flex-shrink-0 mt-0.5">

@@ -372,6 +372,7 @@ export default function Home() {
                   onClick={() => {
                     setMarbleIndex((prev: number) => (prev - 1 + marbleProducts.length * 2) % (marbleProducts.length * 2));
                   }}
+                  aria-label="Previous Marble"
                   className="w-10 h-10 rounded-full border border-slate-300 flex items-center justify-center text-slate-500 hover:border-red-500 hover:text-red-500 transition-colors"
                 >
                   ←
@@ -380,6 +381,7 @@ export default function Home() {
                   onClick={() => {
                     setMarbleIndex((prev: number) => (prev + 1) % (marbleProducts.length * 2));
                   }}
+                  aria-label="Next Marble"
                   className="w-10 h-10 rounded-full border border-slate-300 flex items-center justify-center text-slate-500 hover:border-red-500 hover:text-red-500 transition-colors"
                 >
                   →
@@ -436,7 +438,7 @@ export default function Home() {
                           </div>
                         </Link>
                         <div className="mt-4 space-y-1.5 px-1">
-                          <h4 className="text-base font-semibold text-slate-900 truncate group-hover:text-red-600 transition-colors duration-200">{product.name}</h4>
+                          <h3 className="text-base font-semibold text-slate-900 truncate group-hover:text-red-600 transition-colors duration-200">{product.name}</h3>
                           <p className="text-xs text-slate-500 line-clamp-2 leading-relaxed">{product.description || ''}</p>
                           <div className="flex items-center justify-between pt-2">
                             <span className="text-lg font-bold text-slate-900">{product.price === 'Price on Request' ? 'Price on Request' : `₹${Number(product.price).toLocaleString()}`}</span>
@@ -521,7 +523,7 @@ export default function Home() {
                           </div>
                         </Link>
                         <div className="mt-4 space-y-1.5 px-1">
-                          <h4 className="text-base font-semibold text-slate-900 truncate group-hover:text-red-600 transition-colors duration-200">{product.name}</h4>
+                          <h3 className="text-base font-semibold text-slate-900 truncate group-hover:text-red-600 transition-colors duration-200">{product.name}</h3>
                           <p className="text-xs text-slate-500 line-clamp-2 leading-relaxed">{product.description || ''}</p>
                           <div className="flex items-center justify-between pt-2">
                             <span className="text-lg font-bold text-slate-900">{product.price === 'Price on Request' ? 'Price on Request' : `₹${Number(product.price).toLocaleString()}`}</span>
@@ -554,6 +556,7 @@ export default function Home() {
                   onClick={() => {
                     setTilesIndex((prev: number) => (prev - 1 + tilesProducts.length * 2) % (tilesProducts.length * 2));
                   }}
+                  aria-label="Previous Tiles"
                   className="w-10 h-10 rounded-full border border-slate-300 flex items-center justify-center text-slate-500 hover:border-red-500 hover:text-red-500 transition-colors"
                 >
                   ←
@@ -562,6 +565,7 @@ export default function Home() {
                   onClick={() => {
                     setTilesIndex((prev: number) => (prev + 1) % (tilesProducts.length * 2));
                   }}
+                  aria-label="Next Tiles"
                   className="w-10 h-10 rounded-full border border-slate-300 flex items-center justify-center text-slate-500 hover:border-red-500 hover:text-red-500 transition-colors"
                 >
                   →
@@ -600,6 +604,7 @@ export default function Home() {
                   onClick={() => {
                     setGraniteIndex((prev: number) => (prev - 1 + graniteProducts.length * 2) % (graniteProducts.length * 2));
                   }}
+                  aria-label="Previous Granite"
                   className="w-10 h-10 rounded-full border border-slate-300 flex items-center justify-center text-slate-500 hover:border-red-500 hover:text-red-500 transition-colors"
                 >
                   ←
@@ -608,6 +613,7 @@ export default function Home() {
                   onClick={() => {
                     setGraniteIndex((prev: number) => (prev + 1) % (graniteProducts.length * 2));
                   }}
+                  aria-label="Next Granite"
                   className="w-10 h-10 rounded-full border border-slate-300 flex items-center justify-center text-slate-500 hover:border-red-500 hover:text-red-500 transition-colors"
                 >
                   →
@@ -665,7 +671,7 @@ export default function Home() {
                           </div>
                         </Link>
                         <div className="mt-4 space-y-1.5 px-1">
-                          <h4 className="text-base font-semibold text-slate-900 truncate group-hover:text-red-600 transition-colors duration-200">{product.name}</h4>
+                          <h3 className="text-base font-semibold text-slate-900 truncate group-hover:text-red-600 transition-colors duration-200">{product.name}</h3>
                           <p className="text-xs text-slate-500 line-clamp-2 leading-relaxed">{product.description || ''}</p>
                           <div className="flex items-center justify-between pt-2">
                             <span className="text-lg font-bold text-slate-900">{product.price === 'Price on Request' ? 'Price on Request' : `₹${Number(product.price).toLocaleString()}`}</span>
@@ -750,7 +756,7 @@ export default function Home() {
                           </div>
                         </Link>
                         <div className="mt-4 space-y-1.5 px-1">
-                          <h4 className="text-base font-semibold text-slate-900 truncate group-hover:text-red-600 transition-colors duration-200">{product.name}</h4>
+                          <h3 className="text-base font-semibold text-slate-900 truncate group-hover:text-red-600 transition-colors duration-200">{product.name}</h3>
                           <p className="text-xs text-slate-500 line-clamp-2 leading-relaxed">{product.description || ''}</p>
                           <div className="flex items-center justify-between pt-2">
                             <span className="text-lg font-bold text-slate-900">{product.price === 'Price on Request' ? 'Price on Request' : `₹${Number(product.price).toLocaleString()}`}</span>
@@ -783,6 +789,7 @@ export default function Home() {
                   onClick={() => {
                     setHandicraftIndex((prev: number) => (prev - 1 + handicraftProducts.length * 2) % (handicraftProducts.length * 2));
                   }}
+                  aria-label="Previous Handicraft"
                   className="w-10 h-10 rounded-full border border-slate-300 flex items-center justify-center text-slate-500 hover:border-red-500 hover:text-red-500 transition-colors"
                 >
                   ←
@@ -791,6 +798,7 @@ export default function Home() {
                   onClick={() => {
                     setHandicraftIndex((prev: number) => (prev + 1) % (handicraftProducts.length * 2));
                   }}
+                  aria-label="Next Handicraft"
                   className="w-10 h-10 rounded-full border border-slate-300 flex items-center justify-center text-slate-500 hover:border-red-500 hover:text-red-500 transition-colors"
                 >
                   →
@@ -975,6 +983,7 @@ export default function Home() {
                   <button
                     key={i}
                     onClick={() => setTestimonialIndex(i)}
+                    aria-label={`Go to testimonial ${i + 1}`}
                     className={`h-1.5 rounded-full transition-all ${testimonialIndex === i ? 'w-6 bg-red-600' : 'w-1.5 bg-stone-300'}`}
                   />
                 ))}

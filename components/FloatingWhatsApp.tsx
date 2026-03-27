@@ -127,6 +127,7 @@ export default function FloatingWhatsApp() {
             href={getWhatsAppUrl()}
             target="_blank"
             rel="noopener noreferrer"
+            aria-label="Chat on WhatsApp"
             initial={{ opacity: 0, scale: 0.5, y: 50 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.5, y: 50 }}
