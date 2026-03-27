@@ -20,6 +20,21 @@ const nextConfig: NextConfig = {
   experimental: {
     scrollRestoration: false,
   },
+  async redirects() {
+    return [
+      {
+        source: '/:path*',
+        has: [
+          {
+            type: 'host',
+            value: 'shreeradhemarbles.in',
+          },
+        ],
+        destination: 'https://www.shreeradhemarbles.in/:path*',
+        permanent: true,
+      },
+    ];
+  },
 };
 
 export default nextConfig;
