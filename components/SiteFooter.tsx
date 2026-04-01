@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { motion } from 'framer-motion';
+import { Facebook, Instagram, Youtube } from 'lucide-react';
 
 interface SiteFooterProps {
   setIsQuoteOpen: (isOpen: boolean) => void;
@@ -43,6 +44,35 @@ export default function SiteFooter({ setIsQuoteOpen }: SiteFooterProps) {
             <p className="text-sm text-slate-300 leading-relaxed">
               Premium marble, granite, and tiles for residential and commercial projects. Trusted by architects and designers since 2004.
             </p>
+            <div className="flex items-center gap-4 pt-2">
+              <a 
+                href="https://www.facebook.com/sriradhemarblegranite" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center text-slate-400 hover:bg-red-600 hover:text-white transition-all duration-300"
+                aria-label="Facebook"
+              >
+                <Facebook size={18} />
+              </a>
+              <a 
+                href="https://www.instagram.com/shree_radhe_marble/" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center text-slate-400 hover:bg-red-600 hover:text-white transition-all duration-300"
+                aria-label="Instagram"
+              >
+                <Instagram size={18} />
+              </a>
+              <a 
+                href="https://www.youtube.com/@Shree_Radhe_Marble" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center text-slate-400 hover:bg-red-600 hover:text-white transition-all duration-300"
+                aria-label="YouTube"
+              >
+                <Youtube size={18} />
+              </a>
+            </div>
           </div>
 
           {/* Quick Links */}
@@ -80,11 +110,18 @@ export default function SiteFooter({ setIsQuoteOpen }: SiteFooterProps) {
           <div>
             <h3 className="text-base font-semibold text-white mb-5">Contact Us</h3>
             <ul className="space-y-4 text-sm text-slate-300">
-              <li className="flex items-start gap-3">
+              <li className="flex items-start gap-3 group">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5 text-white flex-shrink-0 mt-0.5">
                   <path fillRule="evenodd" d="M11.54 22.351l.07.04.028.016a.76.76 0 00.723 0l.028-.015.071-.041a16.975 16.975 0 001.144-.742 19.58 19.58 0 002.683-2.282c1.944-1.99 3.963-4.98 3.963-8.827a8.25 8.25 0 00-16.5 0c0 3.846 2.02 6.837 3.963 8.827a19.58 19.58 0 002.682 2.282 16.975 16.975 0 001.145.742zM12 13.5a3 3 0 100-6 3 3 0 000 6z" clipRule="evenodd" />
                 </svg>
-                <span>Godown: AA Road,<br />Kashipur Bazar, Agartala-799008</span>
+                <a 
+                  href="https://www.google.com/maps/search/?api=1&query=Shree+Radhe+Marble+AA+Road+Kashipur+Bazar+Agartala+799008"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:text-red-400 transition-colors"
+                >
+                  Godown: AA Road,<br />Kashipur Bazar, Agartala-799008
+                </a>
               </li>
               <li className="flex items-center gap-3">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5 text-white flex-shrink-0">
@@ -122,7 +159,6 @@ export default function SiteFooter({ setIsQuoteOpen }: SiteFooterProps) {
           <p className="text-sm text-slate-400">
             © 2026 Shree Radhe Marble &amp; Granite. All rights reserved.
           </p>
-
         </div>
       </div>
     </footer>

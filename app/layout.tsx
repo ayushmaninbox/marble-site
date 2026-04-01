@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Jost } from "next/font/google";
+import Script from "next/script";
 import "./globals.css";
 
 const jost = Jost({
@@ -58,7 +59,11 @@ const businessSchema = {
     "opens": "09:00",
     "closes": "19:00"
   },
-  "sameAs": [] // Add social media links here
+  "sameAs": [
+    "https://www.facebook.com/sriradhemarblegranite",
+    "https://www.instagram.com/shree_radhe_marble/",
+    "https://www.youtube.com/@Shree_Radhe_Marble"
+  ]
 };
 
 export default function RootLayout({
@@ -69,6 +74,19 @@ export default function RootLayout({
   return (
     <html lang="en" className="scroll-smooth">
       <body className={`${jost.variable} antialiased`}>
+        {/* Google Analytics Tracking */}
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=G-CNF8P8CVB6"
+          strategy="afterInteractive"
+        />
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-CNF8P8CVB6');
+          `}
+        </Script>
         <SchemaMarkup schema={businessSchema} />
         {children}
         <FloatingWhatsApp />
