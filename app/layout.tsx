@@ -20,6 +20,9 @@ export const metadata: Metadata = {
   alternates: {
     canonical: "/",
   },
+  verification: {
+    google: "LsDpDVFdEsApcd2nM82535OtI0fbzrXsutcWAsaEKiQ",
+  },
 };
 
 import FloatingWhatsApp from "@/components/FloatingWhatsApp";
