@@ -266,10 +266,10 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
                     fill
                     style={{
                       transformOrigin: `${mousePosition.x}% ${mousePosition.y}%`,
-                      transform: isHovering ? 'scale(2)' : 'scale(1)',
+                      transform: isHovering && product.category !== 'Handicrafts' ? 'scale(2)' : 'scale(1)',
                     }}
                     containerClassName="hidden md:block"
-                    className="object-cover transition-transform duration-200 ease-out"
+                    className={`${product.category === 'Handicrafts' ? 'object-contain p-4' : 'object-cover'} transition-transform duration-200 ease-out`}
                     priority
                   />
                   {/* Mobile Image (No Zoom) */}
@@ -278,7 +278,7 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
                     alt={product.name}
                     fill
                     containerClassName="md:hidden"
-                    className="object-cover"
+                    className={product.category === 'Handicrafts' ? 'object-contain p-2' : 'object-cover'}
                     priority
                   />
                 </>
@@ -349,7 +349,7 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
                           src={item}
                           alt={`${product.name} - Image ${index + 1}`}
                           fill
-                          className="object-cover"
+                          className={product.category === 'Handicrafts' ? 'object-contain p-1' : 'object-cover'}
                         />
                       )}
                     </button>
