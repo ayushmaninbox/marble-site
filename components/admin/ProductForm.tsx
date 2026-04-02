@@ -5,7 +5,7 @@ import { Product, ProductCategory } from '@/lib/types';
 
 interface ProductFormProps {
   product?: Product;
-  onSubmit: (data: Omit<Product, 'id' | 'createdAt'>) => void;
+  onSubmit: (data: Omit<Product, 'id' | 'createdAt' | 'slug'> & { slug?: string }) => void;
   onCancel: () => void;
 }
 
