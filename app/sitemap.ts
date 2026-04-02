@@ -65,7 +65,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
       productRoutes = parsed.data
         .filter(product => product.id) // Ensure ID exists
         .map((product) => ({
-          url: `${BASE_URL}/products/${product.id}`,
+          url: `${BASE_URL}/products/${product.slug}`,
           lastModified: product.createdAt ? new Date(product.createdAt) : new Date(),
           changeFrequency: 'daily' as const, // Products might change more often (stock/price)
           priority: 0.9,

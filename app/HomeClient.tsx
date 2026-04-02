@@ -422,7 +422,7 @@ export default function Home() {
                         className="flex-shrink-0 group cursor-pointer transition-all duration-300 hover:-translate-y-3"
                         style={{ width: '280px' }}
                       >
-                        <Link href={`/products/${product.id}`}>
+                        <Link href={`/products/${product.slug}`}>
                           <div className="relative overflow-hidden rounded-2xl aspect-[3/4] shadow-md transition-shadow duration-300 group-hover:shadow-2xl group-hover:shadow-slate-400/30">
                             {product.images && product.images.length > 0 ? (
                               <ProgressiveImage
@@ -443,7 +443,7 @@ export default function Home() {
                           <div className="flex items-center justify-between pt-2">
                             <span className="text-lg font-bold text-slate-900">{product.price === 'Price on Request' ? 'Price on Request' : `₹${Number(product.price).toLocaleString()}`}</span>
                             <Link
-                              href={`/products/${product.id}`}
+                              href={`/products/${product.slug}`}
                               className="px-4 py-2 text-xs font-medium border border-slate-200 rounded-full transition-all duration-200 hover:border-red-500 hover:text-red-500 hover:bg-red-50"
                             >
                               View Details
@@ -507,7 +507,7 @@ export default function Home() {
                         className="flex-shrink-0 group cursor-pointer transition-all duration-300 hover:-translate-y-3"
                         style={{ width: '280px' }}
                       >
-                        <Link href={`/products/${product.id}`}>
+                        <Link href={`/products/${product.slug}`}>
                           <div className="relative overflow-hidden rounded-2xl aspect-[3/4] shadow-md transition-shadow duration-300 group-hover:shadow-2xl group-hover:shadow-slate-400/30">
                             {product.images && product.images.length > 0 ? (
                               <ProgressiveImage
@@ -528,7 +528,7 @@ export default function Home() {
                           <div className="flex items-center justify-between pt-2">
                             <span className="text-lg font-bold text-slate-900">{product.price === 'Price on Request' ? 'Price on Request' : `₹${Number(product.price).toLocaleString()}`}</span>
                             <Link
-                              href={`/products/${product.id}`}
+                              href={`/products/${product.slug}`}
                               className="px-4 py-2 text-xs font-medium border border-slate-200 rounded-full transition-all duration-200 hover:border-red-500 hover:text-red-500 hover:bg-red-50"
                             >
                               View Details
@@ -655,7 +655,7 @@ export default function Home() {
                         className="flex-shrink-0 group cursor-pointer transition-all duration-300 hover:-translate-y-3"
                         style={{ width: '280px' }}
                       >
-                        <Link href={`/products/${product.id}`}>
+                        <Link href={`/products/${product.slug}`}>
                           <div className="relative overflow-hidden rounded-2xl aspect-[3/4] shadow-md transition-shadow duration-300 group-hover:shadow-2xl group-hover:shadow-slate-400/30">
                             {product.images && product.images.length > 0 ? (
                               <ProgressiveImage
@@ -676,7 +676,7 @@ export default function Home() {
                           <div className="flex items-center justify-between pt-2">
                             <span className="text-lg font-bold text-slate-900">{product.price === 'Price on Request' ? 'Price on Request' : `₹${Number(product.price).toLocaleString()}`}</span>
                             <Link
-                              href={`/products/${product.id}`}
+                              href={`/products/${product.slug}`}
                               className="px-4 py-2 text-xs font-medium border border-slate-200 rounded-full transition-all duration-200 hover:border-red-500 hover:text-red-500 hover:bg-red-50"
                             >
                               View Details
@@ -740,7 +740,7 @@ export default function Home() {
                         className="flex-shrink-0 group cursor-pointer transition-all duration-300 hover:-translate-y-3"
                         style={{ width: '280px' }}
                       >
-                        <Link href={`/products/${product.id}`}>
+                        <Link href={`/products/${product.slug}`}>
                           <div className="relative overflow-hidden rounded-2xl aspect-[3/4] shadow-md transition-shadow duration-300 group-hover:shadow-2xl group-hover:shadow-slate-400/30">
                             {product.images && product.images.length > 0 ? (
                               <ProgressiveImage
@@ -761,7 +761,7 @@ export default function Home() {
                           <div className="flex items-center justify-between pt-2">
                             <span className="text-lg font-bold text-slate-900">{product.price === 'Price on Request' ? 'Price on Request' : `₹${Number(product.price).toLocaleString()}`}</span>
                             <Link
-                              href={`/products/${product.id}`}
+                              href={`/products/${product.slug}`}
                               className="px-4 py-2 text-xs font-medium border border-slate-200 rounded-full transition-all duration-200 hover:border-red-500 hover:text-red-500 hover:bg-red-50"
                             >
                               View Details

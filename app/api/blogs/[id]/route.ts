@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { findBlogById, updateBlog, deleteBlog, generateSlug } from '@/lib/blogUtils';
+import { findBlogById, updateBlog, deleteBlog } from '@/lib/blogUtils';
+import { generateSlug } from '@/lib/utils';
 import { extractImageUrls, deleteImageFiles } from '@/lib/imageCleanup';
 
 // GET: Get single blog by ID

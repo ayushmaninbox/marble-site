@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import Papa from 'papaparse';
 import { Product, ProductSpecification } from './types';
+import { generateSlug } from './utils';
 
 const CSV_FILE_PATH = path.join(process.cwd(), 'data', 'products.csv');
 
@@ -17,7 +18,7 @@ const ensureDataDirectory = () => {
 const initializeCsvFile = () => {
   ensureDataDirectory();
   if (!fs.existsSync(CSV_FILE_PATH)) {
-    const headers = 'id,name,category,description,price,images,video,specifications,inStock,isFeatured,displayOrder,createdAt\n';
+    const headers = 'id,name,slug,category,description,price,images,video,specifications,inStock,isFeatured,displayOrder,createdAt\n';
     fs.writeFileSync(CSV_FILE_PATH, headers, 'utf-8');
   }
 };
@@ -56,6 +57,7 @@ const parseSpecifications = (specsValue: string | undefined): ProductSpecificati
 interface RawProductRow {
   id: string;
   name: string;
+  slug?: string;
   category: 'Marbles' | 'Tiles' | 'Handicrafts' | 'Granite';
   description: string;
   price: string;
@@ -83,6 +85,7 @@ export const readProducts = (): Product[] => {
     return parsed.data.map(row => ({
       id: row.id,
       name: row.name,
+      slug: row.slug || generateSlug(row.name),
       category: row.category,
       description: row.description,
       price: row.price || '',
@@ -108,6 +111,7 @@ export const writeProducts = (products: Product[]): void => {
     const csvData = products.map(p => ({
       id: p.id,
       name: p.name,
+      slug: p.slug || generateSlug(p.name),
       category: p.category,
       description: p.description,
       price: p.price,
@@ -122,7 +126,7 @@ export const writeProducts = (products: Product[]): void => {
 
     const csv = Papa.unparse(csvData, {
       header: true,
-      columns: ['id', 'name', 'category', 'description', 'price', 'images', 'video', 'specifications', 'inStock', 'isFeatured', 'displayOrder', 'createdAt'],
+      columns: ['id', 'name', 'slug', 'category', 'description', 'price', 'images', 'video', 'specifications', 'inStock', 'isFeatured', 'displayOrder', 'createdAt'],
       quotes: true,
     });
     fs.writeFileSync(CSV_FILE_PATH, csv, 'utf-8');
@@ -136,6 +140,7 @@ export const addProduct = (product: Omit<Product, 'id' | 'createdAt'>): Product 
   const products = readProducts();
   const newProduct: Product = {
     ...product,
+    slug: generateSlug(product.name),
     images: product.images || [],
     inStock: product.inStock !== false,
     id: crypto.randomUUID(),
@@ -153,7 +158,14 @@ export const updateProduct = (id: string, updates: Partial<Product>): Product | 
 
   if (index === -1) return null;
 
-  products[index] = { ...products[index], ...updates };
+  const updatedProduct = { ...products[index], ...updates };
+  
+  // If name changed, update the slug as well
+  if (updates.name && updates.name !== products[index].name) {
+    updatedProduct.slug = generateSlug(updates.name);
+  }
+
+  products[index] = updatedProduct;
   writeProducts(products);
   return products[index];
 };

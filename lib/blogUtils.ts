@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import Papa from 'papaparse';
 import { Blog, BlogComment } from './types';
+import { generateSlug } from './utils';
 
 const BLOGS_CSV_PATH = path.join(process.cwd(), 'data', 'blogs.csv');
 
@@ -13,13 +14,6 @@ const ensureDataDirectory = () => {
   }
 };
 
-// Generate URL-friendly slug from title
-export const generateSlug = (title: string): string => {
-  return title
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/(^-|-$)/g, '');
-};
 
 interface RawBlogRow {
   id: string;
@@ -142,6 +136,7 @@ export const addBlog = (data: Omit<Blog, 'id' | 'likes' | 'comments' | 'createdA
   const newBlog: Blog = {
     id: crypto.randomUUID(),
     ...data,
+    slug: data.slug || generateSlug(data.title),
     likes: 0,
     comments: [],
     createdAt: new Date().toISOString(),
@@ -159,11 +154,18 @@ export const updateBlog = (id: string, updates: Partial<Omit<Blog, 'id' | 'creat
 
   if (index === -1) return null;
 
-  blogs[index] = { 
+  const updatedBlog = { 
     ...blogs[index], 
     ...updates, 
     updatedAt: new Date().toISOString() 
   };
+
+  // If title changed, update the slug as well
+  if (updates.title && updates.title !== blogs[index].title) {
+    updatedBlog.slug = generateSlug(updates.title);
+  }
+
+  blogs[index] = updatedBlog;
   writeBlogs(blogs);
   return blogs[index];
 };

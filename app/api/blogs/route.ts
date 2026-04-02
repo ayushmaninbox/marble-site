@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { readBlogs, addBlog, generateSlug } from '@/lib/blogUtils';
+import { readBlogs, addBlog } from '@/lib/blogUtils';
+import { generateSlug } from '@/lib/utils';
 
 // GET: List all blogs
 export async function GET() {

@@ -6,6 +6,7 @@ export interface ProductSpecification {
 export interface Product {
   id: string;
   name: string;
+  slug: string;
   category: 'Marbles' | 'Tiles' | 'Handicrafts' | 'Granite';
   description?: string;
   price: string | number;

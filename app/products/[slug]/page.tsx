@@ -4,13 +4,13 @@ import { readProducts } from '@/lib/csvUtils';
 import ProductDetailClient from './ProductDetailClient';
 
 interface Props {
-  params: Promise<{ id: string }>;
+  params: Promise<{ slug: string }>;
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { id } = await params;
+  const { slug } = await params;
   const products = readProducts();
-  const product = products.find(p => p.id === id);
+  const product = products.find(p => p.slug === slug);
   
   if (!product) {
     return {
@@ -39,9 +39,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function ProductPage({ params }: Props) {
-  const { id } = await params;
+  const { slug } = await params;
   const products = readProducts();
-  const product = products.find(p => p.id === id);
+  const product = products.find(p => p.slug === slug);
   
   if (!product) {
     return (
