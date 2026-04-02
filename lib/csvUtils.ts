@@ -136,7 +136,7 @@ export const writeProducts = (products: Product[]): void => {
   }
 };
 
-export const addProduct = (product: Omit<Product, 'id' | 'createdAt'>): Product => {
+export const addProduct = (product: Omit<Product, 'id' | 'createdAt' | 'slug'> & { slug?: string }): Product => {
   const products = readProducts();
   const newProduct: Product = {
     ...product,

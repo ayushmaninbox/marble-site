@@ -130,7 +130,7 @@ export const findBlogBySlug = (slug: string): Blog | undefined => {
   return blogs.find(b => b.slug === slug);
 };
 
-export const addBlog = (data: Omit<Blog, 'id' | 'likes' | 'comments' | 'createdAt' | 'updatedAt'>): Blog => {
+export const addBlog = (data: Omit<Blog, 'id' | 'likes' | 'comments' | 'createdAt' | 'updatedAt' | 'slug'> & { slug?: string }): Blog => {
   const blogs = readBlogs();
   
   const newBlog: Blog = {
