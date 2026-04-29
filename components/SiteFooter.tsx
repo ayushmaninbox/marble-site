@@ -128,12 +128,12 @@ export default function SiteFooter({ setIsQuoteOpen }: SiteFooterProps) {
                   <path fillRule="evenodd" d="M1.5 4.5a3 3 0 013-3h1.372c.86 0 1.61.586 1.819 1.42l1.105 4.423a1.875 1.875 0 01-.694 1.955l-1.293.97c-.135.101-.164.249-.126.352a11.285 11.285 0 006.697 6.697c.103.038.25.009.352-.126l.97-1.293a1.875 1.875 0 011.955-.694l4.423 1.105c.834.209 1.42.959 1.42 1.82V19.5a3 3 0 01-3 3h-2.25C8.552 22.5 1.5 15.448 1.5 5.25V4.5z" clipRule="evenodd" />
                 </svg>
                 <a
-                  href="https://wa.me/918794946566?text=Hi!%20I%27m%20interested%20in%20your%20marble%20and%20granite%20collection.%20Could%20you%20please%20share%20more%20details%3F"
+                  href="https://wa.me/919830123779?text=Hi!%20I%27m%20interested%20in%20your%20marble%20and%20granite%20collection.%20Could%20you%20please%20share%20more%20details%3F"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="hover:text-red-400 transition-colors"
                 >
-                  +91 8794946566
+                  +91 9830123779
                 </a>
               </li>
               <li className="flex items-center gap-3">
@@ -142,12 +142,12 @@ export default function SiteFooter({ setIsQuoteOpen }: SiteFooterProps) {
                   <path d="M22.5 6.908V6.75a3 3 0 00-3-3h-15a3 3 0 00-3 3v.158l9.714 5.978a1.5 1.5 0 001.572 0L22.5 6.908z" />
                 </svg>
                 <a
-                  href="https://mail.google.com/mail/?view=cm&fs=1&to=shreeradhesr@gmail.com"
+                  href="https://mail.google.com/mail/?view=cm&fs=1&to=shreeradhesr2018@gmail.com"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="hover:text-red-400 transition-colors"
                 >
-                  shreeradhesr@gmail.com
+                  shreeradhesr2018@gmail.com
                 </a>
               </li>
             </ul>

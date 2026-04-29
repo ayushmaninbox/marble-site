@@ -35,7 +35,7 @@ const businessSchema = {
   "image": "https://www.shreeradhemarbles.in/Assets/logo_new.png", 
   "@id": "https://www.shreeradhemarbles.in/",
   "url": "https://www.shreeradhemarbles.in/",
-  "telephone": "+918794946566",
+  "telephone": "+919830123779",
   "address": {
     "@type": "PostalAddress",
     "streetAddress": "AA Road, Kashipur Bazar",

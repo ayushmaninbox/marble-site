@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 
-const WHATSAPP_NUMBER = "918794946566";
+const WHATSAPP_NUMBER = "919830123779";
 
 export default function FloatingWhatsApp() {
   const pathname = usePathname();
