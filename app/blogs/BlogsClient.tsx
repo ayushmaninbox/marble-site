@@ -210,19 +210,34 @@ export default function BlogsPage() {
                       </button>
 
                       <div className="flex items-center gap-1">
-                        {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                          <button
-                            key={page}
-                            onClick={() => handlePageChange(page)}
-                            className={`w-10 h-10 rounded-full text-sm font-medium transition-all ${
-                              currentPage === page
-                                ? 'bg-red-600 text-white shadow-md shadow-red-200'
-                                : 'text-slate-600 hover:bg-slate-50'
-                            }`}
-                          >
-                            {page}
-                          </button>
-                        ))}
+                        {(() => {
+                          const maxVisible = 5;
+                          let start = 1;
+                          let end = totalPages;
+
+                          if (totalPages > maxVisible) {
+                            start = Math.max(1, currentPage - 4);
+                            end = Math.min(totalPages, start + maxVisible - 1);
+
+                            if (end === totalPages) {
+                              start = Math.max(1, end - maxVisible + 1);
+                            }
+                          }
+
+                          return Array.from({ length: end - start + 1 }, (_, i) => start + i).map((page) => (
+                            <button
+                              key={page}
+                              onClick={() => handlePageChange(page)}
+                              className={`w-10 h-10 rounded-full text-sm font-medium transition-all ${
+                                currentPage === page
+                                  ? 'bg-red-600 text-white shadow-md shadow-red-200'
+                                  : 'text-slate-600 hover:bg-slate-50'
+                              }`}
+                            >
+                              {page}
+                            </button>
+                          ));
+                        })()}
                       </div>
 
                       <button
